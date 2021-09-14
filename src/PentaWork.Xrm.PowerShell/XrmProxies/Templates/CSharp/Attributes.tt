@@ -1,0 +1,17 @@
+﻿using System;
+
+namespace <#= ProxyNamespace #>
+{
+    public class LabelAttribute : Attribute
+    {
+        public LabelAttribute(string label)
+        {
+            Label = label;
+        }
+        public string Label { get; }
+    }
+}
+
+<#+
+public string ProxyNamespace { get; set; }
+#>

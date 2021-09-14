@@ -1,0 +1,214 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="Microsoft.Xrm.Sdk.Metadata" #>
+<#@ import namespace="PentaWork.Xrm.PowerShell.XrmProxies.Model" #>
+using System;
+using System.Linq;
+using System.Diagnostics;
+using System.ComponentModel;
+using Microsoft.Xrm.Sdk; 
+using Microsoft.Xrm.Sdk.Client;
+using System.Collections.Generic;
+
+namespace <#= ProxyNamespace #>.Entities
+{
+<#	if(EntityInfo.PrimaryNameAttribute != null) { #>
+	[DebuggerDisplay("{<#= EntityInfo.PrimaryNameAttribute.UniqueDisplayName #>}")] <# }
+#>	
+	[EntityLogicalName("<#= EntityInfo.LogicalName #>")]
+	public sealed class <#= EntityInfo.UniqueDisplayName #> : Entity
+	{	
+		public new const string LogicalName = "<#= EntityInfo.LogicalName #>";
+		public const string PrimaryIdAttribute = "<#= EntityInfo.PrimaryIdAttribute.LogicalName #>";
+		public const string PrimaryNameAttribute = "<#= EntityInfo.PrimaryNameAttribute != null ? EntityInfo.PrimaryNameAttribute.LogicalName : string.Empty #>";
+	
+		public <#= EntityInfo.UniqueDisplayName #>() : base("<#= EntityInfo.LogicalName #>") { }
+
+		#region Attributes
+<#		foreach(var attribute in EntityInfo.AttributeList)
+		{
+			var attType = attribute.AttributeType;
+            switch (attType)
+            { 				
+				case AttributeTypeCode.Money: #>
+		/// <summary>
+        /// <#= attribute.LogicalName #>
+        /// </summary>
+		[DisplayName("<#= attribute.AttributeMetadata.DisplayName.GetLabel(attribute.AttributeMetadata.LogicalName) #>")]
+		[AttributeLogicalName("<#= attribute.LogicalName #>")]
+		public decimal? <#= attribute.UniqueDisplayName #>
+		{	
+			get { return GetAttributeValue<Money>("<#= attribute.LogicalName #>")?.Value; }
+			set 
+			{ 
+				Money moneyValue = null;
+				if(value != null) moneyValue = new Money(value.Value);
+				SetAttributeValue("<#= attribute.LogicalName #>", moneyValue);  
+			}
+		}
+
+<#                  break;
+                case AttributeTypeCode.Picklist:
+				case AttributeTypeCode.Status:
+				case AttributeTypeCode.State:#>
+		/// <summary>
+        /// <#= attribute.LogicalName #>
+        /// </summary>
+		[DisplayName("<#= attribute.AttributeMetadata.DisplayName.GetLabel(attribute.AttributeMetadata.LogicalName) #>")]
+		[AttributeLogicalName("<#= attribute.LogicalName #>")]
+		public <#= attribute.ReturnType #>? <#= attribute.UniqueDisplayName #>
+		{	
+			get 
+			{ 
+				var optionSetValue = GetAttributeValue<OptionSetValue>("<#= attribute.LogicalName #>");
+				if (optionSetValue != null) return (<#= attribute.ReturnType #>)optionSetValue.Value;
+				else return null;
+			}
+			set 
+			{ 
+				OptionSetValue optionSetValue = null;
+				if(value != null) optionSetValue = new OptionSetValue((int)value);
+				SetAttributeValue("<#= attribute.LogicalName #>", optionSetValue); 
+			}
+		}
+
+<#                  break;
+				case AttributeTypeCode.Virtual:
+					if(attribute.AttributeMetadata is MultiSelectPicklistAttributeMetadata multiSelect)
+					{ #>
+		/// <summary>
+        /// <#= attribute.LogicalName #>
+        /// </summary>
+		[DisplayName("<#= attribute.AttributeMetadata.DisplayName.GetLabel(attribute.AttributeMetadata.LogicalName) #>")]
+		[AttributeLogicalName("<#= attribute.LogicalName #>")]
+		public List<<#= attribute.ReturnType #>> <#= attribute.UniqueDisplayName #>
+		{	
+			get 
+			{ 
+				var optionSetCollection = GetAttributeValue<OptionSetValueCollection>("<#= attribute.LogicalName #>");
+				if (optionSetCollection != null) return optionSetCollection.Select(o => (<#= attribute.ReturnType #>)o.Value).ToList();
+				else return new List<<#= attribute.ReturnType #>>();
+			}
+			set 
+			{ 
+				OptionSetValueCollection optionSetCollection = new OptionSetValueCollection();
+				foreach(var osValue in value)
+				{
+					optionSetCollection.Add(new OptionSetValue((int)osValue));
+				}
+				SetAttributeValue("<#= attribute.LogicalName #>", optionSetCollection); 
+			}
+		}
+<#					}
+					break;
+				default: 
+					if(attribute.LogicalName == EntityInfo.PrimaryIdAttribute.LogicalName) { #>
+		/// <summary>
+        /// <#= attribute.LogicalName #>
+        /// </summary>
+		[DisplayName("<#= attribute.AttributeMetadata.DisplayName.GetLabel(attribute.AttributeMetadata.LogicalName) #>")]
+		[AttributeLogicalName("<#= attribute.LogicalName #>")]
+		public <#= attribute.ReturnType #> <#= attribute.UniqueDisplayName #>
+		{	
+			get => base.Id;
+			set { base.Id = value; SetAttributeValue("<#= attribute.LogicalName #>", value); }
+		}
+
+		[AttributeLogicalName("<#= attribute.LogicalName #>")]
+		public override Guid Id
+		{
+			get { return base.Id; }
+			set { <#= attribute.UniqueDisplayName #> = value; }
+		}
+
+					<# }  else { #>
+		/// <summary>
+        /// <#= attribute.LogicalName #>
+        /// </summary>
+		[DisplayName("<#= attribute.AttributeMetadata.DisplayName.GetLabel(attribute.AttributeMetadata.LogicalName) #>")]
+		[AttributeLogicalName("<#= attribute.LogicalName #>")]
+		public <#= attribute.ReturnType #> <#= attribute.UniqueDisplayName #>
+		{	
+			get { return GetAttributeValue<<#= attribute.ReturnType #>>("<#= attribute.LogicalName #>"); }
+			set { SetAttributeValue("<#= attribute.LogicalName #>", value); }
+		}	
+			
+<#              }    
+				break;
+            }
+		}#>
+		#endregion	
+
+		#region Relations
+	<#		foreach(var relation in EntityInfo.OneToManyRelationList)
+		{ 
+			var relatedClassInfo = relation.RelatedEntityInfo; #>
+		/// <summary>
+        /// 1:N Get entities for '<#= relation.SchemaName #>'
+        /// </summary>
+		[RelationshipSchemaName("<#= relation.SchemaName #>")]
+		public IEnumerable<<#= relatedClassInfo.UniqueDisplayName #>> <#= relation.UniqueDisplayName #>
+		{
+			get { return GetRelatedEntities<<#= relatedClassInfo.UniqueDisplayName #>>("<#= relation.SchemaName #>", null); }
+			set { SetRelatedEntities("<#= relation.SchemaName #>", null, value); }
+		}
+<#		}
+
+		foreach(var relation in EntityInfo.ManyToManyRelationList)
+		{ 
+			var relatedClassInfo = relation.RelatedEntityInfo; #>
+		/// <summary>
+        /// N:N Get entities for '<#= relatedClassInfo.UniqueDisplayName #>'
+        /// </summary>
+		[RelationshipSchemaName("<#= relation.SchemaName #>")]
+		public IEnumerable<<#= relation.RelatedEntityInfo.UniqueDisplayName #>> <#= relation.UniqueDisplayName #>
+		{
+			get { return GetRelatedEntities<<#= relation.RelatedEntityInfo.UniqueDisplayName #>>("<#= relation.SchemaName #>", null); }
+			set { SetRelatedEntities("<#= relation.SchemaName #>", null, value); }
+		}
+<#		} #>
+		#endregion
+
+		#region OptionSetEnums
+<#		foreach(var optionSetInfo in EntityInfo.OptionSetList) {
+        var optionSetTemplate = new OptionSet { OptionSetInfo = optionSetInfo }; #>
+<#=		optionSetTemplate.TransformText() #>
+<#		} #>
+		#endregion	
+
+		#region Properties
+		public static class Properties 
+		{
+<#		foreach(var attribute in EntityInfo.AttributeList){ #>
+			/// <summary><#= attribute.LogicalName #></summary>
+			public const string <#= attribute.UniqueDisplayName #> = "<#= attribute.LogicalName #>";
+
+<#		} #>
+		}
+		#endregion
+
+		#region Schemas
+		public static class Schemas 
+		{
+<#		foreach(var relation in EntityInfo.OneToManyRelationList){ #>
+			/// <summary>1:N <#= relation.SchemaName #></summary>
+			public const string <#= relation.UniqueDisplayName #> = "<#= relation.SchemaName #>";
+
+<#		} #>
+<#		foreach(var relation in EntityInfo.ManyToManyRelationList){ #>
+			/// <summary>N:N <#= relation.SchemaName #></summary>
+			public const string <#= relation.UniqueDisplayName #> = "<#= relation.SchemaName #>";
+
+<#		} #>
+		}
+		#endregion
+	}
+}
+
+<#+
+public EntityInfo EntityInfo { get; set; }
+public string ProxyNamespace { get; set; }
+#>

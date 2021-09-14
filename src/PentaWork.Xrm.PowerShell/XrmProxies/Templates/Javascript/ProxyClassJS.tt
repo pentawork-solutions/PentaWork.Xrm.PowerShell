@@ -1,0 +1,50 @@
+﻿<#@ template visibility="internal" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="Microsoft.Xrm.Sdk.Metadata" #>
+<#@ import namespace="PentaWork.Xrm.PowerShell.XrmProxies.Model" #>
+import { FormProxy, AttributeProxy } from '../ProxyTypes';
+import * as Attributes from '../Attributes/<#= EntityInfo.UniqueDisplayName #>';
+
+export let LogicalName = "<#= EntityInfo.LogicalName #>";
+
+export class Form extends FormProxy {
+<#	foreach(var attribute in EntityInfo.AttributeList)
+	{ #>
+	private _<#= attribute.UniqueDisplayName #> = new AttributeProxy<<#= attribute.JavascriptReturnType #>, <#= attribute.XrmTypingsAttributeType #>, <#= attribute.XrmTypingsControlType #>>(this.FormContext, Attributes.<#= attribute.UniqueDisplayName #>);
+	/** <#= attribute.LogicalName #> */
+	get <#= attribute.UniqueDisplayName #>(): AttributeProxy<<#= attribute.JavascriptReturnType #>, <#= attribute.XrmTypingsAttributeType #>, <#= attribute.XrmTypingsControlType #>> {
+		return this._<#= attribute.UniqueDisplayName #>;
+	}
+<#	}#>
+}
+
+export class Entity {
+<#	foreach(var attribute in EntityInfo.AttributeList)
+	{ #>
+	<#= attribute.LogicalName #>!: <#= attribute.JavascriptReturnType #>;
+<#	}#>
+
+<#	foreach(var attribute in EntityInfo.AttributeList)
+	{ #>
+	/** <#= attribute.LogicalName #> */
+    get <#= attribute.UniqueDisplayName #>(): <#= attribute.JavascriptReturnType #> {
+        return this.<#= attribute.LogicalName #>;
+    }
+	set <#= attribute.UniqueDisplayName #>(value: <#= attribute.JavascriptReturnType #>) {
+		this.<#= attribute.LogicalName #> = value;
+	}
+
+<#	}#>
+}
+
+<#		foreach(var optionSetInfo in EntityInfo.OptionSetList) {
+        var optionSetTemplate = new OptionSetJS { OptionSetInfo = optionSetInfo }; #>
+<#=		optionSetTemplate.TransformText() #>
+<#		} #>
+
+<#+
+public EntityInfo EntityInfo { get; set; }
+#>

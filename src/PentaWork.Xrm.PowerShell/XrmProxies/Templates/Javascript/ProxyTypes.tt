@@ -1,0 +1,134 @@
+﻿<#@ template visibility="internal" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="PentaWork.Xrm.PowerShell.XrmProxies.Model" #>
+export interface FormName {
+    name: string;
+}
+
+export interface TabName {
+    name: string;
+}
+
+export interface AttributeName {
+    name: string;
+}
+
+export class AttributeProxy<T, S extends Xrm.Attributes.Attribute, U extends Xrm.Controls.Control> {
+    constructor(private _formContext: Xrm.FormContext, private _attributeName: AttributeName) { }
+
+    get LogicalName() {
+        return this._attributeName.name;
+    }
+
+    get Attribute(): S {
+        let attribute: S | undefined = this._formContext.getAttribute<S>(this._attributeName.name);
+        if(attribute === undefined) {
+            console.log(`GetAttribute: No attribute with name '${this._attributeName.name}' available on current form!`);
+        }
+        return attribute;
+    }
+
+    get Control(): U {
+        let control: U | undefined = this._formContext.getControl<U>(this._attributeName.name);
+        if(control === undefined) {
+            console.log(`GetControl: No attribute control with name '${this._attributeName.name}' available on current form!`);
+        }
+        return control;
+    }
+
+    get Value(): T | undefined {
+        let value: T | undefined;
+        if(this._formContext.getAttribute(this._attributeName.name) !== undefined) {
+            value = <T | undefined>this._formContext.getAttribute(this._attributeName.name).getValue();
+        }
+        else {
+            console.log(`Get: No attribute with name '${this._attributeName.name}' available on current form!`);
+        }
+        return value;
+    }
+
+    set Value(value: T | undefined) {
+        if(this._formContext.getAttribute(this._attributeName.name) !== undefined) {
+            this._formContext.getAttribute(this._attributeName.name).setValue(value);
+        }
+        else {
+            console.log(`Set: No attribute with name '${this._attributeName.name}' available on current form!`);
+        }
+    }
+}
+
+export abstract class FormProxy { 
+    private _xrm!: Xrm.XrmStatic;
+    private _formContext!: Xrm.FormContext;
+
+    constructor(xrm: Xrm.XrmStatic, formContext: Xrm.FormContext) {
+        this._xrm = xrm;
+        this._formContext = formContext;
+    }
+
+    /**
+     * Asynchronously saves the record.
+     * @returns Returns an asynchronous promise.
+     */
+    public save(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            this.Xrm.Page.data.save()
+            .then(resolve)
+            .fail(reject);
+        });
+    }
+
+    /**
+     * Asynchronously refreshes data on the form, without reloading the page.
+     * @param save true to save the record, after the refresh.
+     * @returns Returns an asynchronous promise.
+     */
+    public refresh(save: boolean): Promise<void> {        
+        return new Promise((resolve, reject) => {
+            this.Xrm.Page.data.refresh(save)
+            .then(resolve)
+            .fail(reject);
+        });
+    }
+
+    /**
+     * Gets form type.
+     * @returns The form type.
+     * @remarks **Values returned are**:
+     * * 0  Undefined
+     * * 1  Create
+     * * 2  Update
+     * * 3  Read Only
+     * * 4  Disabled
+     * * 6  Bulk Edit
+     * * Deprecated values are 5 (Quick Create), and 11 (Read Optimized)
+     */
+    get FormType(): XrmEnum.FormType {
+        return Xrm.Page.ui.getFormType();
+    }
+
+    /**
+     * Gets the label for the form.
+     * @returns The FormName.
+     */
+    get FormName(): FormName {
+        return { name: Xrm.Page.ui.formSelector.getCurrentItem().getLabel() };
+    }  
+
+    /**
+     * @returns The current Xrm Object on this script
+     */  
+    get Xrm() {
+        return this._xrm;
+    }
+
+    /**
+     * @return The current Form Context
+     */
+    get FormContext() {
+        return this._formContext;
+    }
+}

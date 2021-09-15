@@ -26,7 +26,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             if (PublishAll) Connection.Execute(new PublishAllXmlRequest());
 
             var solutionVersion = RetrieveSolutionVersion();
-            var solutionFilePath = Path.Combine(ExportPath, $"{UniqueName} - {solutionVersion} - {Connection.ConnectedOrgFriendlyName}{ (Managed ? " - managed" : "") }.zip");
+            var solutionFilePath = Path.Combine(ExportPath, $"{UniqueName} - {solutionVersion} - {Connection.ConnectedOrgFriendlyName} - { (Managed ? "managed" : "unmanaged") }.zip");
 
             if (File.Exists(solutionFilePath) && !Force) Console.WriteLine("Solution already existing in target path. Skipping ...");
             else

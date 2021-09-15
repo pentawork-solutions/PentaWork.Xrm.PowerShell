@@ -130,6 +130,7 @@
     <Compile Include="Verbs\GetXrmProxies.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Verbs\ImportXrmSolution.cs" />
+    <Compile Include="Verbs\SetXrmTimeout.cs" />
     <Compile Include="Verbs\UpdateXrmAssembly.cs" />
     <Compile Include="XrmProxies\LabelExtensions.cs" />
     <Compile Include="XrmProxies\LinqExtensions.cs" />

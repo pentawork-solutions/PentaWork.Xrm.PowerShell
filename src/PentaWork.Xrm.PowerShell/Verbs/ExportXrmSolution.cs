@@ -15,7 +15,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     /// </summary>
     /// <example>
     /// <para>$conn = Get-CrmConnection -Interactive</para>
-    /// <para>Get-XrmSolutions -Connection $conn | Where-Object {$_.Name -like "TestSolution*"} | Export-XrmSolution -Connection $conn -Managed -ExportPath</para>
+    /// <para>Get-XrmSolutions -Connection $conn | Where-Object {$_.Name -like "TestSolution*"} | Export-XrmSolution -Connection $conn -Managed -ExportPath .\</para>
     /// </example>
     [OutputType(typeof(FileInfo))]
     [Cmdlet(VerbsData.Export, "XrmSolution")]
@@ -26,17 +26,22 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             if (PublishAll) Connection.Execute(new PublishAllXmlRequest());
 
             var solutionVersion = RetrieveSolutionVersion();
-            Console.WriteLine($"Exporting solution '{UniqueName}' ({solutionVersion}) from '{Connection.ConnectedOrgFriendlyName}'...");
-
-            var exportSolutionRequest = new ExportSolutionRequest();
-            exportSolutionRequest.Managed = Managed;
-            exportSolutionRequest.SolutionName = UniqueName;
-
-            var exportSolutionResponse = (ExportSolutionResponse)Connection.Execute(exportSolutionRequest);
-            var exportBytes = exportSolutionResponse.ExportSolutionFile;
-
             var solutionFilePath = Path.Combine(ExportPath, $"{UniqueName} - {solutionVersion} - {Connection.ConnectedOrgFriendlyName}{ (Managed ? " - managed" : "") }.zip");
-            File.WriteAllBytes(solutionFilePath, exportBytes);
+
+            if (File.Exists(solutionFilePath) && !Force) Console.WriteLine("Solution already existing in target path. Skipping ...");
+            else
+            {
+                Console.WriteLine($"Exporting solution '{UniqueName}' ({solutionVersion}) from '{Connection.ConnectedOrgFriendlyName}'...");
+
+                var exportSolutionRequest = new ExportSolutionRequest();
+                exportSolutionRequest.Managed = Managed;
+                exportSolutionRequest.SolutionName = UniqueName;
+
+                var exportSolutionResponse = (ExportSolutionResponse)Connection.Execute(exportSolutionRequest);
+                var exportBytes = exportSolutionResponse.ExportSolutionFile;
+
+                File.WriteAllBytes(solutionFilePath, exportBytes);
+            }
 
             WriteObject(new FileInfo(solutionFilePath));
         }
@@ -96,5 +101,11 @@ namespace PentaWork.Xrm.PowerShell.Verbs
         /// </summary>
         [Parameter]
         public SwitchParameter PublishAll { get; set; }
+
+        /// <summary>
+        /// <para type="description">Force export, if version is already existing in target path.</para>
+        /// </summary>
+        [Parameter]
+        public SwitchParameter Force { get; set; }
     }
 }

@@ -23,5 +23,6 @@ Exported Commands
 - Get-XrmSolutions
 - Import-XrmSolution
 - Update-XrmAssembly
+- Set-XrmTimeout
 
 To get help type ```help [Command Name] -detailed```. Each command comes with examples. 

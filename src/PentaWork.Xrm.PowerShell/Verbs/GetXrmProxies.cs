@@ -31,7 +31,7 @@ namespace PentaWork.Xrm.PowerShell
     {
         protected override void ProcessRecord()
         {
-            if (Clear) Directory.Delete(OutputPath.FullName, true);
+            if (Clear && OutputPath.Exists) Directory.Delete(OutputPath.FullName, true);
 
             var response = GetAllEntityMetadata();
             var relevantMetadata = response;

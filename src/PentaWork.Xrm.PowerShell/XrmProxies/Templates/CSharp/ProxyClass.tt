@@ -111,17 +111,10 @@ namespace <#= ProxyNamespace #>.Entities
         /// </summary>
 		[DisplayName("<#= attribute.AttributeMetadata.DisplayName.GetLabel(attribute.AttributeMetadata.LogicalName) #>")]
 		[AttributeLogicalName("<#= attribute.LogicalName #>")]
-		public <#= attribute.ReturnType #> <#= attribute.UniqueDisplayName #>
-		{	
-			get => base.Id;
-			set { base.Id = value; SetAttributeValue("<#= attribute.LogicalName #>", value); }
-		}
-
-		[AttributeLogicalName("<#= attribute.LogicalName #>")]
 		public override Guid Id
 		{
-			get { return base.Id; }
-			set { <#= attribute.UniqueDisplayName #> = value; }
+			get => base.Id;
+			set { base.Id = value; SetAttributeValue("<#= attribute.LogicalName #>", value); }
 		}
 
 					<# }  else { #>

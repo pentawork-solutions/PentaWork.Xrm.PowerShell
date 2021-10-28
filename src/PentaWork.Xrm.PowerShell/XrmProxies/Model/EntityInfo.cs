@@ -11,6 +11,9 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Model
 
         public EntityInfo(EntityMetadata entityMetadata, string uniqueDisplayName)
         {
+            // Add the LogicalName of the entity to the dictionary - prevent Attribtues named equal to the wrapping type
+            _varNameDic.Add(entityMetadata.LogicalName, uniqueDisplayName);
+
             UniqueDisplayName = uniqueDisplayName;
             LogicalName = entityMetadata.LogicalName;
             

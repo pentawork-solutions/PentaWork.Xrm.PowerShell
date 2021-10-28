@@ -80,7 +80,10 @@ namespace <#= FakeNamespace #>
 					rules.Add($".RuleFor(e => e.{attribute.UniqueDisplayName}, fake => fake.Random.Int())");
 					break;
 				case AttributeTypeCode.Uniqueidentifier:
-					rules.Add($".RuleFor(e => e.{attribute.UniqueDisplayName}, fake => Guid.NewGuid())");
+					if(attribute.LogicalName == EntityInfo.PrimaryIdAttribute.LogicalName)
+						rules.Add($".RuleFor(e => e.Id, fake => Guid.NewGuid())");
+					else
+						rules.Add($".RuleFor(e => e.{attribute.UniqueDisplayName}, fake => Guid.NewGuid())");
 					break;
 				case AttributeTypeCode.Memo:
                 case AttributeTypeCode.String:

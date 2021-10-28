@@ -33,11 +33,10 @@ namespace PentaWork.Xrm.PowerShell
         {
             if (Clear && OutputPath.Exists) Directory.Delete(OutputPath.FullName, true);
 
-            var response = GetAllEntityMetadata();
-            var relevantMetadata = response;
+            var sdkMessages = GetAllSdkMessages();
+            var entityMetadata = GetAllEntityMetadata(sdkMessages);
             var systemForms = GetAllSystemForms();
-
-            var entityInfoList = new EntityInfoList(relevantMetadata, systemForms);
+            var entityInfoList = new EntityInfoList(entityMetadata, systemForms);
 
             EnsureFolder(OutputPath.FullName);
             EnsureFolder(CSOutputPath);
@@ -53,17 +52,39 @@ namespace PentaWork.Xrm.PowerShell
             if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
         }
 
-        private List<EntityMetadata> GetAllEntityMetadata()
+        private List<Entity> GetAllSdkMessages()
+        {
+            Console.WriteLine("Getting SDK Messages ...");
+
+            var query = new QueryExpression("sdkmessage");
+            query.LinkEntities.Add(new LinkEntity("sdkmessage", "sdkmessagefilter", "sdkmessageid", "sdkmessageid", JoinOperator.Inner));
+            query.LinkEntities[0].Columns.AddColumns("primaryobjecttypecode", "secondaryobjecttypecode");
+            query.LinkEntities[0].EntityAlias = "sdmessagefilter";
+
+            query.ColumnSet = new ColumnSet("name", "isprivate");
+            query.Criteria.AddCondition("isprivate", ConditionOperator.Equal, false);
+            query.PageInfo = new PagingInfo { Count = 5000, PageNumber = 1 };
+
+            return RetrieveAll(query);
+        }
+
+        private List<EntityMetadata> GetAllEntityMetadata(List<Entity> sdkMessages)
         {
             Console.WriteLine("Getting metadata ...");
             var request = new RetrieveAllEntitiesRequest
             {
-                EntityFilters = EntityFilters.All,
-                RetrieveAsIfPublished = true
+                EntityFilters = EntityFilters.Entity | EntityFilters.Attributes | EntityFilters.Relationships,
+                RetrieveAsIfPublished = false
             };
+
             return ((RetrieveAllEntitiesResponse)Connection.Execute(request))
                 .EntityMetadata
-                .Where(e => !e.IsIntersect.Value)
+                .Where(e => 
+                       !e.IsIntersect.GetValueOrDefault()
+                    && !e.IsPrivate.GetValueOrDefault()
+                    // Remove all Entities which are not useable with any non private SDK message
+                    && sdkMessages.Any(s => ((AliasedValue)s["sdmessagefilter.primaryobjecttypecode"]).Value as string == e.LogicalName 
+                                         || ((AliasedValue)s["sdmessagefilter.secondaryobjecttypecode"]).Value as string == e.LogicalName))
                 .ToList();
         }
 
@@ -76,6 +97,11 @@ namespace PentaWork.Xrm.PowerShell
             query.ColumnSet = new ColumnSet(true);
             query.PageInfo = new PagingInfo { Count = 5000, PageNumber = 1 };
 
+            return RetrieveAll(query);
+        }
+
+        private List<Entity> RetrieveAll(QueryExpression query)
+        {
             var response = Connection.RetrieveMultiple(query);
             var entities = response.Entities;
 
@@ -109,14 +135,14 @@ namespace PentaWork.Xrm.PowerShell
         {
             Console.WriteLine("[CS] Generating Proxy & Fake Classes ...");
             EnsureFolder(Path.Combine(CSOutputPath, "Entities"));
-            EnsureFolder(Path.Combine(CSOutputPath, "Fake"));
+            EnsureFolder(Path.Combine(OutputPath.FullName, "Fake"));
             foreach (var entityInfo in entityInfoList)
             {
                 var proxyTemplate = new ProxyClass { EntityInfo = entityInfo, ProxyNamespace = ProxyNamespace };
                 File.WriteAllText(Path.Combine(CSOutputPath, "Entities", $"{entityInfo.UniqueDisplayName}.cs"), proxyTemplate.TransformText());
 
                 var fakeTemplate = new Fake { EntityInfo = entityInfo, ProxyNamespace = ProxyNamespace, FakeNamespace = FakeNamespace };
-                File.WriteAllText(Path.Combine(CSOutputPath, "Fake", $"{entityInfo.UniqueDisplayName}.cs"), fakeTemplate.TransformText());
+                File.WriteAllText(Path.Combine(OutputPath.FullName, "Fake", $"{entityInfo.UniqueDisplayName}.cs"), fakeTemplate.TransformText());
             }
 
             Console.WriteLine("[CS] Generating Relation Classes ...");

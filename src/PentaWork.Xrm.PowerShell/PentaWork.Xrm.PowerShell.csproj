@@ -204,7 +204,6 @@
       <DependentUpon>OptionSet.tt</DependentUpon>
     </Compile>
     <Compile Include="XrmProxies\UniqueNameDictionary.cs" />
-    <Compile Include="XrmProxies\UniqueNameExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

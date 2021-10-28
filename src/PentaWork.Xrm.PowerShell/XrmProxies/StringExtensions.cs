@@ -12,7 +12,11 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies
             var validName = name;
             validName = string.Join("", validName                               // NameToCamelCase
                 .Split(new [] { ' ' }, StringSplitOptions.RemoveEmptyEntries)   //
-                .Select(s => s.FirstToUpper()).ToArray());                      //      
+                .Select(s => s.FirstToUpper()).ToArray());                      //
+            validName = string.Join("", validName                               // 
+                .Split(new[] { '_' }, StringSplitOptions.RemoveEmptyEntries)    //
+                .Select(s => s.FirstToUpper()).ToArray());                      // 
+
             validName = Regex.Replace(validName, @"\W+", "");                   // Replace non-word characters
             validName = validName.Trim('_');
             if (Regex.IsMatch(validName, @"^\d+")) validName = $"_{validName}"; // Prefix "_" if string starts with number(s)

@@ -33,8 +33,9 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Model
                 foreach (var manyToManyRelation in entityMetadata.ManyToManyRelationships)
                 {
                     var relatedLogicalName = manyToManyRelation.Entity1LogicalName != parsedEntityInfo.LogicalName ? manyToManyRelation.Entity1LogicalName : manyToManyRelation.Entity2LogicalName;
-                    var relatedEntityInfo = this.Single(e => e.LogicalName == relatedLogicalName);
-                    parsedEntityInfo.AddManyToManyRelationInfo(relatedEntityInfo, manyToManyRelation);
+                    var relatedEntityInfo = this.SingleOrDefault(e => e.LogicalName == relatedLogicalName);
+                    if (relatedEntityInfo != null)
+                        parsedEntityInfo.AddManyToManyRelationInfo(relatedEntityInfo, manyToManyRelation);
                 }
 
                 foreach(var oneToManyRelation in entityMetadata.OneToManyRelationships)

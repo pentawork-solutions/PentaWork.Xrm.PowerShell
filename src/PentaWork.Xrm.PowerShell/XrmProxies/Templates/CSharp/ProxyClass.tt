@@ -44,6 +44,8 @@ namespace <#= ProxyNamespace #>.Entities
 			get { return GetAttributeValue<Money>("<#= attribute.LogicalName #>")?.Value; }
 			set 
 			{ 
+				if(value == <#= attribute.UniqueDisplayName #>) return;
+
 				Money moneyValue = null;
 				if(value != null) moneyValue = new Money(value.Value);
 				SetAttributeValue("<#= attribute.LogicalName #>", moneyValue);  
@@ -69,6 +71,8 @@ namespace <#= ProxyNamespace #>.Entities
 			}
 			set 
 			{ 
+				if(value == <#= attribute.UniqueDisplayName #>) return;
+
 				OptionSetValue optionSetValue = null;
 				if(value != null) optionSetValue = new OptionSetValue((int)value);
 				SetAttributeValue("<#= attribute.LogicalName #>", optionSetValue); 
@@ -94,6 +98,8 @@ namespace <#= ProxyNamespace #>.Entities
 			}
 			set 
 			{ 
+				if(value.All(v => <#= attribute.UniqueDisplayName #>.Any(o => o == v))) return;
+
 				OptionSetValueCollection optionSetCollection = new OptionSetValueCollection();
 				foreach(var osValue in value)
 				{
@@ -126,7 +132,11 @@ namespace <#= ProxyNamespace #>.Entities
 		public <#= attribute.ReturnType #> <#= attribute.UniqueDisplayName #>
 		{	
 			get { return GetAttributeValue<<#= attribute.ReturnType #>>("<#= attribute.LogicalName #>"); }
-			set { SetAttributeValue("<#= attribute.LogicalName #>", value); }
+			set
+			{ 
+				if(value == <#= attribute.UniqueDisplayName #>) return;
+				SetAttributeValue("<#= attribute.LogicalName #>", value);
+			}
 		}	
 			
 <#              }    

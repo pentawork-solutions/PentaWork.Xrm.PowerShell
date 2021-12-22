@@ -30,7 +30,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Model
             foreach (var entityMetadata in entityMetadataList)
             {
                 var parsedEntityInfo = this.Single(e => e.LogicalName == entityMetadata.LogicalName);
-                foreach (var manyToManyRelation in entityMetadata.ManyToManyRelationships)
+                foreach (var manyToManyRelation in entityMetadata.ManyToManyRelationships.OrderBy(r => r.SchemaName))
                 {
                     var relatedLogicalName = manyToManyRelation.Entity1LogicalName != parsedEntityInfo.LogicalName ? manyToManyRelation.Entity1LogicalName : manyToManyRelation.Entity2LogicalName;
                     var relatedEntityInfo = this.SingleOrDefault(e => e.LogicalName == relatedLogicalName);
@@ -38,7 +38,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Model
                         parsedEntityInfo.AddManyToManyRelationInfo(relatedEntityInfo, manyToManyRelation);
                 }
 
-                foreach(var oneToManyRelation in entityMetadata.OneToManyRelationships)
+                foreach(var oneToManyRelation in entityMetadata.OneToManyRelationships.OrderBy(r => r.SchemaName))
                 {
                     var relatedLogicalName = oneToManyRelation.ReferencingEntity;
                     var relatedEntityInfo = this.SingleOrDefault(e => e.LogicalName == relatedLogicalName);
@@ -50,7 +50,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Model
 
         private void LoadSystemForms(List<Entity> systemForms)
         {
-            foreach (var systemForm in systemForms)
+            foreach (var systemForm in systemForms.OrderBy(e => e.LogicalName))
             {
                 var parsedEntityInfo = this.SingleOrDefault(e => e.LogicalName == systemForm["objecttypecode"] as string);
                 if(parsedEntityInfo != null) parsedEntityInfo.AddFormInfo(systemForm);

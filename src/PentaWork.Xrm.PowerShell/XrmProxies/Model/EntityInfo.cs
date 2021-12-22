@@ -68,6 +68,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Model
                                 a.AttributeType == AttributeTypeCode.Status ||
                                 a is MultiSelectPicklistAttributeMetadata)
                             .DistinctBy(attr => ((EnumAttributeMetadata)attr).OptionSet.Name)
+                            .OrderBy(attr => ((EnumAttributeMetadata)attr).OptionSet.Name)
                             .Select(osAttr => new OptionSetInfo(((EnumAttributeMetadata)osAttr).OptionSet, _varNameDic.GetUniqueName(((EnumAttributeMetadata)osAttr).OptionSet)))
                             .ToList();
         }
@@ -75,7 +76,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Model
         private List<AttributeInfo> ParseAttributes(EntityMetadata entityMetadata)
         {
             var parsedAttributes = new List<AttributeInfo>();
-            foreach(var attributeMetadata in entityMetadata.Attributes)
+            foreach(var attributeMetadata in entityMetadata.Attributes.OrderBy(a => a.LogicalName))
             {
                 switch(attributeMetadata.AttributeType)
                 {

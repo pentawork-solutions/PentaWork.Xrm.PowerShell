@@ -9,14 +9,15 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Model
     {
         private readonly UniqueNameDictionary _varNameDic = new UniqueNameDictionary();
 
-        public EntityInfo(EntityMetadata entityMetadata, string uniqueDisplayName)
+        public EntityInfo(EntityMetadata entityMetadata, List<ActionInfo> actionList, string uniqueDisplayName)
         {
             // Add the LogicalName of the entity to the dictionary - prevent Attribtues named equal to the wrapping type
             _varNameDic.Add(entityMetadata.LogicalName, uniqueDisplayName);
 
             UniqueDisplayName = uniqueDisplayName;
             LogicalName = entityMetadata.LogicalName;
-            
+
+            ActionList = actionList;
             OptionSetList = ParseOptionSets(entityMetadata);
             AttributeList = ParseAttributes(entityMetadata);
 
@@ -76,9 +77,9 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Model
         private List<AttributeInfo> ParseAttributes(EntityMetadata entityMetadata)
         {
             var parsedAttributes = new List<AttributeInfo>();
-            foreach(var attributeMetadata in entityMetadata.Attributes.OrderBy(a => a.LogicalName))
+            foreach (var attributeMetadata in entityMetadata.Attributes.OrderBy(a => a.LogicalName))
             {
-                switch(attributeMetadata.AttributeType)
+                switch (attributeMetadata.AttributeType)
                 {
                     case AttributeTypeCode.ManagedProperty:
                         break;
@@ -89,14 +90,14 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Model
                         parsedAttributes.Add(new AttributeInfo(attributeMetadata, _varNameDic.GetUniqueName(attributeMetadata), optionSet.UniqueDisplayName));
                         break;
                     case AttributeTypeCode.Virtual:
-                        if(attributeMetadata is MultiSelectPicklistAttributeMetadata multiSelect)
+                        if (attributeMetadata is MultiSelectPicklistAttributeMetadata multiSelect)
                         {
                             var multiOptionSet = OptionSetList.Single(os => os.LogicalName == multiSelect.OptionSet.Name);
                             parsedAttributes.Add(new AttributeInfo(attributeMetadata, _varNameDic.GetUniqueName(attributeMetadata), multiOptionSet.UniqueDisplayName));
                         }
                         break;
                     case AttributeTypeCode.Money:
-                        if(!attributeMetadata.LogicalName.EndsWith("_base")) // Don't add the readonly base money field
+                        if (!attributeMetadata.LogicalName.EndsWith("_base")) // Don't add the readonly base money field
                             parsedAttributes.Add(new AttributeInfo(attributeMetadata, _varNameDic.GetUniqueName(attributeMetadata)));
                         break;
                     case AttributeTypeCode.Uniqueidentifier:
@@ -109,7 +110,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Model
             }
             return parsedAttributes;
         }
-        
+
         public string LogicalName { get; }
         public string UniqueDisplayName { get; }
         public AttributeInfo PrimaryNameAttribute { get; }
@@ -119,6 +120,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Model
         public List<OptionSetInfo> OptionSetList { get; }
         public List<OneToManyRelationInfo> OneToManyRelationList { get; } = new List<OneToManyRelationInfo>();
         public List<ManyToManyRelationInfo> ManyToManyRelationList { get; } = new List<ManyToManyRelationInfo>();
+        public List<ActionInfo> ActionList { get; } = new List<ActionInfo>();
 
         public List<FormInfo> FormList { get; } = new List<FormInfo>();
     }

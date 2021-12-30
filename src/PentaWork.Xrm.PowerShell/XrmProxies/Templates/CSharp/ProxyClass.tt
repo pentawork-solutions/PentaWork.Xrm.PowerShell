@@ -175,6 +175,18 @@ namespace <#= ProxyNamespace #>.Entities
 <#		} #>
 		#endregion
 
+		#region Actions
+<#		foreach(var action in EntityInfo.ActionList)
+		{ #>
+		public OrganizationResponse Execute<#= action.UniqueDisplayName #>(OrganizationServiceContext serviceContext)
+		{
+			var orgRequest = new OrganizationRequest("<#= action.SdkMessageName #>");
+			orgRequest["Target"] = ToEntityReference();
+            return serviceContext.Execute(orgRequest);
+		}
+<#		} #>
+		#endregion
+
 		#region OptionSetEnums
 <#		foreach(var optionSetInfo in EntityInfo.OptionSetList) {
         var optionSetTemplate = new OptionSet { OptionSetInfo = optionSetInfo }; #>

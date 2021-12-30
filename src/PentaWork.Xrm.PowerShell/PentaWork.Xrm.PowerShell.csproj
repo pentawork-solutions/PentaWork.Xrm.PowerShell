@@ -139,6 +139,7 @@
     <Compile Include="XrmProxies\Model\EntityInfos\FormInfo.cs" />
     <Compile Include="XrmProxies\Model\EntityInfos\ManyToManyRelationInfo.cs" />
     <Compile Include="XrmProxies\Model\EntityInfos\OneToManyRelationInfo.cs" />
+    <Compile Include="XrmProxies\Model\EntityInfos\ActionInfo.cs" />
     <Compile Include="XrmProxies\Model\EntityInfos\OptionInfo.cs" />
     <Compile Include="XrmProxies\Model\EntityInfos\OptionSetInfo.cs" />
     <Compile Include="XrmProxies\Model\EntityInfoList.cs" />

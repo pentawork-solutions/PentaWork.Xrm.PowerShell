@@ -11,6 +11,7 @@ using Microsoft.Xrm.Tooling.Connector;
 using PentaWork.Xrm.PowerShell.XrmProxies.Model;
 using PentaWork.Xrm.PowerShell.XrmProxies.Templates.Javascript;
 using PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp;
+using PentaWork.Xrm.PowerShell.XrmProxies;
 
 namespace PentaWork.Xrm.PowerShell
 {
@@ -34,9 +35,10 @@ namespace PentaWork.Xrm.PowerShell
             if (Clear && OutputPath.Exists) Directory.Delete(OutputPath.FullName, true);
 
             var sdkMessages = GetAllSdkMessages();
+            var actions = GetAllActions();
             var entityMetadata = GetAllEntityMetadata(sdkMessages);
             var systemForms = GetAllSystemForms();
-            var entityInfoList = new EntityInfoList(entityMetadata, systemForms);
+            var entityInfoList = new EntityInfoList(entityMetadata, systemForms, actions);
 
             EnsureFolder(OutputPath.FullName);
             EnsureFolder(CSOutputPath);
@@ -66,6 +68,27 @@ namespace PentaWork.Xrm.PowerShell
             query.PageInfo = new PagingInfo { Count = 5000, PageNumber = 1 };
 
             return RetrieveAll(query);
+        }
+
+        private List<ActionInfo> GetAllActions()
+        {
+            Console.WriteLine("Getting available Actions ...");
+
+            var query = new QueryExpression("workflow");
+            query.LinkEntities.Add(new LinkEntity("workflow", "sdkmessage", "sdkmessageid", "sdkmessageid", JoinOperator.Inner));
+            query.LinkEntities[0].Columns.AddColumns("name");
+            query.LinkEntities[0].EntityAlias = "sdkmessage";
+
+            query.ColumnSet = new ColumnSet("name", "sdkmessageid", "primaryentity");
+            query.Criteria.AddCondition("statecode", ConditionOperator.Equal, 1);
+            query.Criteria.AddCondition("type", ConditionOperator.Equal, 1);
+            query.Criteria.AddCondition("category", ConditionOperator.Equal, 3);
+            query.PageInfo = new PagingInfo { Count = 5000, PageNumber = 1 };
+
+            var actionNameDic = new UniqueNameDictionary();
+            return RetrieveAll(query)
+                .Select(e => new ActionInfo(actionNameDic.GetUniqueName((string)e["name"], ((EntityReference)e["sdkmessageid"]).Id.ToString()), (string)((AliasedValue)e["sdkmessage.name"]).Value, (string)e["primaryentity"]))
+                .ToList();
         }
 
         private List<EntityMetadata> GetAllEntityMetadata(List<Entity> sdkMessages)

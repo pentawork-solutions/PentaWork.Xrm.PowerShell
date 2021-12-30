@@ -9,10 +9,10 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Model
     {
         private readonly UniqueNameDictionary _entityNameDic = new UniqueNameDictionary();
 
-        public EntityInfoList(List<EntityMetadata> entityMetadataList, List<Entity> systemForms)
+        public EntityInfoList(List<EntityMetadata> entityMetadataList, List<Entity> systemForms, List<ActionInfo> actions)
         {
             // First parse all entity information
-            ParseEntityMetadata(entityMetadataList);
+            ParseEntityMetadata(entityMetadataList, actions);
             // Then parse all relation information - The relation information
             // holds a reference to the related entity information. Thats why 
             // all entity information get parsed at a whole in the previous step.
@@ -20,9 +20,9 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Model
             LoadSystemForms(systemForms);
         }
 
-        private void ParseEntityMetadata(List<EntityMetadata> entityMetadataList)
+        private void ParseEntityMetadata(List<EntityMetadata> entityMetadataList, List<ActionInfo> actions)
         {
-            AddRange(entityMetadataList.Select(e => new EntityInfo(e, _entityNameDic.GetUniqueName(e))));
+            AddRange(entityMetadataList.Select(e => new EntityInfo(e, actions.Where(a => a.PrimaryEntity == e.LogicalName).ToList(), _entityNameDic.GetUniqueName(e))));
         }
 
         private void ParseEntityRelationAttributes(List<EntityMetadata> entityMetadataList)

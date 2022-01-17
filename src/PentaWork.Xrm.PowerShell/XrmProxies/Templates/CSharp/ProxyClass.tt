@@ -98,14 +98,11 @@ namespace <#= ProxyNamespace #>.Entities
 			}
 			set 
 			{ 
-				if(value.Any() && value.All(v => <#= attribute.UniqueDisplayName #>.Any(o => o == v))) return;
+				var firstNotSecond = value.Except(<#= attribute.UniqueDisplayName #>).ToList();
+				var secondNotFirst = <#= attribute.UniqueDisplayName #>.Except(value).ToList();
+				if (!firstNotSecond.Any() && !secondNotFirst.Any()) return;
 
-				OptionSetValueCollection optionSetCollection = new OptionSetValueCollection();
-				foreach(var osValue in value)
-				{
-					optionSetCollection.Add(new OptionSetValue((int)osValue));
-				}
-				SetAttributeValue("<#= attribute.LogicalName #>", optionSetCollection); 
+				SetAttributeValue("<#= attribute.LogicalName #>", new OptionSetValueCollection(value.Select(v => new OptionSetValue((int)v)).ToList()));
 			}
 		}
 <#					}

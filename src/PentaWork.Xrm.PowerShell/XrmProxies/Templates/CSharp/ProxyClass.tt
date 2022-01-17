@@ -98,7 +98,7 @@ namespace <#= ProxyNamespace #>.Entities
 			}
 			set 
 			{ 
-				if(value.All(v => <#= attribute.UniqueDisplayName #>.Any(o => o == v))) return;
+				if(value.Any() && value.All(v => <#= attribute.UniqueDisplayName #>.Any(o => o == v))) return;
 
 				OptionSetValueCollection optionSetCollection = new OptionSetValueCollection();
 				foreach(var osValue in value)

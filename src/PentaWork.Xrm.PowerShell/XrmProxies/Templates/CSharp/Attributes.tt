@@ -10,6 +10,7 @@ namespace <#= ProxyNamespace #>
         }
         public string Label { get; }
     }
+    public class RelationAttribute : Attribute { }
 }
 
 <#+

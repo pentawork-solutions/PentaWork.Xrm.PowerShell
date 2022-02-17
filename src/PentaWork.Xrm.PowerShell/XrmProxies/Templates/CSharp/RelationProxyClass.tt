@@ -9,11 +9,12 @@ using System;
 using Microsoft.Xrm.Sdk; 
 using Microsoft.Xrm.Sdk.Client;
 
-namespace <#= ProxyNamespace #>.Entities
+namespace <#= ProxyNamespace #>.Relations
 {
 	/// <summary> 
 	/// <#= RelationClassInfo.SchemaName #> 
 	/// </summary>
+	[Relation]
 	[EntityLogicalName("<#= RelationClassInfo.SchemaName #>")]
 	public sealed class <#= RelationClassInfo.UniqueDisplayName #> : <#= UseBaseProxy ? "BaseProxy" : "Entity" #>
 	{	

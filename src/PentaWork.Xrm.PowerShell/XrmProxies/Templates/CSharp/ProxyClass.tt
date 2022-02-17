@@ -19,13 +19,20 @@ namespace <#= ProxyNamespace #>.Entities
 	[DebuggerDisplay("{<#= EntityInfo.PrimaryNameAttribute.UniqueDisplayName #>}")] <# }
 #>	
 	[EntityLogicalName("<#= EntityInfo.LogicalName #>")]
-	public sealed class <#= EntityInfo.UniqueDisplayName #> : Entity
+	public sealed class <#= EntityInfo.UniqueDisplayName #> : <#= UseBaseProxy ? "BaseProxy" : "Entity" #>
 	{	
 		public new const string LogicalName = "<#= EntityInfo.LogicalName #>";
-		public const string PrimaryIdAttribute = "<#= EntityInfo.PrimaryIdAttribute.LogicalName #>";
-		public const string PrimaryNameAttribute = "<#= EntityInfo.PrimaryNameAttribute != null ? EntityInfo.PrimaryNameAttribute.LogicalName : string.Empty #>";
+		public <#= UseBaseProxy ? "new " : "" #>const string PrimaryIdAttribute = "<#= EntityInfo.PrimaryIdAttribute.LogicalName #>";
+		public <#= UseBaseProxy ? "new " : "" #>const string PrimaryNameAttribute = "<#= EntityInfo.PrimaryNameAttribute != null ? EntityInfo.PrimaryNameAttribute.LogicalName : string.Empty #>";
 	
+<#		if(UseBaseProxy)
+		{ #>
+		public <#= EntityInfo.UniqueDisplayName #>() : base(new Entity("<#= EntityInfo.LogicalName #>")) { }
+
+		public <#= EntityInfo.UniqueDisplayName #>(Entity entity) : base(entity) { }
+<#		} else { #>
 		public <#= EntityInfo.UniqueDisplayName #>() : base("<#= EntityInfo.LogicalName #>") { }
+<#		}#>
 
 		#region Attributes
 <#		foreach(var attribute in EntityInfo.AttributeList)
@@ -48,7 +55,7 @@ namespace <#= ProxyNamespace #>.Entities
 
 				Money moneyValue = null;
 				if(value != null) moneyValue = new Money(value.Value);
-				SetAttributeValue("<#= attribute.LogicalName #>", moneyValue);  
+				<#= UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue" #>("<#= attribute.LogicalName #>", moneyValue);  
 			}
 		}
 
@@ -75,7 +82,7 @@ namespace <#= ProxyNamespace #>.Entities
 
 				OptionSetValue optionSetValue = null;
 				if(value != null) optionSetValue = new OptionSetValue((int)value);
-				SetAttributeValue("<#= attribute.LogicalName #>", optionSetValue); 
+				<#= UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue" #>("<#= attribute.LogicalName #>", optionSetValue); 
 			}
 		}
 
@@ -102,7 +109,7 @@ namespace <#= ProxyNamespace #>.Entities
 				var secondNotFirst = <#= attribute.UniqueDisplayName #>.Except(value).ToList();
 				if (!firstNotSecond.Any() && !secondNotFirst.Any()) return;
 
-				SetAttributeValue("<#= attribute.LogicalName #>", new OptionSetValueCollection(value.Select(v => new OptionSetValue((int)v)).ToList()));
+				<#= UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue" #>("<#= attribute.LogicalName #>", new OptionSetValueCollection(value.Select(v => new OptionSetValue((int)v)).ToList()));
 			}
 		}
 <#					}
@@ -117,7 +124,7 @@ namespace <#= ProxyNamespace #>.Entities
 		public override Guid Id
 		{
 			get => base.Id;
-			set { base.Id = value; SetAttributeValue("<#= attribute.LogicalName #>", value); }
+			set { base.Id = value; <#= UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue" #>("<#= attribute.LogicalName #>", value); }
 		}
 
 					<# }  else { #>
@@ -132,7 +139,7 @@ namespace <#= ProxyNamespace #>.Entities
 			set
 			{ 
 				if(value == <#= attribute.UniqueDisplayName #>) return;
-				SetAttributeValue("<#= attribute.LogicalName #>", value);
+				<#= UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue" #>("<#= attribute.LogicalName #>", value);
 			}
 		}	
 			
@@ -223,4 +230,5 @@ namespace <#= ProxyNamespace #>.Entities
 <#+
 public EntityInfo EntityInfo { get; set; }
 public string ProxyNamespace { get; set; }
+public bool UseBaseProxy { get; set; }
 #>

@@ -15,24 +15,31 @@ namespace <#= ProxyNamespace #>.Entities
 	/// <#= RelationClassInfo.SchemaName #> 
 	/// </summary>
 	[EntityLogicalName("<#= RelationClassInfo.SchemaName #>")]
-	public sealed class <#= RelationClassInfo.UniqueDisplayName #> : Entity
+	public sealed class <#= RelationClassInfo.UniqueDisplayName #> : <#= UseBaseProxy ? "BaseProxy" : "Entity" #>
 	{	
 		public const string SchemaName = "<#= RelationClassInfo.SchemaName #>";
 	
+<#		if(UseBaseProxy)
+		{ #>
+		public <#= RelationClassInfo.UniqueDisplayName #>() : base(new Entity("<#= RelationClassInfo.SchemaName #>")) { }
+
+		public <#= RelationClassInfo.UniqueDisplayName #>(Entity entity) : base(entity) { }
+<#		} else { #>
 		public <#= RelationClassInfo.UniqueDisplayName #>() : base("<#= RelationClassInfo.SchemaName #>") { }
+<#		}#>
 
 		[AttributeLogicalName("<#= RelationClassInfo.Entity1Attribute #>")]
 		public Guid <#= RelationClassInfo.UniqueEntity1AttributeName #>
 		{	
 			get { return GetAttributeValue<Guid>("<#= RelationClassInfo.Entity1Attribute #>"); }
-			set { SetAttributeValue("<#= RelationClassInfo.Entity1Attribute #>", value); }
+			set { <#= UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue" #>("<#= RelationClassInfo.Entity1Attribute #>", value); }
 		}
 
 		[AttributeLogicalName("<#= RelationClassInfo.Entity2Attribute #>")]
 		public Guid <#= RelationClassInfo.UniqueEntity2AttributeName #>
 		{	
 			get { return GetAttributeValue<Guid>("<#= RelationClassInfo.Entity2Attribute #>"); }
-			set { SetAttributeValue("<#= RelationClassInfo.Entity2Attribute #>", value); }
+			set { <#= UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue" #>("<#= RelationClassInfo.Entity2Attribute #>", value); }
 		}
 	}
 }
@@ -40,4 +47,5 @@ namespace <#= ProxyNamespace #>.Entities
 <#+
 public ManyToManyRelationInfo RelationClassInfo { get; set; }
 public string ProxyNamespace { get; set; }
+public bool UseBaseProxy { get; set; }
 #>

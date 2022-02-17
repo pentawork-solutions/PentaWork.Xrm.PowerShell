@@ -140,6 +140,13 @@ namespace PentaWork.Xrm.PowerShell
 
         private void GenerateBaseClasses()
         {
+            if(UseBaseProxy)
+            {
+                WriteVerbose("Generating Base Proxy ...");
+                var baseProxyTemplate = new BaseProxy { ProxyNamespace = ProxyNamespace };
+                File.WriteAllText(Path.Combine(CSOutputPath, "BaseProxy.cs"), baseProxyTemplate.TransformText());
+            }            
+
             WriteVerbose("Generating Attributes ...");
             var attributesTemplate = new Attributes { ProxyNamespace = ProxyNamespace };
             File.WriteAllText(Path.Combine(CSOutputPath, "Attributes.cs"), attributesTemplate.TransformText());
@@ -161,7 +168,7 @@ namespace PentaWork.Xrm.PowerShell
             EnsureFolder(Path.Combine(OutputPath.FullName, "Fake"));
             foreach (var entityInfo in entityInfoList)
             {
-                var proxyTemplate = new ProxyClass { EntityInfo = entityInfo, ProxyNamespace = ProxyNamespace };
+                var proxyTemplate = new ProxyClass { EntityInfo = entityInfo, ProxyNamespace = ProxyNamespace, UseBaseProxy = UseBaseProxy };
                 File.WriteAllText(Path.Combine(CSOutputPath, "Entities", $"{entityInfo.UniqueDisplayName}.cs"), proxyTemplate.TransformText());
 
                 var fakeTemplate = new Fake { EntityInfo = entityInfo, ProxyNamespace = ProxyNamespace, FakeNamespace = FakeNamespace };
@@ -172,7 +179,7 @@ namespace PentaWork.Xrm.PowerShell
             EnsureFolder(Path.Combine(CSOutputPath, "Relations"));
             foreach (var relationClassInfo in entityInfoList.SelectMany(e => e.ManyToManyRelationList))
             {
-                var proxyTemplate = new RelationProxyClass { RelationClassInfo = relationClassInfo, ProxyNamespace = ProxyNamespace };
+                var proxyTemplate = new RelationProxyClass { RelationClassInfo = relationClassInfo, ProxyNamespace = ProxyNamespace, UseBaseProxy = UseBaseProxy };
                 File.WriteAllText(Path.Combine(CSOutputPath, "Relations", $"{relationClassInfo.UniqueDisplayName}.cs"), proxyTemplate.TransformText());
             }
         }
@@ -240,6 +247,12 @@ namespace PentaWork.Xrm.PowerShell
         /// </summary>
         [Parameter]
         public SwitchParameter Clear { get; set; }
+
+        /// <summary>
+        /// <para type="description">Use a custom base proxy class for the generated proxies.</para>
+        /// </summary>
+        [Parameter]
+        public SwitchParameter UseBaseProxy { get; set; }
 
         public string CSOutputPath => Path.Combine(OutputPath.FullName, "CSharp");
         public string TSOutputPath => Path.Combine(OutputPath.FullName, "TS");

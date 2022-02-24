@@ -1,0 +1,130 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="Microsoft.Xrm.Sdk.Metadata" #>
+<#@ import namespace="PentaWork.Xrm.PowerShell.XrmProxies.Model" #>
+using Microsoft.Xrm.Sdk;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace <#= ProxyNamespace #>
+{
+    public abstract class BaseProxy : Entity
+    {
+        private readonly AttributeEqualityComparer _equalityComparer = new AttributeEqualityComparer();
+
+        protected BaseProxy(Entity original)
+        {
+            Id = original.Id;
+            LogicalName = original.LogicalName;
+            RelatedEntities.Clear();
+            FormattedValues.Clear();
+            Attributes.Clear();
+            RelatedEntities.AddRange(original.RelatedEntities);
+            FormattedValues.AddRange(original.FormattedValues);
+            ExtensionData = original.ExtensionData;
+            Attributes.AddRange(original.Attributes);
+            EntityState = original.EntityState;
+        }
+    
+        public Entity GetChangedEntity(bool resetChanges = false)
+        {
+            var entity = new Entity(LogicalName)
+            {
+                Id = Id
+            };
+            foreach (string attributeName in ChangedValues.Keys)
+                entity.Attributes[attributeName] = Attributes[attributeName];
+            if (resetChanges) ChangedValues.Clear();
+            return entity;
+        }
+
+        protected void SetAttributeValueTracked<T>(string attributeName, T value)
+        {
+            var currentValue = GetAttributeValue<T>(attributeName);
+            if (!_equalityComparer.Equals(currentValue, value))
+            {
+                if (ChangedValues.ContainsKey(attributeName) && _equalityComparer.Equals(ChangedValues[attributeName], value))
+                {
+                    ChangedValues.Remove(attributeName);
+                }
+                else if(!ChangedValues.ContainsKey(attributeName))
+                {
+                    ChangedValues.Add(attributeName, GetAttributeValue<T>(attributeName));
+                }
+                SetAttributeValue(attributeName, value); 
+            }
+        }
+
+        public string PrimaryIdAttribute
+        {
+            get
+            {
+                var field = GetType().GetFields().SingleOrDefault(f => f.Name == "PrimaryIdAttribute");
+                return (string)field?.GetValue(this);
+            }
+        }
+
+        public string PrimaryNameAttribute
+        {
+            get
+            {
+                var field = GetType().GetFields().SingleOrDefault(f => f.Name == "PrimaryNameAttribute");
+                return (string)field?.GetValue(this);
+            }
+        }
+
+        public bool IsDirty => ChangedValues.Count > 0;
+
+        public Dictionary<string, object> ChangedValues { get; } = new Dictionary<string, object>();
+    }
+
+    public class AttributeEqualityComparer : IEqualityComparer
+    {
+        public new bool Equals(object x, object y)
+        {
+            if ((x == null || (x.GetType() == typeof(string) && string.IsNullOrEmpty(x as string))) && (y == null || (y.GetType() == typeof(string) && string.IsNullOrEmpty(y as string))))
+            {
+                return true;
+            }
+            else
+            {
+                if (x == null && y == null) { return true; }
+                else if (x == null && y != null) { return false; }
+                else if (x != null && y == null) { return false; }
+                else if (x.GetType() == y.GetType())
+                {
+                    if (x.GetType() == typeof(OptionSetValue)) { return ((OptionSetValue)x).Value == ((OptionSetValue)y).Value; }
+                    else if (x.GetType() == typeof(BooleanManagedProperty)) { return ((BooleanManagedProperty)x).Value == ((BooleanManagedProperty)y).Value; }
+                    else if (x.GetType() == typeof(EntityReference))
+                    {
+                        if (((EntityReference)x).LogicalName == ((EntityReference)y).LogicalName) { return ((EntityReference)x).Id == ((EntityReference)y).Id; }
+                        else { return false; }
+                    }
+                    else if (x.GetType() == typeof(Money)) { return ((Money)x).Value == ((Money)y).Value; }
+                    else if (x.GetType() == typeof(DateTime) || x.GetType() == typeof(DateTime?))
+                    {
+                        //Compare only down to the second since CRM only saves down to the second
+                        return Math.Abs(((DateTime)x - (DateTime)y).TotalSeconds) < 1;
+                    }
+                    else { return x.Equals(y); }
+                }
+                else { return false; }
+            }
+        }
+
+        public int GetHashCode(object obj)
+        {
+            return obj.GetHashCode();
+        }
+    }
+}
+
+
+<#+
+public string ProxyNamespace { get; set; }
+#>

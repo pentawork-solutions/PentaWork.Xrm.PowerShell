@@ -20,9 +20,9 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
+    #line 1 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\BaseProxy.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "17.0.0.0")]
-    public partial class RelationProxyClass : RelationProxyClassBase
+    public partial class BaseProxy : BaseProxyBase
     {
 #line hidden
         /// <summary>
@@ -30,185 +30,78 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("using System;\r\nusing Microsoft.Xrm.Sdk; \r\nusing Microsoft.Xrm.Sdk.Client;\r\n\r\nname" +
-                    "space ");
+            this.Write("using Microsoft.Xrm.Sdk;\r\nusing System;\r\nusing System.Collections;\r\nusing System." +
+                    "Collections.Generic;\r\nusing System.Linq;\r\n\r\nnamespace ");
             
-            #line 12 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
+            #line 14 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\BaseProxy.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ProxyNamespace));
             
             #line default
             #line hidden
-            this.Write(".Relations\r\n{\r\n\t/// <summary> \r\n\t/// ");
-            
-            #line 15 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.SchemaName));
-            
-            #line default
-            #line hidden
-            this.Write(" \r\n\t/// </summary>\r\n\t[Relation]\r\n\t[EntityLogicalName(\"");
-            
-            #line 18 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.SchemaName));
-            
-            #line default
-            #line hidden
-            this.Write("\")]\r\n\tpublic sealed class ");
-            
-            #line 19 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.UniqueDisplayName));
-            
-            #line default
-            #line hidden
-            this.Write(" : ");
-            
-            #line 19 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(UseBaseProxy ? "BaseProxy" : "Entity"));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n\t{\t\r\n\t\tpublic const string SchemaName = \"");
-            
-            #line 21 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.SchemaName));
-            
-            #line default
-            #line hidden
-            this.Write("\";\r\n\t\r\n");
-            
-            #line 23 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-		if(UseBaseProxy)
-		{ 
-            
-            #line default
-            #line hidden
-            this.Write("\t\tpublic ");
-            
-            #line 25 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.UniqueDisplayName));
-            
-            #line default
-            #line hidden
-            this.Write("() : base(new Entity(\"");
-            
-            #line 25 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.SchemaName));
-            
-            #line default
-            #line hidden
-            this.Write("\")) { }\r\n\r\n\t\tpublic ");
-            
-            #line 27 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.UniqueDisplayName));
-            
-            #line default
-            #line hidden
-            this.Write("(Entity entity) : base(entity) { }\r\n");
-            
-            #line 28 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-		} else { 
-            
-            #line default
-            #line hidden
-            this.Write("\t\tpublic ");
-            
-            #line 29 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.UniqueDisplayName));
-            
-            #line default
-            #line hidden
-            this.Write("() : base(\"");
-            
-            #line 29 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.SchemaName));
-            
-            #line default
-            #line hidden
-            this.Write("\") { }\r\n");
-            
-            #line 30 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-		}
-            
-            #line default
-            #line hidden
-            this.Write("\r\n\t\t[AttributeLogicalName(\"");
-            
-            #line 32 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.Entity1Attribute));
-            
-            #line default
-            #line hidden
-            this.Write("\")]\r\n\t\tpublic Guid ");
-            
-            #line 33 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.UniqueEntity1AttributeName));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n\t\t{\t\r\n\t\t\tget { return GetAttributeValue<Guid>(\"");
-            
-            #line 35 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.Entity1Attribute));
-            
-            #line default
-            #line hidden
-            this.Write("\"); }\r\n\t\t\tset { ");
-            
-            #line 36 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue"));
-            
-            #line default
-            #line hidden
-            this.Write("(\"");
-            
-            #line 36 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.Entity1Attribute));
-            
-            #line default
-            #line hidden
-            this.Write("\", value); }\r\n\t\t}\r\n\r\n\t\t[AttributeLogicalName(\"");
-            
-            #line 39 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.Entity2Attribute));
-            
-            #line default
-            #line hidden
-            this.Write("\")]\r\n\t\tpublic Guid ");
-            
-            #line 40 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.UniqueEntity2AttributeName));
-            
-            #line default
-            #line hidden
-            this.Write("\r\n\t\t{\t\r\n\t\t\tget { return GetAttributeValue<Guid>(\"");
-            
-            #line 42 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.Entity2Attribute));
-            
-            #line default
-            #line hidden
-            this.Write("\"); }\r\n\t\t\tset { ");
-            
-            #line 43 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue"));
-            
-            #line default
-            #line hidden
-            this.Write("(\"");
-            
-            #line 43 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.Entity2Attribute));
-            
-            #line default
-            #line hidden
-            this.Write("\", value); }\r\n\t\t}\r\n\t}\r\n}\r\n\r\n");
+            this.Write("\r\n{\r\n    public abstract class BaseProxy : Entity\r\n    {\r\n        private readonl" +
+                    "y AttributeEqualityComparer _equalityComparer = new AttributeEqualityComparer();" +
+                    "\r\n\r\n        protected BaseProxy(Entity original)\r\n        {\r\n            Id = or" +
+                    "iginal.Id;\r\n            LogicalName = original.LogicalName;\r\n            Related" +
+                    "Entities.Clear();\r\n            FormattedValues.Clear();\r\n            Attributes." +
+                    "Clear();\r\n            RelatedEntities.AddRange(original.RelatedEntities);\r\n     " +
+                    "       FormattedValues.AddRange(original.FormattedValues);\r\n            Extensio" +
+                    "nData = original.ExtensionData;\r\n            Attributes.AddRange(original.Attrib" +
+                    "utes);\r\n            EntityState = original.EntityState;\r\n        }\r\n    \r\n      " +
+                    "  public Entity GetChangedEntity(bool resetChanges = false)\r\n        {\r\n        " +
+                    "    var entity = new Entity(LogicalName)\r\n            {\r\n                Id = Id" +
+                    "\r\n            };\r\n            foreach (string attributeName in ChangedValues.Key" +
+                    "s)\r\n                entity.Attributes[attributeName] = Attributes[attributeName]" +
+                    ";\r\n            if (resetChanges) ChangedValues.Clear();\r\n            return enti" +
+                    "ty;\r\n        }\r\n\r\n        protected void SetAttributeValueTracked<T>(string attr" +
+                    "ibuteName, T value)\r\n        {\r\n            var currentValue = GetAttributeValue" +
+                    "<T>(attributeName);\r\n            if (!_equalityComparer.Equals(currentValue, val" +
+                    "ue))\r\n            {\r\n                if (ChangedValues.ContainsKey(attributeName" +
+                    ") && _equalityComparer.Equals(ChangedValues[attributeName], value))\r\n           " +
+                    "     {\r\n                    ChangedValues.Remove(attributeName);\r\n              " +
+                    "  }\r\n                else if(!ChangedValues.ContainsKey(attributeName))\r\n       " +
+                    "         {\r\n                    ChangedValues.Add(attributeName, GetAttributeVal" +
+                    "ue<T>(attributeName));\r\n                }\r\n                SetAttributeValue(att" +
+                    "ributeName, value); \r\n            }\r\n        }\r\n\r\n        public string PrimaryI" +
+                    "dAttribute\r\n        {\r\n            get\r\n            {\r\n                var field" +
+                    " = GetType().GetFields().SingleOrDefault(f => f.Name == \"PrimaryIdAttribute\");\r\n" +
+                    "                return (string)field?.GetValue(this);\r\n            }\r\n        }\r" +
+                    "\n\r\n        public string PrimaryNameAttribute\r\n        {\r\n            get\r\n     " +
+                    "       {\r\n                var field = GetType().GetFields().SingleOrDefault(f =>" +
+                    " f.Name == \"PrimaryNameAttribute\");\r\n                return (string)field?.GetVa" +
+                    "lue(this);\r\n            }\r\n        }\r\n\r\n        public bool IsDirty => ChangedVa" +
+                    "lues.Count > 0;\r\n\r\n        public Dictionary<string, object> ChangedValues { get" +
+                    "; } = new Dictionary<string, object>();\r\n    }\r\n\r\n    public class AttributeEqua" +
+                    "lityComparer : IEqualityComparer\r\n    {\r\n        public new bool Equals(object x" +
+                    ", object y)\r\n        {\r\n            if ((x == null || (x.GetType() == typeof(str" +
+                    "ing) && string.IsNullOrEmpty(x as string))) && (y == null || (y.GetType() == typ" +
+                    "eof(string) && string.IsNullOrEmpty(y as string))))\r\n            {\r\n            " +
+                    "    return true;\r\n            }\r\n            else\r\n            {\r\n              " +
+                    "  if (x == null && y == null) { return true; }\r\n                else if (x == nu" +
+                    "ll && y != null) { return false; }\r\n                else if (x != null && y == n" +
+                    "ull) { return false; }\r\n                else if (x.GetType() == y.GetType())\r\n  " +
+                    "              {\r\n                    if (x.GetType() == typeof(OptionSetValue)) " +
+                    "{ return ((OptionSetValue)x).Value == ((OptionSetValue)y).Value; }\r\n            " +
+                    "        else if (x.GetType() == typeof(BooleanManagedProperty)) { return ((Boole" +
+                    "anManagedProperty)x).Value == ((BooleanManagedProperty)y).Value; }\r\n            " +
+                    "        else if (x.GetType() == typeof(EntityReference))\r\n                    {\r" +
+                    "\n                        if (((EntityReference)x).LogicalName == ((EntityReferen" +
+                    "ce)y).LogicalName) { return ((EntityReference)x).Id == ((EntityReference)y).Id; " +
+                    "}\r\n                        else { return false; }\r\n                    }\r\n      " +
+                    "              else if (x.GetType() == typeof(Money)) { return ((Money)x).Value =" +
+                    "= ((Money)y).Value; }\r\n                    else if (x.GetType() == typeof(DateTi" +
+                    "me) || x.GetType() == typeof(DateTime?))\r\n                    {\r\n               " +
+                    "         //Compare only down to the second since CRM only saves down to the seco" +
+                    "nd\r\n                        return Math.Abs(((DateTime)x - (DateTime)y).TotalSec" +
+                    "onds) < 1;\r\n                    }\r\n                    else { return x.Equals(y)" +
+                    "; }\r\n                }\r\n                else { return false; }\r\n            }\r\n " +
+                    "       }\r\n\r\n        public int GetHashCode(object obj)\r\n        {\r\n            r" +
+                    "eturn obj.GetHashCode();\r\n        }\r\n    }\r\n}\r\n\r\n\r\n");
             return this.GenerationEnvironment.ToString();
         }
         
-        #line 48 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
+        #line 128 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\BaseProxy.tt"
 
-public ManyToManyRelationInfo RelationClassInfo { get; set; }
 public string ProxyNamespace { get; set; }
-public bool UseBaseProxy { get; set; }
 
         
         #line default
@@ -222,7 +115,7 @@ public bool UseBaseProxy { get; set; }
     /// Base class for this transformation
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "17.0.0.0")]
-    public class RelationProxyClassBase
+    public class BaseProxyBase
     {
         #region Fields
         private global::System.Text.StringBuilder generationEnvironmentField;

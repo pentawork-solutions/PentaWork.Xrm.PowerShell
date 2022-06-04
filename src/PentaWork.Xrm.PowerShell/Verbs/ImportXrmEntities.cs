@@ -39,6 +39,76 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             if ((bool?)user.Attributes["isdisabled"] == true) throw new Exception("Given fallback user is disabled in connected system!");
         }
 
+        private void ImportEntities()
+        {
+            int created = 0;
+            int updated = 0;
+            Console.WriteLine($"Importing entities ...");
+            foreach(var entityInfo in EntityData.Entities)
+            {
+                var matchingSystemEntities = GetMatchingSystemEntities(entityInfo);
+                var systemEntity = matchingSystemEntities.FirstOrDefault();
+                var isUpdate = systemEntity != null;
+
+                if (matchingSystemEntities.Count > 0) Console.WriteLine($"Found multiple matches for '{entityInfo.Name}' ...");
+                if (matchingSystemEntities.Count > 0 && !TakeFirst) { Console.WriteLine("Skipping ..."); continue; }                                
+                if (systemEntity == null && UpdateOnly) { Console.WriteLine("No entity found. Update Only! Skipping ..."); continue; }
+
+                systemEntity = systemEntity ?? new Entity(EntityData.EntityName);
+                SetAttributes(systemEntity, entityInfo.Attributes);
+                SetOwner(systemEntity);                             
+
+                if (isUpdate) 
+                { 
+                    Connection.Update(systemEntity);
+                    updated++; 
+                }
+                else 
+                { 
+                    Connection.Create(systemEntity); 
+                    created++; 
+                }
+            }
+            Console.WriteLine($"Created: {created} Updated: {updated}");
+        }
+
+        private List<Entity> GetMatchingSystemEntities(EntityInfo entityInfo)
+        {
+            List<Entity> entities;
+            if (MapByName)
+            {
+                entities = GetEntitiesByName(EntityData.EntityName, EntityData.PrimaryNameField, entityInfo.Name);
+            }
+            else
+            {
+                var entity = TryRetrieve(EntityData.EntityName, entityInfo.Id, new ColumnSet());
+                entities = entity != null
+                    ? new List<Entity> { entity }
+                    : new List<Entity>();
+            }
+            return entities;
+        }
+
+        private void SetAttributes(Entity systemEntity, List<AttributeInfo> attributes)
+        {
+            foreach (var attr in attributes)
+            {
+                systemEntity[attr.Name] = DeserializeValue(attr.Type, attr.Value);
+            }
+        }
+
+        private void SetOwner(Entity systemEntity)
+        {
+            var owner = (EntityReference)systemEntity["ownerid"];
+            var systemOwner = GetEntitiesByName(owner.LogicalName, owner.LogicalName == "systemuser" ? "fullname" : "name", owner.Name);
+            if (systemOwner.Count == 0)
+            {
+                Console.WriteLine($"Owner '{owner.Name}' not found! Using fallback user ...");
+                systemEntity["ownerid"] = FallbackOwner;
+            }
+            else systemEntity["ownerid"] = systemOwner.First().ToEntityReference();
+        }
+
         private Entity TryRetrieve(string logicalName, Guid id, ColumnSet columns)
         {
             Entity entity = null;
@@ -46,46 +116,8 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             {
                 entity = Connection.Retrieve(logicalName, id, columns);
             }
-            catch(FaultException) { /*No entity found*/ }
+            catch (FaultException) { /*No entity found*/ }
             return entity;
-        }
-
-        private void ImportEntities()
-        {
-            int created = 0;
-            int updated = 0;
-            Console.WriteLine($"Importing entities ...");
-            foreach(var entity in EntityData.Entities)
-            {
-                Entity systemEntity = null;
-                if (MapByName)
-                {
-                    var foundEntities = GetEntitiesByName(EntityData.EntityName, EntityData.PrimaryNameField, entity.Name);
-                    if (foundEntities.Count > 0) Console.WriteLine($"Found multiple matches for '{entity.Name}' ...");
-                    if (foundEntities.Count > 0 && !TakeFirst) { Console.WriteLine("Skipping ..."); continue; }
-
-                    systemEntity = foundEntities.FirstOrDefault();
-                }
-                else systemEntity = TryRetrieve(EntityData.EntityName, entity.Id, new ColumnSet());
-
-                var isUpdate = true;
-                if (systemEntity == null && UpdateOnly) { Console.WriteLine("No entity found. Update Only! Skipping ..."); continue; }
-                else if (systemEntity == null) { systemEntity = new Entity(EntityData.EntityName); isUpdate = false; }
-
-                foreach(var attr in entity.Attributes)
-                {
-                    systemEntity[attr.Name] = DeserializeValue(attr.Type, attr.Value);
-                }
-
-                var owner = (EntityReference)systemEntity["ownerid"];
-                var systemOwner = GetEntitiesByName(owner.LogicalName, owner.LogicalName == "systemuser" ? "fullname" : "name", owner.Name);
-                if(systemOwner.Count == 0) { Console.WriteLine($"Owner '{owner.Name}' not found! Using fallback user ..."); systemEntity["ownerid"] = FallbackOwner; }
-                else systemEntity["ownerid"] = systemOwner.First().ToEntityReference();
-
-                if (isUpdate) { Connection.Update(systemEntity); updated++; }
-                else { Connection.Create(systemEntity); created++; }
-            }
-            Console.WriteLine($"Created: {created} Updated: {updated}");
         }
 
         private List<Entity> GetEntitiesByName(string entityLogicalName, string nameField, string entityName)

@@ -90,6 +90,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                     Criteria = new FilterExpression(),
                     PageInfo = new PagingInfo { Count = pageSize, PageNumber = pageNumber }
                 };
+                FilterConditions.ForEach(c => query.Criteria.AddCondition(c));
                 return Connection.RetrieveMultiple(query);
             });
 
@@ -150,7 +151,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                 var entityInfo = new EntityInfo
                 {
                     Id = (Guid)entity.Attributes[relevantAttributes.Single(a => a.IsPrimaryId == true).LogicalName],
-                    Name = entity.Attributes[relevantAttributes.Single(a => a.IsPrimaryName == true).LogicalName].ToString()
+                    Name = entity.Attributes.Contains(metadata.PrimaryNameAttribute) ? entity.Attributes[metadata.PrimaryNameAttribute].ToString() : string.Empty
                 };
 
                 foreach(var attr in entity.Attributes)

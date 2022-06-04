@@ -7,6 +7,7 @@ using Microsoft.Xrm.Tooling.Connector;
 
 namespace PentaWork.Xrm.PowerShell.Verbs
 {
+    #region DTOs
     /// <summary>
     /// <para type="synopsis">Object to hold solution information.</para>
     /// <para type="description">
@@ -20,6 +21,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
         public Version Version { get; set; }
         public string Publisher { get; set; }
     }
+    #endregion
 
     /// <summary>
     /// <para type="synopsis">Gets a list of all installed and visible solutions in the target system.</para>
@@ -28,7 +30,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     /// </para>
     /// </summary>
     /// <example>
-    /// <code>Get-CrmConnection -Interactive | Get-XrmSolutions</code>
+    /// <code>Get-CrmConnection -InteractiveMode | Get-XrmSolutions</code>
     /// </example>
     [Cmdlet(VerbsCommon.Get, "XrmSolutions")]
     [OutputType(typeof(SolutionInfo))]

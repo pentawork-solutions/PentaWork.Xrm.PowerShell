@@ -14,7 +14,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     /// </para>
     /// </summary>
     /// <example>
-    /// <para>$conn = Get-CrmConnection -Interactive</para>
+    /// <para>$conn = Get-CrmConnection -InteractiveMode</para>
     /// <para>Get-XrmSolutions -Connection $conn | Where-Object {$_.Name -like "TestSolution*"} | Export-XrmSolution -Connection $conn -Managed -ExportPath .\</para>
     /// </example>
     [OutputType(typeof(FileInfo))]

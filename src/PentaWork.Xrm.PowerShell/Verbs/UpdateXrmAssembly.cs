@@ -14,8 +14,8 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     /// </para>
     /// </summary>
     /// <example>
-    /// <para>$conn = Get-CrmConnection -Interactive</para>
-    /// <para>Update-XrmAseembly -Connection $conn -AssemblyFile .\Plugin.dll</para>
+    /// <para>$conn = Get-CrmConnection -InteractiveMode</para>
+    /// <para>Update-XrmAssembly -Connection $conn -AssemblyFile .\Plugin.dll</para>
     /// </example>
     [Cmdlet(VerbsData.Update, "XrmAssembly")]
     public class UpdateXrmAssembly : PSCmdlet

@@ -18,8 +18,8 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     /// </para>
     /// </summary>
     /// <example>
-    /// <para>$conn = Get-CrmConnection -Interactive</para>
-    /// <para>$conn2 = Get-CrmConnection -Interactive</para>
+    /// <para>$conn = Get-CrmConnection -InteractiveMode</para>
+    /// <para>$conn2 = Get-CrmConnection -InteractiveMode</para>
     /// <para>Export-XrmSolution -Connection $conn -UniqueName TestSolution -Managed -ExportPath | Import-XrmSolution -Connection $conn2 -Overwrite</para>
     /// </example>
     [Cmdlet(VerbsData.Import, "XrmSolution")]

@@ -46,28 +46,37 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             Console.WriteLine($"Importing entities ...");
             foreach(var entityInfo in EntityData.Entities)
             {
-                var matchingSystemEntities = GetMatchingSystemEntities(entityInfo);
-                var systemEntity = matchingSystemEntities.FirstOrDefault();
-                var isUpdate = systemEntity != null;
+                try
+                {
+                    var matchingSystemEntities = GetMatchingSystemEntities(entityInfo);
+                    var systemEntity = matchingSystemEntities.FirstOrDefault();
+                    var isUpdate = systemEntity != null;
 
-                if (matchingSystemEntities.Count > 0) Console.WriteLine($"Found multiple matches for '{entityInfo.Name}' ...");
-                if (matchingSystemEntities.Count > 0 && !TakeFirst) { Console.WriteLine("Skipping ..."); continue; }                                
-                if (systemEntity == null && UpdateOnly) { Console.WriteLine("No entity found. Update Only! Skipping ..."); continue; }
+                    if (CreateOnly.Contains(entityInfo.Name) && isUpdate) Console.WriteLine($"Skipping update of '{entityInfo.Name}' - Create Only ...");
+                    if (matchingSystemEntities.Count > 1) Console.WriteLine($"Found multiple matches for '{entityInfo.Name}' ...");
+                    if (matchingSystemEntities.Count > 1 && !TakeFirst) { Console.WriteLine("Skipping ..."); continue; }
 
-                systemEntity = systemEntity ?? new Entity(EntityData.EntityName);
-                SetAttributes(systemEntity, entityInfo.Attributes);
-                SetOwner(systemEntity);                             
+                    systemEntity = systemEntity ?? new Entity(EntityData.EntityName);
+                    SetAttributes(systemEntity, entityInfo.Attributes, isUpdate);
+                    SetOwner(systemEntity);
 
-                if (isUpdate) 
-                { 
-                    Connection.Update(systemEntity);
-                    updated++; 
+                    if (isUpdate)
+                    {
+                        Connection.Update(systemEntity);
+                        updated++;
+                    }
+                    else
+                    {
+                        Connection.Create(systemEntity);
+                        created++;
+                    }
                 }
-                else 
-                { 
-                    Connection.Create(systemEntity); 
-                    created++; 
-                }
+                catch(Exception ex)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine(ex.Message);
+                    Console.ResetColor();
+                }                
             }
             Console.WriteLine($"Created: {created} Updated: {updated}");
         }
@@ -89,23 +98,23 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             return entities;
         }
 
-        private void SetAttributes(Entity systemEntity, List<AttributeInfo> attributes)
+        private void SetAttributes(Entity systemEntity, AttributeInfo[] attributes, bool isUpdate)
         {
             foreach (var attr in attributes)
             {
-                systemEntity[attr.Name] = DeserializeValue(attr.Type, attr.Value);
+                if (isUpdate && attr.Name == EntityData.PrimaryIdField) continue; // Skip Id Attribute on Update
+                systemEntity[attr.Name] = DeserializeValue(attr);
             }
         }
 
         private void SetOwner(Entity systemEntity)
         {
+            // Some entities like themes and currencies dont have an owner!
+            if (!systemEntity.Attributes.Contains("ownerid")) return;
+
             var owner = (EntityReference)systemEntity["ownerid"];
             var systemOwner = GetEntitiesByName(owner.LogicalName, owner.LogicalName == "systemuser" ? "fullname" : "name", owner.Name);
-            if (systemOwner.Count == 0)
-            {
-                Console.WriteLine($"Owner '{owner.Name}' not found! Using fallback user ...");
-                systemEntity["ownerid"] = FallbackOwner;
-            }
+            if (systemOwner.Count == 0) systemEntity["ownerid"] = FallbackOwner;
             else systemEntity["ownerid"] = systemOwner.First().ToEntityReference();
         }
 
@@ -132,51 +141,57 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             return Connection.RetrieveMultiple(query).Entities.ToList();
         }
 
-        private object DeserializeValue(AttributeTypeCode? type, string value)
+        private object DeserializeValue(AttributeInfo attr)
         {
             object deserializedValue = null;
-            switch (type)
+            switch (attr.Type)
             {
                 case AttributeTypeCode.State:
                 case AttributeTypeCode.Status:
                 case AttributeTypeCode.Picklist:
-                    deserializedValue = new OptionSetValue(int.Parse(value));
+                    deserializedValue = new OptionSetValue(int.Parse(attr.Value));
                     break;
                 case AttributeTypeCode.DateTime:
-                    deserializedValue = DateTime.Parse(value);
+                    deserializedValue = DateTime.Parse(attr.Value);
                     break;
                 case AttributeTypeCode.Boolean:
-                    deserializedValue = bool.Parse(value);
+                    deserializedValue = bool.Parse(attr.Value);
                     break;
                 case AttributeTypeCode.Money:
                 case AttributeTypeCode.Decimal:
-                    deserializedValue = decimal.Parse(value);
+                    deserializedValue = decimal.Parse(attr.Value);
                     break;
                 case AttributeTypeCode.Double:
-                    deserializedValue = double.Parse(value);
+                    deserializedValue = double.Parse(attr.Value);
                     break;
                 case AttributeTypeCode.Integer:
-                    deserializedValue = int.Parse(value);
+                    deserializedValue = int.Parse(attr.Value);
                     break;
                 case AttributeTypeCode.BigInt:
-                    deserializedValue = BigInteger.Parse(value);
+                    deserializedValue = BigInteger.Parse(attr.Value);
                     break;
                 case AttributeTypeCode.Uniqueidentifier:
-                    deserializedValue = new Guid(value);
+                    deserializedValue = new Guid(attr.Value);
                     break;
                 case AttributeTypeCode.Customer:
                 case AttributeTypeCode.Lookup:
                 case AttributeTypeCode.Owner:
-                    var entityRef = value.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
+                    var entityRef = attr.Value.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
                     deserializedValue = new EntityReference(entityRef[0], new Guid(entityRef[1])) { Name = entityRef[2] };
+                    if (MapByNameLookups.Contains(attr.Name))
+                    {
+                        var entities = GetEntitiesByName(entityRef[0], entityRef[3], entityRef[2]);
+                        if (entities.FirstOrDefault() != null) deserializedValue = entities.First().ToEntityReference();
+                        else throw new Exception($"No matching '{entityRef[0]}' for name '{entityRef[2]}' found!");
+                    }
                     break;
                 case AttributeTypeCode.Memo:
                 case AttributeTypeCode.String:
                 case AttributeTypeCode.EntityName:
-                    deserializedValue = value;
+                    deserializedValue = attr.Value;
                     break;
                 default:
-                    throw new Exception($"{type}");
+                    throw new Exception($"{attr.Type}");
             }
             return deserializedValue;
         }
@@ -206,12 +221,6 @@ namespace PentaWork.Xrm.PowerShell.Verbs
         public EntityReference FallbackOwner { get; set; }
 
         /// <summary>
-        /// <para type="description">Set, if no new entities should be created. Default is upsert (update and create)</para>
-        /// </summary>
-        [Parameter]
-        public SwitchParameter UpdateOnly { get; set; }
-
-        /// <summary>
         /// <para type="description">Set, if the mapping for updates should be done by entity name instead of the id.</para>
         /// </summary>
         [Parameter]
@@ -222,5 +231,17 @@ namespace PentaWork.Xrm.PowerShell.Verbs
         /// </summary>
         [Parameter]
         public SwitchParameter TakeFirst { get; set; }
+
+        /// <summary>
+        /// <para type="description">The values for the listed lookup fields will be matches by its primary name value.</para>
+        /// </summary>
+        [Parameter]
+        public List<string> MapByNameLookups { get; set; } = new List<string>();
+
+        /// <summary>
+        /// <para type="description">The entity names listed will only be created, but not updated, if found.</para>
+        /// </summary>
+        [Parameter]
+        public List<string> CreateOnly { get; set; } = new List<string>();
     }
 }

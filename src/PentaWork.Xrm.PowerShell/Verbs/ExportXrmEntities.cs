@@ -24,7 +24,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
         public string PrimaryNameField { get; set; }
         public string ExportedFrom { get; set; }
         public DateTime ExportedOn { get; set; }
-        public List<EntityInfo> Entities { get; set; } = new List<EntityInfo>();
+        public EntityInfo[] Entities { get; set; }
     }
 
     /// <summary>
@@ -37,7 +37,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public List<AttributeInfo> Attributes { get; set; } = new List<AttributeInfo>();
+        public AttributeInfo[] Attributes { get; set; }
     }
 
     /// <summary>
@@ -68,15 +68,17 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     /// <para>Get-CrmConnection -InteractiveMode | Get-XrmEntities -EntityName userquery | ConvertTo-Json -depth 4 | Out-File "userquery.json"</para>
     /// </example>
     [OutputType(typeof(EntityData))]
-    [Cmdlet(VerbsCommon.Get, "XrmEntities")]
-    public class GetXrmEntities : PSCmdlet
+    [Cmdlet(VerbsData.Export, "XrmEntities")]
+    public class ExportXrmEntities : PSCmdlet
     {
+        private readonly List<EntityMetadata> _fetchedMetaData = new List<EntityMetadata>();
+
         protected override void ProcessRecord()
         {
             var entityCollection = GetEntities();
-            var metadata = GetMetadata();
+            var metadata = GetMetadata(EntityName);
             var relevantAttributes = GetRelevantAttributes(metadata);
-            WriteObject(GetExportInfo(entityCollection, metadata, relevantAttributes));
+            WriteObject(GetEntityData(entityCollection, metadata, relevantAttributes));
         }
 
         private List<Entity> GetEntities()
@@ -111,15 +113,19 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             return entities;
         }
 
-        private EntityMetadata GetMetadata()
+        private EntityMetadata GetMetadata(string logicalName)
         {
-            var request = new RetrieveEntityRequest
+            if(!_fetchedMetaData.Any(m => m.LogicalName == logicalName))
             {
-                LogicalName = EntityName,
-                EntityFilters = EntityFilters.Entity | EntityFilters.Attributes | EntityFilters.Relationships,
-                RetrieveAsIfPublished = false
-            };
-            return ((RetrieveEntityResponse)Connection.Execute(request)).EntityMetadata;
+                var request = new RetrieveEntityRequest
+                {
+                    LogicalName = logicalName,
+                    EntityFilters = EntityFilters.Entity | EntityFilters.Attributes | EntityFilters.Relationships,
+                    RetrieveAsIfPublished = false
+                };
+                _fetchedMetaData.Add(((RetrieveEntityResponse)Connection.Execute(request)).EntityMetadata);
+            }
+            return _fetchedMetaData.Single(m => m.LogicalName == logicalName);
         }
 
         private List<AttributeMetadata> GetRelevantAttributes(EntityMetadata metadata)
@@ -130,12 +136,12 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                 if (ValidForCreate) relevant = attr.IsValidForCreate == true;
                 if (ValidForUpdate) relevant = relevant || attr.IsValidForUpdate == true;
                 if (!ValidForCreate && !ValidForUpdate) relevant = attr.IsValidForUpdate == true || attr.IsValidForCreate == true;
-                return relevant;
+                return relevant && !IgnoreColumns.Contains(attr.LogicalName);
             });
             return metadata.Attributes.Where(a => filter(a)).ToList();
         }
 
-        private EntityData GetExportInfo(List<Entity> entities, EntityMetadata metadata, List<AttributeMetadata> relevantAttributes)
+        private EntityData GetEntityData(List<Entity> entities, EntityMetadata metadata, List<AttributeMetadata> relevantAttributes)
         {
             var exportInfo = new EntityData
             {
@@ -146,6 +152,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                 ExportedOn = DateTime.UtcNow
             };
 
+            var entityInfos = new List<EntityInfo>();
             foreach(var entity in entities)
             {
                 var entityInfo = new EntityInfo
@@ -154,12 +161,13 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                     Name = entity.Attributes.Contains(metadata.PrimaryNameAttribute) ? entity.Attributes[metadata.PrimaryNameAttribute].ToString() : string.Empty
                 };
 
+                var attributeInfos = new List<AttributeInfo>();
                 foreach(var attr in entity.Attributes)
                 {
                     var attrMetadata = relevantAttributes.SingleOrDefault(ra => ra.LogicalName == attr.Key);
                     if (attrMetadata == null) continue;
 
-                    entityInfo.Attributes.Add(new AttributeInfo
+                    attributeInfos.Add(new AttributeInfo
                     {
                         Name = attr.Key,
                         ValidForCreate = attrMetadata.IsValidForCreate == true,
@@ -168,8 +176,10 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                         Value = SerializeValue(attrMetadata.AttributeType, attr.Value)
                     }); ;
                 }
-                exportInfo.Entities.Add(entityInfo);
+                entityInfo.Attributes = attributeInfos.ToArray();
+                entityInfos.Add(entityInfo);
             }
+            exportInfo.Entities = entityInfos.ToArray();
             return exportInfo;
         }
 
@@ -201,7 +211,9 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                 case AttributeTypeCode.Lookup:
                 case AttributeTypeCode.Owner:
                     var entityRef = (EntityReference)value;
-                    serializedValue = $"{entityRef.LogicalName};{entityRef.Id};{entityRef.Name}";
+                    var metadata = GetMetadata(entityRef.LogicalName);
+
+                    serializedValue = $"{entityRef.LogicalName};{entityRef.Id};{entityRef.Name};{metadata.PrimaryNameAttribute}";
                     break;
                 default:
                     throw new Exception($"{type}");
@@ -238,6 +250,12 @@ namespace PentaWork.Xrm.PowerShell.Verbs
         /// </summary>
         [Parameter]
         public List<ConditionExpression> FilterConditions { get; set; } = new List<ConditionExpression>();
+
+        /// <summary>
+        /// <para type="description">List of columns which should get filtered out in the result set.</para>
+        /// </summary>
+        [Parameter]
+        public List<string> IgnoreColumns { get; set; } = new List<string>();
 
         /// <summary>
         /// <para type="description">The page size to show. Default is 500.</para>

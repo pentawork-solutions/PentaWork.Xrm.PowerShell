@@ -126,7 +126,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Verbs\ImportXrmEntities.cs" />
-    <Compile Include="Verbs\GetXrmEntities.cs" />
+    <Compile Include="Verbs\ExportXrmEntities.cs" />
     <Compile Include="Verbs\ExportXrmSolution.cs" />
     <Compile Include="Verbs\GetXrmSolutions.cs" />
     <Compile Include="Verbs\GetXrmProxies.cs" />

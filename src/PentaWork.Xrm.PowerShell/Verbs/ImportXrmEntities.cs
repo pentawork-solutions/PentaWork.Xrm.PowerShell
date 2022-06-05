@@ -34,9 +34,9 @@ namespace PentaWork.Xrm.PowerShell.Verbs
 
         private void CheckFallbackOwner()
         {
-            var user = TryRetrieve(FallbackOwner.LogicalName, FallbackOwner.Id, new ColumnSet("isdisabled"));
-            if (user == null) throw new Exception("Could not find fallback owner in connected system!");
-            if ((bool?)user.Attributes["isdisabled"] == true) throw new Exception("Given fallback user is disabled in connected system!");
+            var owner = TryRetrieve(FallbackOwner.LogicalName, FallbackOwner.Id, new ColumnSet(true));
+            if (owner == null) throw new Exception("Could not find fallback owner in connected system!");
+            if (owner.Attributes.Contains("isdisabled") && (bool?)owner.Attributes["isdisabled"] == true) throw new Exception("Given fallback user is disabled in connected system!");
         }
 
         private void ImportEntities()

@@ -157,8 +157,8 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             {
                 var entityInfo = new EntityInfo
                 {
-                    Id = (Guid)entity.Attributes[relevantAttributes.Single(a => a.IsPrimaryId == true).LogicalName],
-                    Name = entity.Attributes.Contains(metadata.PrimaryNameAttribute) ? entity.Attributes[metadata.PrimaryNameAttribute].ToString() : string.Empty
+                    Id = metadata.PrimaryIdAttribute != null && entity.Attributes.Contains(metadata.PrimaryIdAttribute) ? (Guid)entity.Attributes[metadata.PrimaryIdAttribute] : Guid.Empty,
+                    Name = metadata.PrimaryNameAttribute != null && entity.Attributes.Contains(metadata.PrimaryNameAttribute) ? entity.Attributes[metadata.PrimaryNameAttribute].ToString() : string.Empty
                 };
 
                 var attributeInfos = new List<AttributeInfo>();

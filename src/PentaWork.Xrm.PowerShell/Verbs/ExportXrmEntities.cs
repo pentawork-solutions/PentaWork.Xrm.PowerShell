@@ -7,6 +7,7 @@ using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Metadata;
 using System;
+using Microsoft.Crm.Sdk.Messages;
 
 namespace PentaWork.Xrm.PowerShell.Verbs
 {
@@ -38,6 +39,8 @@ namespace PentaWork.Xrm.PowerShell.Verbs
         public Guid Id { get; set; }
         public string Name { get; set; }
         public AttributeInfo[] Attributes { get; set; }
+        public RelationInfo[] Relations { get; set; }
+        public ShareInfo[] Sharings { get; set; }
     }
 
     /// <summary>
@@ -53,6 +56,37 @@ namespace PentaWork.Xrm.PowerShell.Verbs
         public string Value { get; set; }
         public bool ValidForCreate { get; set; }
         public bool ValidForUpdate { get; set; }
+    }
+
+    /// <summary>
+    /// <para type="synopsis">Object to hold the relation information.</para>
+    /// <para type="description">
+    /// Holds some meta data for the retrieved relation.
+    /// </para>
+    /// </summary>
+    public class RelationInfo
+    {
+        public string Schema { get; set; }
+        public ReferenceInfo[] Entities { get; set; }
+    }
+
+    /// <summary>
+    /// <para type="synopsis">Object to hold an entity reference.</para>
+    /// </summary>
+    public class ReferenceInfo
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public string LogicalName { get; set; }
+    }
+
+    /// <summary>
+    /// <para type="synopsis">Object to hold a asharing information.</para>
+    /// </summary>
+    public class ShareInfo
+    {
+        public ReferenceInfo Team { get; set; }
+        public AccessRights AccessMask { get; set; }
     }
     #endregion
 
@@ -100,10 +134,10 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             var response = retrieveAction(PageSize, PageNumber);
 
             entities.AddRange(response.Entities);
-            if(GetAll && response.MoreRecords)
+            if (GetAll && response.MoreRecords)
             {
                 var pageNumber = PageNumber;
-                while(response.MoreRecords)
+                while (response.MoreRecords)
                 {
                     response = retrieveAction(PageSize, ++pageNumber);
                     entities.AddRange(response.Entities);
@@ -115,7 +149,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
 
         private EntityMetadata GetMetadata(string logicalName)
         {
-            if(!_fetchedMetaData.Any(m => m.LogicalName == logicalName))
+            if (!_fetchedMetaData.Any(m => m.LogicalName == logicalName))
             {
                 var request = new RetrieveEntityRequest
                 {
@@ -129,7 +163,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
         }
 
         private List<AttributeMetadata> GetRelevantAttributes(EntityMetadata metadata)
-        {            
+        {
             var filter = new Func<AttributeMetadata, bool>((attr) =>
             {
                 bool relevant = false;
@@ -153,34 +187,77 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             };
 
             var entityInfos = new List<EntityInfo>();
-            foreach(var entity in entities)
+            foreach (var entity in entities)
             {
                 var entityInfo = new EntityInfo
                 {
                     Id = metadata.PrimaryIdAttribute != null && entity.Attributes.Contains(metadata.PrimaryIdAttribute) ? (Guid)entity.Attributes[metadata.PrimaryIdAttribute] : Guid.Empty,
                     Name = metadata.PrimaryNameAttribute != null && entity.Attributes.Contains(metadata.PrimaryNameAttribute) ? entity.Attributes[metadata.PrimaryNameAttribute].ToString() : string.Empty
                 };
+                entityInfo.Attributes = GetAttributes(entity, relevantAttributes);
+                entityInfo.Sharings = GetSharings(entity);
 
-                var attributeInfos = new List<AttributeInfo>();
-                foreach(var attr in entity.Attributes)
-                {
-                    var attrMetadata = relevantAttributes.SingleOrDefault(ra => ra.LogicalName == attr.Key);
-                    if (attrMetadata == null) continue;
-
-                    attributeInfos.Add(new AttributeInfo
-                    {
-                        Name = attr.Key,
-                        ValidForCreate = attrMetadata.IsValidForCreate == true,
-                        ValidForUpdate = attrMetadata.IsValidForUpdate == true,
-                        Type = attrMetadata.AttributeType,
-                        Value = SerializeValue(attrMetadata.AttributeType, attr.Value)
-                    }); ;
-                }
-                entityInfo.Attributes = attributeInfos.ToArray();
                 entityInfos.Add(entityInfo);
             }
             exportInfo.Entities = entityInfos.ToArray();
             return exportInfo;
+        }
+
+        private AttributeInfo[] GetAttributes(Entity entity, List<AttributeMetadata> relevantAttributes)
+        {
+            var attributeInfos = new List<AttributeInfo>();
+            foreach (var attr in entity.Attributes)
+            {
+                var attrMetadata = relevantAttributes.SingleOrDefault(ra => ra.LogicalName == attr.Key);
+                if (attrMetadata == null) continue;
+
+                attributeInfos.Add(new AttributeInfo
+                {
+                    Name = attr.Key,
+                    ValidForCreate = attrMetadata.IsValidForCreate == true,
+                    ValidForUpdate = attrMetadata.IsValidForUpdate == true,
+                    Type = attrMetadata.AttributeType,
+                    Value = SerializeValue(attrMetadata.AttributeType, attr.Value)
+                }); ;
+            }
+            return attributeInfos.ToArray();
+        }
+
+        private ShareInfo[] GetSharings(Entity entity)
+        {
+            if(!Sharings) return new ShareInfo[0];
+
+            var shares = new List<ShareInfo>();
+            var request = new RetrieveSharedPrincipalsAndAccessRequest { Target = entity.ToEntityReference() };
+            var response = (RetrieveSharedPrincipalsAndAccessResponse) Connection.Execute(request);
+            foreach(var share in response.PrincipalAccesses)
+            {
+                var shareInfo = new ShareInfo();
+                shareInfo.Team = new ReferenceInfo { Id = share.Principal.Id, LogicalName = share.Principal.LogicalName, Name = share.Principal.Name };
+                shareInfo.AccessMask = share.AccessMask;
+
+                shares.Add(shareInfo);
+            }
+            return shares.ToArray();
+        }
+
+        private RelationInfo[] GetRelations(Entity entity, EntityMetadata entityMetadata)
+        { 
+            if(Relations.Count == 0) return new RelationInfo[0];
+
+            var relations = new List<RelationInfo>();
+            foreach(var relation in Relations)
+            {
+                var schemaDefinition = entityMetadata.ManyToManyRelationships.SingleOrDefault(r => r.SchemaName == relation);
+                if (schemaDefinition == null)
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine($"No relation definition matching the schema name '{relation}' was found!");
+                    Console.ResetColor();
+                    continue;
+                }
+            }
+            return relations.ToArray();
         }
 
         private string SerializeValue(AttributeTypeCode? type, object value)
@@ -258,6 +335,12 @@ namespace PentaWork.Xrm.PowerShell.Verbs
         public List<string> IgnoreColumns { get; set; } = new List<string>();
 
         /// <summary>
+        /// <para type="description">List of relation schemas to export.</para>
+        /// </summary>
+        [Parameter]
+        public List<string> Relations { get; set; }
+
+        /// <summary>
         /// <para type="description">The page size to show. Default is 500.</para>
         /// </summary>
         [Parameter]
@@ -274,6 +357,12 @@ namespace PentaWork.Xrm.PowerShell.Verbs
         /// </summary>
         [Parameter]
         public SwitchParameter GetAll { get; set; }
+
+        /// <summary>
+        /// <para type="description">Set to true, to export the sharings for the exported entities.</para>
+        /// </summary>
+        [Parameter]
+        public SwitchParameter Sharings { get; set; }
 
         /// <summary>
         /// <para type="description">Only get attributes which are valid for create. Default is false.</para>

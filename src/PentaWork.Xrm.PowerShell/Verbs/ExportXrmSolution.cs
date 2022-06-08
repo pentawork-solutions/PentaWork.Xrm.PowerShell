@@ -4,6 +4,8 @@ using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
 using System.Management.Automation;
+using PentaWork.Xrm.PowerShell.Common;
+using System.Linq;
 
 namespace PentaWork.Xrm.PowerShell.Verbs
 {
@@ -21,6 +23,8 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     [Cmdlet(VerbsData.Export, "XrmSolution")]
     public class ExportXrmSolution : PSCmdlet
     {
+        private readonly ConsoleLogger _logger = new ConsoleLogger();
+
         protected override void ProcessRecord()
         {
             if (PublishAll) Connection.Execute(new PublishAllXmlRequest());
@@ -28,10 +32,10 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             var solutionVersion = RetrieveSolutionVersion();
             var solutionFilePath = Path.Combine(ExportPath, $"{UniqueName} - {solutionVersion} - {Connection.ConnectedOrgFriendlyName} - { (Managed ? "managed" : "unmanaged") }.zip");
 
-            if (File.Exists(solutionFilePath) && !Force) Console.WriteLine("Solution already existing in target path. Skipping ...");
+            if (File.Exists(solutionFilePath) && !Force) _logger.Warn("Solution already existing in target path. Skipping ...");
             else
             {
-                Console.WriteLine($"Exporting solution '{UniqueName}' ({solutionVersion}) from '{Connection.ConnectedOrgFriendlyName}'...");
+                _logger.Info($"Exporting solution '{UniqueName}' ({solutionVersion}) from '{Connection.ConnectedOrgFriendlyName}'...");
 
                 var exportSolutionRequest = new ExportSolutionRequest();
                 exportSolutionRequest.Managed = Managed;
@@ -56,14 +60,8 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             };
             solutionQuery.Criteria.AddCondition("uniquename", ConditionOperator.Equal, UniqueName);
 
-            var version = string.Empty;
-            var response = Connection.RetrieveMultiple(solutionQuery).Entities;
-            if (response != null)
-            {
-                version = response[0].Attributes["version"].ToString();
-            }
-
-            return version;
+            var entities = Connection.Query(solutionQuery, true);
+            return entities.SingleOrDefault()?.Attributes["version"].ToString();
         }
 
         /// <summary>

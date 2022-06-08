@@ -12,6 +12,7 @@ using PentaWork.Xrm.PowerShell.XrmProxies.Model;
 using PentaWork.Xrm.PowerShell.XrmProxies.Templates.Javascript;
 using PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp;
 using PentaWork.Xrm.PowerShell.XrmProxies;
+using PentaWork.Xrm.PowerShell.Common;
 
 namespace PentaWork.Xrm.PowerShell
 {
@@ -30,6 +31,8 @@ namespace PentaWork.Xrm.PowerShell
     [Cmdlet(VerbsCommon.Get, "XrmProxies")]
     public class GetXrmProxies : PSCmdlet
     {
+        private readonly ConsoleLogger _logger = new ConsoleLogger();
+
         protected override void ProcessRecord()
         {
             if (Clear && OutputPath.Exists) Directory.Delete(OutputPath.FullName, true);
@@ -56,7 +59,7 @@ namespace PentaWork.Xrm.PowerShell
 
         private List<Entity> GetAllSdkMessages()
         {
-            Console.WriteLine("Getting SDK Messages ...");
+            _logger.Info("Getting SDK Messages ...");
 
             var query = new QueryExpression("sdkmessage");
             query.LinkEntities.Add(new LinkEntity("sdkmessage", "sdkmessagefilter", "sdkmessageid", "sdkmessageid", JoinOperator.Inner));
@@ -65,14 +68,13 @@ namespace PentaWork.Xrm.PowerShell
 
             query.ColumnSet = new ColumnSet("name", "isprivate");
             query.Criteria.AddCondition("isprivate", ConditionOperator.Equal, false);
-            query.PageInfo = new PagingInfo { Count = 5000, PageNumber = 1 };
 
-            return RetrieveAll(query);
+            return Connection.Query(query, true);
         }
 
         private List<ActionInfo> GetAllActions()
         {
-            Console.WriteLine("Getting available Actions ...");
+            _logger.Info("Getting available Actions ...");
 
             var query = new QueryExpression("workflow");
             query.LinkEntities.Add(new LinkEntity("workflow", "sdkmessage", "sdkmessageid", "sdkmessageid", JoinOperator.Inner));
@@ -83,17 +85,16 @@ namespace PentaWork.Xrm.PowerShell
             query.Criteria.AddCondition("statecode", ConditionOperator.Equal, 1);
             query.Criteria.AddCondition("type", ConditionOperator.Equal, 1);
             query.Criteria.AddCondition("category", ConditionOperator.Equal, 3);
-            query.PageInfo = new PagingInfo { Count = 5000, PageNumber = 1 };
 
             var actionNameDic = new UniqueNameDictionary();
-            return RetrieveAll(query)
+            return Connection.Query(query, true)
                 .Select(e => new ActionInfo(actionNameDic.GetUniqueName((string)e["name"], ((EntityReference)e["sdkmessageid"]).Id.ToString()), (string)((AliasedValue)e["sdkmessage.name"]).Value, (string)e["primaryentity"]))
                 .ToList();
         }
 
         private List<EntityMetadata> GetAllEntityMetadata(List<Entity> sdkMessages)
         {
-            Console.WriteLine("Getting metadata ...");
+            _logger.Info("Getting metadata ...");
             var request = new RetrieveAllEntitiesRequest
             {
                 EntityFilters = EntityFilters.Entity | EntityFilters.Attributes | EntityFilters.Relationships,
@@ -113,29 +114,13 @@ namespace PentaWork.Xrm.PowerShell
 
         private List<Entity> GetAllSystemForms()
         {
-            Console.WriteLine("Getting system forms ...");
+            _logger.Info("Getting system forms ...");
 
             var query = new QueryExpression("systemform");
             query.Criteria.AddCondition("objecttypecode", ConditionOperator.NotEqual, "none");
             query.ColumnSet = new ColumnSet(true);
-            query.PageInfo = new PagingInfo { Count = 5000, PageNumber = 1 };
 
-            return RetrieveAll(query);
-        }
-
-        private List<Entity> RetrieveAll(QueryExpression query)
-        {
-            var response = Connection.RetrieveMultiple(query);
-            var entities = response.Entities;
-
-            while (response.MoreRecords)
-            {
-                query.PageInfo.PageNumber++;
-                response = Connection.RetrieveMultiple(query);
-                entities.AddRange(response.Entities);
-            }
-
-            return entities.ToList();
+            return Connection.Query(query, true);
         }
 
         private void GenerateBaseClasses()
@@ -163,7 +148,7 @@ namespace PentaWork.Xrm.PowerShell
 
         private void GenerateAllCSharp(EntityInfoList entityInfoList)
         {
-            Console.WriteLine("[CS] Generating Proxy & Fake Classes ...");
+            _logger.Info("[CS] Generating Proxy & Fake Classes ...");
             EnsureFolder(Path.Combine(CSOutputPath, "Entities"));
             EnsureFolder(Path.Combine(OutputPath.FullName, "Fake"));
             foreach (var entityInfo in entityInfoList)
@@ -175,7 +160,7 @@ namespace PentaWork.Xrm.PowerShell
                 File.WriteAllText(Path.Combine(OutputPath.FullName, "Fake", $"{entityInfo.UniqueDisplayName}.cs"), fakeTemplate.TransformText());
             }
 
-            Console.WriteLine("[CS] Generating Relation Classes ...");
+            _logger.Info("[CS] Generating Relation Classes ...");
             EnsureFolder(Path.Combine(CSOutputPath, "Relations"));
             foreach (var relationClassInfo in entityInfoList.SelectMany(e => e.ManyToManyRelationList))
             {
@@ -186,11 +171,11 @@ namespace PentaWork.Xrm.PowerShell
 
         private void GenerateAllJavascript(EntityInfoList entityInfoList)
         {
-            Console.WriteLine("[TS] Generating Proxy Base Types ...");
+            _logger.Info("[TS] Generating Proxy Base Types ...");
             var proxyTypesTemplate = new ProxyTypes();
             File.WriteAllText(Path.Combine(TSOutputPath, "ProxyTypes.ts"), proxyTypesTemplate.TransformText());
 
-            Console.WriteLine($"[TS] Generating Entity Proxies...");
+            _logger.Info($"[TS] Generating Entity Proxies...");
             EnsureFolder(Path.Combine(TSOutputPath, "Entities"));
             foreach (var entityInfo in entityInfoList)
             {
@@ -198,7 +183,7 @@ namespace PentaWork.Xrm.PowerShell
                 File.WriteAllText(Path.Combine(TSOutputPath, "Entities", $"{entityInfo.UniqueDisplayName}.ts"), proxyTemplate.TransformText());
             }
 
-            Console.WriteLine($"[TS] Generating Attribute Name Modules...");
+            _logger.Info($"[TS] Generating Attribute Name Modules...");
             EnsureFolder(Path.Combine(TSOutputPath, "Attributes"));
             foreach (var entityInfo in entityInfoList)
             {
@@ -206,7 +191,7 @@ namespace PentaWork.Xrm.PowerShell
                 File.WriteAllText(Path.Combine(TSOutputPath, "Attributes", $"{entityInfo.UniqueDisplayName}.ts"), attributeModule.TransformText());
             }
 
-            Console.WriteLine($"[TS] Generating Form Info Modules...");
+            _logger.Info($"[TS] Generating Form Info Modules...");
             EnsureFolder(Path.Combine(TSOutputPath, "FormInfos"));
             foreach (var entityInfo in entityInfoList)
             {

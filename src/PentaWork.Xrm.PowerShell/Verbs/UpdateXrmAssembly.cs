@@ -4,6 +4,7 @@ using System.Management.Automation;
 using System.Reflection;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
+using PentaWork.Xrm.PowerShell.Common;
 
 namespace PentaWork.Xrm.PowerShell.Verbs
 {
@@ -15,18 +16,20 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     /// </summary>
     /// <example>
     /// <para>$conn = Get-CrmConnection -InteractiveMode</para>
-    /// <para>Update-XrmAssembly -Connection $conn -AssemblyFile .\Plugin.dll</para>
+    /// <para>Update-XrmAseembly -Connection $conn -AssemblyFile .\Plugin.dll</para>
     /// </example>
     [Cmdlet(VerbsData.Update, "XrmAssembly")]
     public class UpdateXrmAssembly : PSCmdlet
     {
+        private readonly ConsoleLogger _logger = new ConsoleLogger();
+
         protected override void ProcessRecord()
         {
             var assembly = Assembly.ReflectionOnlyLoadFrom(AssemblyFile.FullName);
             var assemblyProperties = assembly.GetName().FullName.Split(",= ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             var assemblyShortName = assemblyProperties[0];
 
-            Console.WriteLine($"Processing assembly '{assemblyShortName}' ...");
+            _logger.Info($"Processing assembly '{assemblyShortName}' ...");
 
             var assemblyQuery = new QueryExpression
             {
@@ -36,7 +39,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             };
             assemblyQuery.Criteria.AddCondition("name", ConditionOperator.Equal, assemblyShortName);
 
-            var response = Connection.RetrieveMultiple(assemblyQuery).Entities;
+            var response = Connection.Query(assemblyQuery, true);
             if (response != null)
             {
                 if (response.Count > 1) { WriteWarning($"More than one assembly with name '{assemblyShortName}' found! Skipping!"); }
@@ -48,9 +51,9 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                     crmAssembly["publickeytoken"] = assemblyProperties[6];
                     crmAssembly["content"] = Convert.ToBase64String(File.ReadAllBytes(assembly.Location));
 
-                    Console.WriteLine($"Publishing assembly '{assemblyShortName}' to XRM ...");
+                    _logger.Info($"Publishing assembly '{assemblyShortName}' to XRM ...");
                     Connection.Update(crmAssembly);
-                    Console.WriteLine($"Publishing done!");
+                    _logger.Info($"Publishing done!");
                 }
             }
         }

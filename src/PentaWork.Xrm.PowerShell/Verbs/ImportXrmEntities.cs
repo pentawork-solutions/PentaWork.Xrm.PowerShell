@@ -28,23 +28,14 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     {
         protected override void ProcessRecord()
         {
-            CheckFallbackOwner();
-            ImportEntities();
-        }
-
-        private void CheckFallbackOwner()
-        {
             var owner = TryRetrieve(FallbackOwner.LogicalName, FallbackOwner.Id, new ColumnSet(true));
             if (owner == null) throw new Exception("Could not find fallback owner in connected system!");
             if (owner.Attributes.Contains("isdisabled") && (bool?)owner.Attributes["isdisabled"] == true) throw new Exception("Given fallback user is disabled in connected system!");
-        }
 
-        private void ImportEntities()
-        {
             int created = 0;
             int updated = 0;
             Console.WriteLine($"Importing entities ...");
-            foreach(var entityInfo in EntityData.Entities)
+            foreach (var entityInfo in EntityData.Entities)
             {
                 try
                 {
@@ -52,33 +43,37 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                     var systemEntity = matchingSystemEntities.FirstOrDefault();
                     var isUpdate = systemEntity != null;
 
-                    if (CreateOnly.Contains(entityInfo.Name) && isUpdate) Console.WriteLine($"Skipping update of '{entityInfo.Name}' - Create Only ...");
+                    if (CreateOnly.Contains(entityInfo.Name) && isUpdate) { Console.WriteLine($"Skipping update of '{entityInfo.Name}' - Create Only ..."); continue; }
                     if (matchingSystemEntities.Count > 1) Console.WriteLine($"Found multiple matches for '{entityInfo.Name}' ...");
                     if (matchingSystemEntities.Count > 1 && !TakeFirst) { Console.WriteLine("Skipping ..."); continue; }
 
                     systemEntity = systemEntity ?? new Entity(EntityData.EntityName);
                     SetAttributes(systemEntity, entityInfo.Attributes, isUpdate);
                     SetOwner(systemEntity);
+                    ExecuteChange(systemEntity, isUpdate);
 
-                    if (isUpdate)
-                    {
-                        Connection.Update(systemEntity);
-                        updated++;
-                    }
-                    else
-                    {
-                        Connection.Create(systemEntity);
-                        created++;
-                    }
+                    created += isUpdate ? 0 : 1;
+                    updated += isUpdate ? 1 : 0;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine(ex.Message);
                     Console.ResetColor();
-                }                
+                }
             }
             Console.WriteLine($"Created: {created} Updated: {updated}");
+        }
+
+        private Entity TryRetrieve(string logicalName, Guid id, ColumnSet columns)
+        {
+            Entity entity = null;
+            try
+            {
+                entity = Connection.Retrieve(logicalName, id, columns);
+            }
+            catch (FaultException) { /*No entity found*/ }
+            return entity;
         }
 
         private List<Entity> GetMatchingSystemEntities(EntityInfo entityInfo)
@@ -102,31 +97,38 @@ namespace PentaWork.Xrm.PowerShell.Verbs
         {
             foreach (var attr in attributes)
             {
-                if (isUpdate && attr.Name == EntityData.PrimaryIdField) continue; // Skip Id Attribute on Update
+                // Skip Id Attribute on Update
+                if (isUpdate && attr.Name == EntityData.PrimaryIdField) continue;
+                // Skip Id Attribute, if mapped by name. Otherwise it could be a problem for certain entities like userqueries for example.
+                // If a user query gets created, and reassigned, the module wont find the view and would try to 
+                // create a entity with an entity already present in the system.
+                if (MapByName && attr.Name == EntityData.PrimaryIdField) continue; 
                 systemEntity[attr.Name] = DeserializeValue(attr);
             }
         }
 
-        private void SetOwner(Entity systemEntity)
+        private void SetOwner(Entity entity)
         {
             // Some entities like themes and currencies dont have an owner!
-            if (!systemEntity.Attributes.Contains("ownerid")) return;
+            if (!entity.Attributes.Contains("ownerid")) return;
 
-            var owner = (EntityReference)systemEntity["ownerid"];
+            var owner = (EntityReference)entity["ownerid"];
             var systemOwner = GetEntitiesByName(owner.LogicalName, owner.LogicalName == "systemuser" ? "fullname" : "name", owner.Name);
-            if (systemOwner.Count == 0) systemEntity["ownerid"] = FallbackOwner;
-            else systemEntity["ownerid"] = systemOwner.First().ToEntityReference();
+
+            // Check, if the given owner exists in the target system
+            if (systemOwner.Count == 0) entity["ownerid"] = FallbackOwner;
+            else entity["ownerid"] = systemOwner.First().ToEntityReference();
         }
 
-        private Entity TryRetrieve(string logicalName, Guid id, ColumnSet columns)
+        private void ExecuteChange(Entity entity, bool isUpdate)
         {
-            Entity entity = null;
-            try
-            {
-                entity = Connection.Retrieve(logicalName, id, columns);
-            }
-            catch (FaultException) { /*No entity found*/ }
-            return entity;
+            var orignalCaller = Connection.CallerId;
+            if (ImpersonateOwner && entity.Attributes.Contains("ownerid")) Connection.CallerId = ((EntityReference)entity["ownerid"]).Id;
+
+            if (isUpdate) Connection.Update(entity);
+            else Connection.Create(entity);
+
+            if (ImpersonateOwner) Connection.CallerId = orignalCaller;
         }
 
         private List<Entity> GetEntitiesByName(string entityLogicalName, string nameField, string entityName)
@@ -231,6 +233,12 @@ namespace PentaWork.Xrm.PowerShell.Verbs
         /// </summary>
         [Parameter]
         public SwitchParameter TakeFirst { get; set; }
+
+        /// <summary>
+        /// <para type="description">Set to true, if the import process should impersonate the owner.</para>
+        /// </summary>
+        [Parameter]
+        public SwitchParameter ImpersonateOwner { get; set; }
 
         /// <summary>
         /// <para type="description">The values for the listed lookup fields will be matches by its primary name value.</para>

@@ -4,6 +4,7 @@ using System.Management.Automation;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
+using PentaWork.Xrm.PowerShell.Common;
 
 namespace PentaWork.Xrm.PowerShell.Verbs
 {
@@ -45,8 +46,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             solutionQuery.Criteria.AddCondition("isvisible", ConditionOperator.Equal, true);
 
             Connection
-                .RetrieveMultiple(solutionQuery)
-                .Entities
+                .Query(solutionQuery, true)
                 .Select(e => new SolutionInfo {
                     Name = e.Attributes["friendlyname"].ToString(),
                     UniqueName = e.Attributes["uniquename"].ToString(),

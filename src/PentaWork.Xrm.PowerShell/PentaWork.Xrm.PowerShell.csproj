@@ -125,6 +125,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConsoleLogger.cs" />
+    <Compile Include="CrmServiceClientExtensions.cs" />
     <Compile Include="Verbs\ExportXrmSolution.cs" />
     <Compile Include="Verbs\GetXrmSolutions.cs" />
     <Compile Include="Verbs\GetXrmProxies.cs" />

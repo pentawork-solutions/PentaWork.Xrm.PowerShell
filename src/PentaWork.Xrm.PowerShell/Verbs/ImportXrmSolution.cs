@@ -8,6 +8,7 @@ using System.Xml.XPath;
 using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
+using PentaWork.Xrm.PowerShell.Common;
 
 namespace PentaWork.Xrm.PowerShell.Verbs
 {
@@ -25,20 +26,22 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     [Cmdlet(VerbsData.Import, "XrmSolution")]
     public class ImportXrmSolution : PSCmdlet
     {
+        private readonly ConsoleLogger _logger = new ConsoleLogger();
+
         protected override void ProcessRecord()
         {
             var (solutionName, solutionVersion) = GetSolutionInfo();
             var targetVersion = RetrieveSolutionVersion(solutionName);
 
-            if (targetVersion != null) Console.WriteLine($"Found version {targetVersion} in target system ...", new[] { "" });
-            else Console.WriteLine("No version found in target system ...");
+            if (targetVersion != null) _logger.Info($"Found version {targetVersion} in target system ...");
+            else _logger.Info("No version found in target system ...");
 
             if(targetVersion != solutionVersion || Force)
             {
                 if (Delete) RemoveSolution(solutionName);
 
                 byte[] solution = File.ReadAllBytes(SolutionFile.FullName);
-                Console.WriteLine($"Importing solution '{solutionName}' to '{Connection.ConnectedOrgFriendlyName}'...");
+                _logger.Info($"Importing solution '{solutionName}' to '{Connection.ConnectedOrgFriendlyName}'...");
 
                 var importSolutionRequest = new ImportSolutionRequest();
                 importSolutionRequest.CustomizationFile = solution;
@@ -46,11 +49,11 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                 importSolutionRequest.PublishWorkflows = PublishWorkflows;
 
                 Connection.Execute(importSolutionRequest);
-                Console.WriteLine($"Importing done!");
+                _logger.Info($"Importing done!");
             }
             else
             {
-                Console.WriteLine($"Solution '{solutionName}' ({solutionVersion}) already deployed to target system!");
+                _logger.Warn($"Solution '{solutionName}' ({solutionVersion}) already deployed to target system!");
             }
         }
 
@@ -77,7 +80,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             };
             solutionQuery.Criteria.AddCondition("uniquename", ConditionOperator.Equal, solutionName);
 
-            var response = Connection.RetrieveMultiple(solutionQuery).Entities;
+            var response = Connection.Query(solutionQuery, true);
             if (response != null && response.Count == 1)
             {
                 return new Version(response[0].Attributes["version"].ToString());
@@ -87,12 +90,12 @@ namespace PentaWork.Xrm.PowerShell.Verbs
 
         private void RemoveSolution(string solutionName)
         {
-            Console.WriteLine($"Deleting solution ...");
+            _logger.Info($"Deleting solution ...");
             var query = new QueryExpression("solution");
             query.Criteria.AddCondition("uniquename", ConditionOperator.Equal, solutionName);
             query.ColumnSet = new ColumnSet(new[] { "solutionid", "friendlyname" });
 
-            var solution = Connection.RetrieveMultiple(query).Entities.SingleOrDefault();
+            var solution = Connection.Query(query, true).SingleOrDefault();
             if (solution != null)
             {
                 Connection.Delete("solution", solution.Id);

@@ -23,11 +23,9 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     [Cmdlet(VerbsCommon.Remove, "XrmEntities")]
     public class RemoveXrmEntities : PSCmdlet
     {
-        private readonly ConsoleLogger _logger = new ConsoleLogger();
-
         protected override void ProcessRecord()
         {
-            _logger.Info("Getting entities ...");
+            WriteVerbose("Getting entities ...");
             var query = new QueryExpression
             {
                 EntityName = EntityName,
@@ -36,7 +34,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             FilterConditions.ForEach(c => query.Criteria.AddCondition(c));
             var entities = Connection.Query(query, true);
 
-            _logger.Info($"Deleting {entities.Count} entities ...");
+            WriteVerbose($"Deleting {entities.Count} entities ...");
             
             var deleteRequests = new ExecuteMultipleRequest
             {
@@ -59,7 +57,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                     if (responseItem.Fault != null)
                     {
                         var request = (DeleteRequest)deleteRequests.Requests[responseItem.RequestIndex];
-                        _logger.Error($"{request.Target.Name} ({request.Target.Id}): {responseItem.Fault.Message}");
+                        WriteWarning($"{request.Target.Name} ({request.Target.Id}): {responseItem.Fault.Message}");
                     }
                 }
             }

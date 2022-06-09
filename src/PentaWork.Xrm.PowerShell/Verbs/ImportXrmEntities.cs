@@ -26,8 +26,6 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     [Cmdlet(VerbsData.Import, "XrmEntities")]
     public class ImportXrmEntities : PSCmdlet
     {
-        private readonly ConsoleLogger _logger = new ConsoleLogger();
-
         protected override void ProcessRecord()
         {
             var fallbackOwner = Connection.TryRetrieve(FallbackOwner.LogicalName, FallbackOwner.Id, new ColumnSet(true));
@@ -40,36 +38,38 @@ namespace PentaWork.Xrm.PowerShell.Verbs
 
             int created = 0;
             int updated = 0;
+            int processed = 0;
             var metadata = Connection.GetMetadata(EntityData.EntityName);
 
-            _logger.Info($"Importing entities ...");
             foreach (var entityInfo in EntityData.Entities)
             {
+                WriteProgress(new ProgressRecord(0, "Importing", $"Importing entity '{entityInfo.Name}' ...") { PercentComplete = 100 * processed / EntityData.Entities.Length });
                 try
                 {
                     var matchingSystemEntities = GetMatchingSystemEntities(entityInfo);
                     var systemEntity = matchingSystemEntities.FirstOrDefault();
                     var isUpdate = systemEntity != null;
 
-                    if (CreateOnly.Contains(entityInfo.Name) && isUpdate) { _logger.Trace($"Skipping update of '{entityInfo.Name}' - Create Only ..."); continue; }
-                    if (matchingSystemEntities.Count > 1) _logger.Trace($"Found multiple matches for '{entityInfo.Name}' ...");
-                    if (matchingSystemEntities.Count > 1 && !TakeFirst) { _logger.Trace("Skipping ..."); continue; }
+                    if (CreateOnly.Contains(entityInfo.Name) && isUpdate) { WriteVerbose($"Skipping update of '{entityInfo.Name}' - Create Only ..."); continue; }
+                    if (matchingSystemEntities.Count > 1) WriteVerbose($"Found multiple matches for '{entityInfo.Name}' ...");
+                    if (matchingSystemEntities.Count > 1 && !TakeFirst) { WriteVerbose("Skipping ..."); continue; }
 
                     systemEntity = systemEntity ?? new Entity(EntityData.EntityName);
                     SetAttributes(systemEntity, entityInfo.Attributes, isUpdate);
                     var ownerRef = SetOwner(systemEntity, metadata);
                     ExecuteChange(systemEntity, isUpdate);
 
-                    _logger.Trace($"{(isUpdate ? "UPDATED" : "CREATED")}: {entityInfo.Name} {(ownerRef != null ? $"[Owner: {ownerRef.Name}]" : "")}");
+                    WriteVerbose($"{(isUpdate ? "UPDATED" : "CREATED")}: {entityInfo.Name} {(ownerRef != null ? $"[Owner: {ownerRef.Name}]" : "")}");
                     created += isUpdate ? 0 : 1;
                     updated += isUpdate ? 1 : 0;
+                    processed++;
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error(ex.Message);
+                    WriteError(new ErrorRecord(ex, "ImportError", ErrorCategory.WriteError, null));
                 }
             }
-            _logger.Info($"Created: {created} Updated: {updated}");
+            WriteVerbose($"Created: {created} Updated: {updated}");
         }
 
         private List<Entity> GetMatchingSystemEntities(EntityInfo entityInfo)

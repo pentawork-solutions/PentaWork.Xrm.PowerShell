@@ -26,22 +26,20 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     [Cmdlet(VerbsData.Import, "XrmSolution")]
     public class ImportXrmSolution : PSCmdlet
     {
-        private readonly ConsoleLogger _logger = new ConsoleLogger();
-
         protected override void ProcessRecord()
         {
             var (solutionName, solutionVersion) = GetSolutionInfo();
             var targetVersion = RetrieveSolutionVersion(solutionName);
 
-            if (targetVersion != null) _logger.Info($"Found version {targetVersion} in target system ...");
-            else _logger.Info("No version found in target system ...");
+            if (targetVersion != null) WriteVerbose($"Found version {targetVersion} in target system ...");
+            else WriteVerbose("No version found in target system ...");
 
             if(targetVersion != solutionVersion || Force)
             {
                 if (Delete) RemoveSolution(solutionName);
 
                 byte[] solution = File.ReadAllBytes(SolutionFile.FullName);
-                _logger.Info($"Importing solution '{solutionName}' to '{Connection.ConnectedOrgFriendlyName}'...");
+                WriteVerbose($"Importing solution '{solutionName}' to '{Connection.ConnectedOrgFriendlyName}'...");
 
                 var importSolutionRequest = new ImportSolutionRequest();
                 importSolutionRequest.CustomizationFile = solution;
@@ -49,11 +47,10 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                 importSolutionRequest.PublishWorkflows = PublishWorkflows;
 
                 Connection.Execute(importSolutionRequest);
-                _logger.Info($"Importing done!");
             }
             else
             {
-                _logger.Warn($"Solution '{solutionName}' ({solutionVersion}) already deployed to target system!");
+                WriteWarning($"Solution '{solutionName}' ({solutionVersion}) already deployed to target system!");
             }
         }
 
@@ -89,7 +86,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
 
         private void RemoveSolution(string solutionName)
         {
-            _logger.Info($"Deleting solution ...");
+            WriteVerbose($"Deleting solution ...");
             var query = new QueryExpression("solution");
             query.Criteria.AddCondition("uniquename", ConditionOperator.Equal, solutionName);
             query.ColumnSet = new ColumnSet(new[] { "solutionid", "friendlyname" });

@@ -59,7 +59,7 @@ namespace PentaWork.Xrm.PowerShell.Common
             var query = new QueryExpression
             {
                 EntityName = logicalName,
-                ColumnSet = new ColumnSet(nameField)
+                ColumnSet = new ColumnSet(true)
             };
             query.Criteria.AddCondition(nameField, ConditionOperator.Equal, entityName);
             return client.Query(query);

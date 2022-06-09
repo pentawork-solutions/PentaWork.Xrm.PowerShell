@@ -11,7 +11,7 @@ namespace PentaWork.Xrm.PowerShell
 
         public void Trace(string message)
         {
-            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.WriteLine(message);
             Console.ResetColor();
         }

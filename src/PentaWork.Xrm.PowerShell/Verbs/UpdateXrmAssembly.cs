@@ -15,7 +15,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     /// </para>
     /// </summary>
     /// <example>
-    /// <para>$conn = Get-CrmConnection -Interactive</para>
+    /// <para>$conn = Get-CrmConnection -InteractiveMode</para>
     /// <para>Update-XrmAseembly -Connection $conn -AssemblyFile .\Plugin.dll</para>
     /// </example>
     [Cmdlet(VerbsData.Update, "XrmAssembly")]
@@ -34,8 +34,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             var assemblyQuery = new QueryExpression
             {
                 EntityName = "pluginassembly",
-                ColumnSet = new ColumnSet(true),
-                Criteria = new FilterExpression()
+                ColumnSet = new ColumnSet(true)
             };
             assemblyQuery.Criteria.AddCondition("name", ConditionOperator.Equal, assemblyShortName);
 

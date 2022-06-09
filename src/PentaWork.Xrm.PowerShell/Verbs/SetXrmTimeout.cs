@@ -11,7 +11,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     /// </para>
     /// </summary>
     /// <example>
-    /// <para>Get-CrmConnection -Interactive | Set-XrmTimeout -Timeout 30</para>
+    /// <para>Get-CrmConnection -InteractiveMode | Set-XrmTimeout -Timeout 30</para>
     /// </example>
     [Cmdlet(VerbsCommon.Set, "XrmTimeout")]
     [OutputType(typeof(CrmServiceClient))]

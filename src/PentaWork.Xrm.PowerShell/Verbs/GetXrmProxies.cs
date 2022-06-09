@@ -26,7 +26,7 @@ namespace PentaWork.Xrm.PowerShell
     /// </para>
     /// </summary>
     /// <example>
-    /// <code>Get-CrmConnection -Interactive | Get-XrmProxies -FakeNamespace FakeNamespace -ProxyNamespace ProxyNamespace -OutputPath .\output -Clear</code>
+    /// <code>Get-CrmConnection -InteractiveMode | Get-XrmProxies -FakeNamespace FakeNamespace -ProxyNamespace ProxyNamespace -OutputPath .\output -Clear</code>
     /// </example>
     [Cmdlet(VerbsCommon.Get, "XrmProxies")]
     public class GetXrmProxies : PSCmdlet

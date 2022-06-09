@@ -15,7 +15,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     /// <para type="synopsis">Imports given entities to the given xrm system.</para>
     /// <para type="description">
     /// This function imports a given set of entities to the connected xrm system.
-    /// The result of the <c>Get-XrmEntities</c> can be piped into this function.
+    /// The result of the <c>Export-XrmEntities</c> can be piped into this function.
     /// </para>
     /// </summary>
     /// <example>
@@ -46,7 +46,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                 WriteProgress(new ProgressRecord(0, "Importing", $"Importing entity '{entityInfo.Name}' ...") { PercentComplete = 100 * processed / EntityData.Entities.Length });
                 try
                 {
-                    var matchingSystemEntities = GetMatchingSystemEntities(entityInfo);
+                    var matchingSystemEntities = Connection.GetMatchingEntities(EntityData.EntityName, entityInfo.Id, entityInfo.Name, MapByName ? EntityData.PrimaryNameField : null);
                     var systemEntity = matchingSystemEntities.FirstOrDefault();
                     var isUpdate = systemEntity != null;
 
@@ -70,23 +70,6 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                 }
             }
             WriteVerbose($"Created: {created} Updated: {updated}");
-        }
-
-        private List<Entity> GetMatchingSystemEntities(EntityInfo entityInfo)
-        {
-            List<Entity> entities;
-            if (MapByName)
-            {
-                entities = Connection.GetEntitiesByName(EntityData.EntityName, EntityData.PrimaryNameField, entityInfo.Name);
-            }
-            else
-            {
-                var entity = Connection.TryRetrieve(EntityData.EntityName, entityInfo.Id, new ColumnSet());
-                entities = entity != null
-                    ? new List<Entity> { entity }
-                    : new List<Entity>();
-            }
-            return entities;
         }
 
         private void SetAttributes(Entity systemEntity, AttributeInfo[] attributes, bool isUpdate)

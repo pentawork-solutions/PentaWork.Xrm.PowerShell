@@ -31,10 +31,10 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             {
                 if(entityInfo.Sharings.Any())
                 {
-                    WriteProgress(new ProgressRecord(0, "Importing", $"Importing shares for '{entityInfo.Name}' ...") { PercentComplete = 100 * processedEntities / EntityData.Entities.Length });
+                    WriteProgress(new ProgressRecord(0, "Importing", $"Importing shares for '{entityInfo.Name}' ...") { PercentComplete = 100 * processedEntities++ / EntityData.Entities.Length });
                                         
                     var matchingSystemEntities = Connection.GetMatchingEntities(EntityData.EntityName, entityInfo.Id, entityInfo.Name, MapEntitiesByName ? EntityData.PrimaryNameField : null);
-                    if (matchingSystemEntities.Count > 0) WriteVerbose($"Multiple entities for '{entityInfo.Name}' found ...");
+                    if (matchingSystemEntities.Count > 1) WriteVerbose($"Multiple entities for '{entityInfo.Name}' found ...");
                     if (matchingSystemEntities.Count == 0) 
                     { 
                         WriteWarning($"Entity '{entityInfo.Name}' not found!"); 
@@ -45,7 +45,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                     var entity = matchingSystemEntities.First();
                     foreach (var share in entityInfo.Sharings)
                     {
-                        WriteProgress(new ProgressRecord(1, "Importing", $"Importing share '{share.Name}' ...") { PercentComplete = 100 * processedSharings / entityInfo.Sharings.Length });
+                        WriteProgress(new ProgressRecord(1, "Importing", $"Importing share '{share.Name}' ...") { PercentComplete = 100 * processedSharings++ / entityInfo.Sharings.Length });
 
                         var principal = GetPrincipal(share);
                         if (principal == null)
@@ -59,8 +59,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
 
                         Connection.Execute(grantRequest);
                     }
-                }                
-                processedEntities++;
+                }
             }
         }
 
@@ -75,7 +74,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             {
                 var principals = Connection.GetMatchingEntities(share.LogicalName, share.Id, share.Name, MapPrincipalsByName ? nameField : null);
                 if (principals.Count == 0) WriteWarning($"Principal '{share.Name}' not found!");
-                if (principals.Count > 0) WriteVerbose($"Multiple principals for '{share.Name}' found ...");
+                if (principals.Count > 1) WriteVerbose($"Multiple principals for '{share.Name}' found ...");
 
                 principal = principals.FirstOrDefault();
                 if(principal != null) _principals.Add(principal);

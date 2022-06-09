@@ -43,7 +43,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
 
             foreach (var entityInfo in EntityData.Entities)
             {
-                WriteProgress(new ProgressRecord(0, "Importing", $"Importing entity '{entityInfo.Name}' ...") { PercentComplete = 100 * processed / EntityData.Entities.Length });
+                WriteProgress(new ProgressRecord(0, "Importing", $"Importing entity '{entityInfo.Name}' ...") { PercentComplete = 100 * processed++ / EntityData.Entities.Length });
                 try
                 {
                     var matchingSystemEntities = Connection.GetMatchingEntities(EntityData.EntityName, entityInfo.Id, entityInfo.Name, MapByName ? EntityData.PrimaryNameField : null);
@@ -62,7 +62,6 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                     WriteVerbose($"{(isUpdate ? "UPDATED" : "CREATED")}: {entityInfo.Name} {(ownerRef != null ? $"[Owner: {ownerRef.Name}]" : "")}");
                     created += isUpdate ? 0 : 1;
                     updated += isUpdate ? 1 : 0;
-                    processed++;
                 }
                 catch (Exception ex)
                 {

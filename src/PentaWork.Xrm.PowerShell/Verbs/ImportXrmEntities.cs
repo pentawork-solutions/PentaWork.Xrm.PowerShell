@@ -7,7 +7,7 @@ using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Metadata;
 using System;
 using System.Numerics;
-using System.ServiceModel;
+using PentaWork.Xrm.PowerShell.Common;
 
 namespace PentaWork.Xrm.PowerShell.Verbs
 {
@@ -26,15 +26,23 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     [Cmdlet(VerbsData.Import, "XrmEntities")]
     public class ImportXrmEntities : PSCmdlet
     {
+        private readonly ConsoleLogger _logger = new ConsoleLogger();
+
         protected override void ProcessRecord()
         {
-            var owner = TryRetrieve(FallbackOwner.LogicalName, FallbackOwner.Id, new ColumnSet(true));
-            if (owner == null) throw new Exception("Could not find fallback owner in connected system!");
-            if (owner.Attributes.Contains("isdisabled") && (bool?)owner.Attributes["isdisabled"] == true) throw new Exception("Given fallback user is disabled in connected system!");
+            var fallbackOwner = Connection.TryRetrieve(FallbackOwner.LogicalName, FallbackOwner.Id, new ColumnSet(true));
+            if (fallbackOwner == null) throw new Exception("Could not find fallback owner in connected system!");
+            if (fallbackOwner.Attributes.Contains("isdisabled") && (bool?)fallbackOwner.Attributes["isdisabled"] == true) throw new Exception("Given fallback user is disabled in connected system!");
+
+            // Set the fallback owner name for logging
+            FallbackOwner.Name = fallbackOwner.Contains("fullname") ? fallbackOwner.Attributes["fullname"].ToString() : fallbackOwner.Id.ToString();
+            FallbackOwner.Name = FallbackOwner.Name == string.Empty && fallbackOwner.Contains("name") ? fallbackOwner.Attributes["name"].ToString() : FallbackOwner.Name;
 
             int created = 0;
             int updated = 0;
-            Console.WriteLine($"Importing entities ...");
+            var metadata = Connection.GetMetadata(EntityData.EntityName);
+
+            _logger.Info($"Importing entities ...");
             foreach (var entityInfo in EntityData.Entities)
             {
                 try
@@ -43,37 +51,25 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                     var systemEntity = matchingSystemEntities.FirstOrDefault();
                     var isUpdate = systemEntity != null;
 
-                    if (CreateOnly.Contains(entityInfo.Name) && isUpdate) { Console.WriteLine($"Skipping update of '{entityInfo.Name}' - Create Only ..."); continue; }
-                    if (matchingSystemEntities.Count > 1) Console.WriteLine($"Found multiple matches for '{entityInfo.Name}' ...");
-                    if (matchingSystemEntities.Count > 1 && !TakeFirst) { Console.WriteLine("Skipping ..."); continue; }
+                    if (CreateOnly.Contains(entityInfo.Name) && isUpdate) { _logger.Trace($"Skipping update of '{entityInfo.Name}' - Create Only ..."); continue; }
+                    if (matchingSystemEntities.Count > 1) _logger.Trace($"Found multiple matches for '{entityInfo.Name}' ...");
+                    if (matchingSystemEntities.Count > 1 && !TakeFirst) { _logger.Trace("Skipping ..."); continue; }
 
                     systemEntity = systemEntity ?? new Entity(EntityData.EntityName);
                     SetAttributes(systemEntity, entityInfo.Attributes, isUpdate);
-                    SetOwner(systemEntity);
+                    var ownerRef = SetOwner(systemEntity, metadata);
                     ExecuteChange(systemEntity, isUpdate);
 
+                    _logger.Trace($"{(isUpdate ? "UPDATED" : "CREATED")}: {entityInfo.Name} {(ownerRef != null ? $"[Owner: {ownerRef.Name}]" : "")}");
                     created += isUpdate ? 0 : 1;
                     updated += isUpdate ? 1 : 0;
                 }
                 catch (Exception ex)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine(ex.Message);
-                    Console.ResetColor();
+                    _logger.Error(ex.Message);
                 }
             }
-            Console.WriteLine($"Created: {created} Updated: {updated}");
-        }
-
-        private Entity TryRetrieve(string logicalName, Guid id, ColumnSet columns)
-        {
-            Entity entity = null;
-            try
-            {
-                entity = Connection.Retrieve(logicalName, id, columns);
-            }
-            catch (FaultException) { /*No entity found*/ }
-            return entity;
+            _logger.Info($"Created: {created} Updated: {updated}");
         }
 
         private List<Entity> GetMatchingSystemEntities(EntityInfo entityInfo)
@@ -81,11 +77,11 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             List<Entity> entities;
             if (MapByName)
             {
-                entities = GetEntitiesByName(EntityData.EntityName, EntityData.PrimaryNameField, entityInfo.Name);
+                entities = Connection.GetEntitiesByName(EntityData.EntityName, EntityData.PrimaryNameField, entityInfo.Name);
             }
             else
             {
-                var entity = TryRetrieve(EntityData.EntityName, entityInfo.Id, new ColumnSet());
+                var entity = Connection.TryRetrieve(EntityData.EntityName, entityInfo.Id, new ColumnSet());
                 entities = entity != null
                     ? new List<Entity> { entity }
                     : new List<Entity>();
@@ -107,17 +103,24 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             }
         }
 
-        private void SetOwner(Entity entity)
+        private EntityReference SetOwner(Entity entity, EntityMetadata metadata)
         {
             // Some entities like themes and currencies dont have an owner!
-            if (!entity.Attributes.Contains("ownerid")) return;
+            if (!metadata.Attributes.Any(a => a.LogicalName == "ownerid")) return null;
 
-            var owner = (EntityReference)entity["ownerid"];
-            var systemOwner = GetEntitiesByName(owner.LogicalName, owner.LogicalName == "systemuser" ? "fullname" : "name", owner.Name);
+            var owner = FallbackOwner;
+            // New entities dont have an ownerid set, if the importing data is not containing one.
+            if (entity.Contains("ownerid"))
+            {
+                owner = (EntityReference)entity["ownerid"];
+                var systemOwner = Connection.GetEntitiesByName(owner.LogicalName, owner.LogicalName == "systemuser" ? "fullname" : "name", owner.Name);
 
-            // Check, if the given owner exists in the target system
-            if (systemOwner.Count == 0) entity["ownerid"] = FallbackOwner;
-            else entity["ownerid"] = systemOwner.First().ToEntityReference();
+                // Check, if the given owner exists in the target system
+                if (systemOwner.Count != 0) owner = systemOwner.First().ToEntityReference();
+            }
+
+            entity["ownerid"] = owner;
+            return owner;
         }
 
         private void ExecuteChange(Entity entity, bool isUpdate)
@@ -129,18 +132,6 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             else Connection.Create(entity);
 
             if (ImpersonateOwner) Connection.CallerId = orignalCaller;
-        }
-
-        private List<Entity> GetEntitiesByName(string entityLogicalName, string nameField, string entityName)
-        {
-            var query = new QueryExpression
-            {
-                EntityName = entityLogicalName,
-                ColumnSet = new ColumnSet(nameField),
-                Criteria = new FilterExpression()
-            };
-            query.Criteria.AddCondition(nameField, ConditionOperator.Equal, entityName);
-            return Connection.RetrieveMultiple(query).Entities.ToList();
         }
 
         private object DeserializeValue(AttributeInfo attr)
@@ -182,7 +173,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                     deserializedValue = new EntityReference(entityRef[0], new Guid(entityRef[1])) { Name = entityRef[2] };
                     if (MapByNameLookups.Contains(attr.Name))
                     {
-                        var entities = GetEntitiesByName(entityRef[0], entityRef[3], entityRef[2]);
+                        var entities = Connection.GetEntitiesByName(entityRef[0], entityRef[3], entityRef[2]);
                         if (entities.FirstOrDefault() != null) deserializedValue = entities.First().ToEntityReference();
                         else throw new Exception($"No matching '{entityRef[0]}' for name '{entityRef[2]}' found!");
                     }
@@ -235,7 +226,8 @@ namespace PentaWork.Xrm.PowerShell.Verbs
         public SwitchParameter TakeFirst { get; set; }
 
         /// <summary>
-        /// <para type="description">Set to true, if the import process should impersonate the owner.</para>
+        /// <para type="description">Set to true, if the call for creates and updates should impersonate the target owner
+        /// (either the fallback owner, the owner of the existing entity or the owner given in the entity data to import).</para>
         /// </summary>
         [Parameter]
         public SwitchParameter ImpersonateOwner { get; set; }

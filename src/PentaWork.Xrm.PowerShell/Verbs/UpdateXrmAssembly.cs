@@ -34,8 +34,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             var assemblyQuery = new QueryExpression
             {
                 EntityName = "pluginassembly",
-                ColumnSet = new ColumnSet(true),
-                Criteria = new FilterExpression()
+                ColumnSet = new ColumnSet(true)
             };
             assemblyQuery.Criteria.AddCondition("name", ConditionOperator.Equal, assemblyShortName);
 

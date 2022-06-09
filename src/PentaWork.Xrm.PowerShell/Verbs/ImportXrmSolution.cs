@@ -75,8 +75,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             var solutionQuery = new QueryExpression
             {
                 EntityName = "solution",
-                ColumnSet = new ColumnSet(new string[] { "version", "versionnumber" }),
-                Criteria = new FilterExpression()
+                ColumnSet = new ColumnSet(new string[] { "version", "versionnumber" })
             };
             solutionQuery.Criteria.AddCondition("uniquename", ConditionOperator.Equal, solutionName);
 

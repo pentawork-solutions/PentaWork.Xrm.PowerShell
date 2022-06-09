@@ -3,7 +3,9 @@ using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
+using System;
 using System.Collections.Generic;
+using System.ServiceModel;
 
 namespace PentaWork.Xrm.PowerShell.Common
 {
@@ -30,6 +32,17 @@ namespace PentaWork.Xrm.PowerShell.Common
             return entities;
         }
 
+        public static Entity TryRetrieve(this CrmServiceClient client, string logicalName, Guid id, ColumnSet columns)
+        {
+            Entity entity = null;
+            try
+            {
+                entity = client.Retrieve(logicalName, id, columns);
+            }
+            catch (FaultException) { /*No entity found*/ }
+            return entity;
+        }
+
         public static EntityMetadata GetMetadata(this CrmServiceClient client, string logicalName)
         {
             var request = new RetrieveEntityRequest
@@ -39,6 +52,17 @@ namespace PentaWork.Xrm.PowerShell.Common
                 RetrieveAsIfPublished = true
             };
             return ((RetrieveEntityResponse)client.Execute(request)).EntityMetadata;
+        }
+
+        public static List<Entity> GetEntitiesByName(this CrmServiceClient client, string logicalName, string nameField, string entityName)
+        {
+            var query = new QueryExpression
+            {
+                EntityName = logicalName,
+                ColumnSet = new ColumnSet(nameField)
+            };
+            query.Criteria.AddCondition(nameField, ConditionOperator.Equal, entityName);
+            return client.Query(query);
         }
     }
 }

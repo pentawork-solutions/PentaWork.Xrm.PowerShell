@@ -126,7 +126,6 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             {
                 EntityName = EntityName,
                 ColumnSet = ColumnSet,
-                Criteria = new FilterExpression(),
                 PageInfo = new PagingInfo { Count = PageSize, PageNumber = PageNumber }
             };
             FilterConditions.ForEach(c => query.Criteria.AddCondition(c));

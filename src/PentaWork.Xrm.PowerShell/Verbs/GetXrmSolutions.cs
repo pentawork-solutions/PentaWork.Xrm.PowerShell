@@ -42,8 +42,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             var solutionQuery = new QueryExpression
             {
                 EntityName = "solution",
-                ColumnSet = new ColumnSet(new string[] { "publisherid", "installedon", "version", "versionnumber", "uniquename", "friendlyname", "isvisible" }),
-                Criteria = new FilterExpression()
+                ColumnSet = new ColumnSet(new string[] { "publisherid", "installedon", "version", "versionnumber", "uniquename", "friendlyname", "isvisible" })
             };
             solutionQuery.Criteria.AddCondition("isvisible", ConditionOperator.Equal, true);
 

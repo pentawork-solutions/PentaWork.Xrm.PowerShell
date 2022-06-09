@@ -64,5 +64,22 @@ namespace PentaWork.Xrm.PowerShell.Common
             query.Criteria.AddCondition(nameField, ConditionOperator.Equal, entityName);
             return client.Query(query);
         }
+
+        public static List<Entity> GetMatchingEntities(this CrmServiceClient client, string logicalName, Guid id, string name, string primaryNameField = null)
+        {
+            List<Entity> entities;
+            if (!string.IsNullOrEmpty(primaryNameField))
+            {
+                entities = client.GetEntitiesByName(logicalName, primaryNameField, name);
+            }
+            else
+            {
+                var entity = client.TryRetrieve(logicalName, id, new ColumnSet());
+                entities = entity != null
+                    ? new List<Entity> { entity }
+                    : new List<Entity>();
+            }
+            return entities;
+        }
     }
 }

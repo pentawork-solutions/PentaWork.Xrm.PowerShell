@@ -103,7 +103,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     /// </para>
     /// </summary>
     /// <example>
-    /// <para>Get-CrmConnection -InteractiveMode | Get-XrmEntities -EntityName userquery | ConvertTo-Json -depth 4 | Out-File "userquery.json"</para>
+    /// <para>Get-CrmConnection -InteractiveMode | Export-XrmEntities -EntityName userquery | ConvertTo-Json -depth 6 | Out-File "userquery.json"</para>
     /// </example>
     [OutputType(typeof(EntityData))]
     [Cmdlet(VerbsData.Export, "XrmEntities")]
@@ -176,7 +176,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
         private AttributeInfo[] GetAttributes(Entity entity, List<AttributeMetadata> relevantAttributes)
         {
             var attributeInfos = new List<AttributeInfo>();
-            foreach (var attr in entity.Attributes)
+            foreach (var attr in entity.Attributes.OrderBy(a => a.Key))
             {
                 var attrMetadata = relevantAttributes.SingleOrDefault(ra => ra.LogicalName == attr.Key);
                 if (attrMetadata == null) continue;
@@ -200,7 +200,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             var shares = new List<ShareInfo>();
             var request = new RetrieveSharedPrincipalsAndAccessRequest { Target = entity.ToEntityReference() };
             var response = (RetrieveSharedPrincipalsAndAccessResponse) Connection.Execute(request);
-            foreach(var share in response.PrincipalAccesses)
+            foreach(var share in response.PrincipalAccesses.OrderBy(p => p.Principal.Name))
             {
                 var primaryNameField = share.Principal.LogicalName == "systemuser"
                     ? "fullname"
@@ -264,11 +264,14 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                     IntersectEntityName = schemaDefinition.IntersectEntityName,
                     ToLogicalName = toEntityMetaData.LogicalName,
                     ToPrimaryNameAttribute = toEntityMetaData.PrimaryNameAttribute,
-                    Entities = relatedEntities.Select(r => new RelatedEntityInfo
-                    { 
-                        Id = r.Id, 
-                        Name = r.Contains(toEntityMetaData.PrimaryNameAttribute) ? r[toEntityMetaData.PrimaryNameAttribute].ToString() : string.Empty
-                    }).ToArray()
+                    Entities = relatedEntities
+                        .OrderBy(r => r.Contains(toEntityMetaData.PrimaryNameAttribute) ? r[toEntityMetaData.PrimaryNameAttribute].ToString() : r.Id.ToString())
+                        .Select(r => new RelatedEntityInfo
+                        { 
+                            Id = r.Id, 
+                            Name = r.Contains(toEntityMetaData.PrimaryNameAttribute) ? r[toEntityMetaData.PrimaryNameAttribute].ToString() : string.Empty
+                        })
+                        .ToArray()
                 };
                 relations.Add(relationInfo);
             }

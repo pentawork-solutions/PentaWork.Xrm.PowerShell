@@ -126,6 +126,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CrmServiceClientExtensions.cs" />
+    <Compile Include="Verbs\ImportXrmSharings.cs" />
     <Compile Include="Verbs\RemoveXrmEntities.cs" />
     <Compile Include="Verbs\ImportXrmEntities.cs" />
     <Compile Include="Verbs\ExportXrmEntities.cs" />

@@ -18,10 +18,12 @@ Install-Module -Name PentaWork.Xrm.PowerShell
 Exported Commands
 ---
 
+- Remove-XrmEntities
 - Export-XrmSolution
 - Get-XrmProxies
 - Get-XrmSolutions
 - Import-XrmSolution
+- Import-XrmEntitie
 - Update-XrmAssembly
 - Set-XrmTimeout
 

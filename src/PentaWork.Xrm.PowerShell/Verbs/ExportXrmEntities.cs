@@ -4,10 +4,10 @@ using System.Management.Automation;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Metadata;
 using System;
 using Microsoft.Crm.Sdk.Messages;
+using PentaWork.Xrm.PowerShell.Common;
 
 namespace PentaWork.Xrm.PowerShell.Verbs
 {
@@ -66,18 +66,20 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     /// </summary>
     public class RelationInfo
     {
-        public string Schema { get; set; }
-        public ReferenceInfo[] Entities { get; set; }
+        public string SchemaName { get; set; }
+        public string IntersectEntityName { get; set; }
+        public string ToLogicalName { get; set; }
+        public string ToPrimaryNameAttribute { get; set; }
+        public RelatedEntityInfo[] Entities { get; set; }
     }
 
     /// <summary>
     /// <para type="synopsis">Object to hold an entity reference.</para>
     /// </summary>
-    public class ReferenceInfo
+    public class RelatedEntityInfo
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public string LogicalName { get; set; }
     }
 
     /// <summary>
@@ -85,7 +87,9 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     /// </summary>
     public class ShareInfo
     {
-        public ReferenceInfo Team { get; set; }
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public string LogicalName { get; set; }
         public AccessRights AccessMask { get; set; }
     }
     #endregion
@@ -105,61 +109,28 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     [Cmdlet(VerbsData.Export, "XrmEntities")]
     public class ExportXrmEntities : PSCmdlet
     {
+        private readonly ConsoleLogger _logger = new ConsoleLogger();
         private readonly List<EntityMetadata> _fetchedMetaData = new List<EntityMetadata>();
 
         protected override void ProcessRecord()
         {
             var entityCollection = GetEntities();
-            var metadata = GetMetadata(EntityName);
+            var metadata = Connection.GetMetadata(EntityName);
             var relevantAttributes = GetRelevantAttributes(metadata);
             WriteObject(GetEntityData(entityCollection, metadata, relevantAttributes));
         }
 
         private List<Entity> GetEntities()
         {
-            var retrieveAction = new Func<int, int, EntityCollection>((pageSize, pageNumber) =>
+            var query = new QueryExpression
             {
-                var query = new QueryExpression
-                {
-                    EntityName = EntityName,
-                    ColumnSet = ColumnSet,
-                    Criteria = new FilterExpression(),
-                    PageInfo = new PagingInfo { Count = pageSize, PageNumber = pageNumber }
-                };
-                FilterConditions.ForEach(c => query.Criteria.AddCondition(c));
-                return Connection.RetrieveMultiple(query);
-            });
-
-            var entities = new List<Entity>();
-            var response = retrieveAction(PageSize, PageNumber);
-
-            entities.AddRange(response.Entities);
-            if (GetAll && response.MoreRecords)
-            {
-                var pageNumber = PageNumber;
-                while (response.MoreRecords)
-                {
-                    response = retrieveAction(PageSize, ++pageNumber);
-                    entities.AddRange(response.Entities);
-                }
-            }
-
-            return entities;
-        }
-
-        private EntityMetadata GetMetadata(string logicalName)
-        {
-            if (!_fetchedMetaData.Any(m => m.LogicalName == logicalName))
-            {
-                var request = new RetrieveEntityRequest
-                {
-                    LogicalName = logicalName,
-                    EntityFilters = EntityFilters.Entity | EntityFilters.Attributes | EntityFilters.Relationships,
-                    RetrieveAsIfPublished = false
-                };
-                _fetchedMetaData.Add(((RetrieveEntityResponse)Connection.Execute(request)).EntityMetadata);
-            }
-            return _fetchedMetaData.Single(m => m.LogicalName == logicalName);
+                EntityName = EntityName,
+                ColumnSet = ColumnSet,
+                Criteria = new FilterExpression(),
+                PageInfo = new PagingInfo { Count = PageSize, PageNumber = PageNumber }
+            };
+            FilterConditions.ForEach(c => query.Criteria.AddCondition(c));
+            return Connection.Query(query, GetAll);
         }
 
         private List<AttributeMetadata> GetRelevantAttributes(EntityMetadata metadata)
@@ -196,6 +167,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                 };
                 entityInfo.Attributes = GetAttributes(entity, relevantAttributes);
                 entityInfo.Sharings = GetSharings(entity);
+                entityInfo.Relations = GetRelations(entity, metadata);
 
                 entityInfos.Add(entityInfo);
             }
@@ -232,9 +204,19 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             var response = (RetrieveSharedPrincipalsAndAccessResponse) Connection.Execute(request);
             foreach(var share in response.PrincipalAccesses)
             {
-                var shareInfo = new ShareInfo();
-                shareInfo.Team = new ReferenceInfo { Id = share.Principal.Id, LogicalName = share.Principal.LogicalName, Name = share.Principal.Name };
-                shareInfo.AccessMask = share.AccessMask;
+                var primaryNameField = share.Principal.LogicalName == "systemuser"
+                    ? "fullname"
+                    : "name"; // Teams
+                var principal = Connection.Retrieve(share.Principal.LogicalName, share.Principal.Id, new ColumnSet(primaryNameField));
+                var principalName = principal.Contains(primaryNameField) ? principal[primaryNameField].ToString() : string.Empty;
+
+                var shareInfo = new ShareInfo
+                {
+                    Id = share.Principal.Id,
+                    Name = principalName,
+                    LogicalName = share.Principal.LogicalName,
+                    AccessMask = share.AccessMask
+                };
 
                 shares.Add(shareInfo);
             }
@@ -251,11 +233,46 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                 var schemaDefinition = entityMetadata.ManyToManyRelationships.SingleOrDefault(r => r.SchemaName == relation);
                 if (schemaDefinition == null)
                 {
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine($"No relation definition matching the schema name '{relation}' was found!");
-                    Console.ResetColor();
+                    _logger.Warn($"No relation definition matching the schema name '{relation}' was found!");
                     continue;
                 }
+
+                var fromEntityIdField = schemaDefinition.Entity1LogicalName == entity.LogicalName ? schemaDefinition.Entity1IntersectAttribute : schemaDefinition.Entity2IntersectAttribute;
+                var toEntityLogicalName = schemaDefinition.Entity1LogicalName == entity.LogicalName ? schemaDefinition.Entity2LogicalName : schemaDefinition.Entity1LogicalName;
+                var toEntityIdField = schemaDefinition.Entity1LogicalName == entity.LogicalName ? schemaDefinition.Entity2IntersectAttribute : schemaDefinition.Entity1IntersectAttribute;
+                var toEntityMetaData = Connection.GetMetadata(toEntityLogicalName);
+
+                var relationQuery = new QueryExpression
+                {
+                    EntityName = schemaDefinition.IntersectEntityName,
+                    ColumnSet = new ColumnSet(true)
+                };
+                relationQuery.Criteria.AddCondition(fromEntityIdField, ConditionOperator.Equal, entity.Id);
+                var relationEntities = Connection.Query(relationQuery, true);
+                if (relationEntities.Count == 0) continue;
+
+                var relatedEntitiesQuery = new QueryExpression
+                {
+                    EntityName = toEntityLogicalName,
+                    ColumnSet = new ColumnSet(toEntityMetaData.PrimaryNameAttribute)
+                };
+                var condition = new ConditionExpression(toEntityMetaData.PrimaryIdAttribute, ConditionOperator.In, relationEntities.Select(r => (Guid)r[toEntityIdField]).ToArray());
+                relatedEntitiesQuery.Criteria.AddCondition(condition);
+
+                var relatedEntities = Connection.Query(relatedEntitiesQuery, true);
+                var relationInfo = new RelationInfo
+                {
+                    SchemaName = schemaDefinition.SchemaName,
+                    IntersectEntityName = schemaDefinition.IntersectEntityName,
+                    ToLogicalName = toEntityMetaData.LogicalName,
+                    ToPrimaryNameAttribute = toEntityMetaData.PrimaryNameAttribute,
+                    Entities = relatedEntities.Select(r => new RelatedEntityInfo
+                    { 
+                        Id = r.Id, 
+                        Name = r.Contains(toEntityMetaData.PrimaryNameAttribute) ? r[toEntityMetaData.PrimaryNameAttribute].ToString() : string.Empty
+                    }).ToArray()
+                };
+                relations.Add(relationInfo);
             }
             return relations.ToArray();
         }
@@ -288,8 +305,12 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                 case AttributeTypeCode.Lookup:
                 case AttributeTypeCode.Owner:
                     var entityRef = (EntityReference)value;
-                    var metadata = GetMetadata(entityRef.LogicalName);
+                    if (!_fetchedMetaData.Any(m => m.LogicalName == entityRef.LogicalName))
+                    {
+                        _fetchedMetaData.Add(Connection.GetMetadata(entityRef.LogicalName));
+                    }
 
+                    var metadata = _fetchedMetaData.Single(m => m.LogicalName == entityRef.LogicalName);
                     serializedValue = $"{entityRef.LogicalName};{entityRef.Id};{entityRef.Name};{metadata.PrimaryNameAttribute}";
                     break;
                 default:
@@ -338,7 +359,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
         /// <para type="description">List of relation schemas to export.</para>
         /// </summary>
         [Parameter]
-        public List<string> Relations { get; set; }
+        public List<string> Relations { get; set; } = new List<string>();
 
         /// <summary>
         /// <para type="description">The page size to show. Default is 500.</para>

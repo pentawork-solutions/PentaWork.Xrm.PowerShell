@@ -1,4 +1,6 @@
 ﻿using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Messages;
+using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
 using System.Collections.Generic;
@@ -26,6 +28,17 @@ namespace PentaWork.Xrm.PowerShell.Common
             }
 
             return entities;
+        }
+
+        public static EntityMetadata GetMetadata(this CrmServiceClient client, string logicalName)
+        {
+            var request = new RetrieveEntityRequest
+            {
+                LogicalName = logicalName,
+                EntityFilters = EntityFilters.Entity | EntityFilters.Attributes | EntityFilters.Relationships,
+                RetrieveAsIfPublished = true
+            };
+            return ((RetrieveEntityResponse)client.Execute(request)).EntityMetadata;
         }
     }
 }

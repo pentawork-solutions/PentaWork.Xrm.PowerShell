@@ -31,8 +31,6 @@ namespace PentaWork.Xrm.PowerShell
     [Cmdlet(VerbsCommon.Get, "XrmProxies")]
     public class GetXrmProxies : PSCmdlet
     {
-        private readonly ConsoleLogger _logger = new ConsoleLogger();
-
         protected override void ProcessRecord()
         {
             if (Clear && OutputPath.Exists) Directory.Delete(OutputPath.FullName, true);
@@ -59,7 +57,7 @@ namespace PentaWork.Xrm.PowerShell
 
         private List<Entity> GetAllSdkMessages()
         {
-            _logger.Info("Getting SDK Messages ...");
+            WriteProgress(new ProgressRecord(0, "Loading", $"Getting SDK Messages ...") { PercentComplete = 0 });
 
             var query = new QueryExpression("sdkmessage");
             query.LinkEntities.Add(new LinkEntity("sdkmessage", "sdkmessagefilter", "sdkmessageid", "sdkmessageid", JoinOperator.Inner));
@@ -74,7 +72,7 @@ namespace PentaWork.Xrm.PowerShell
 
         private List<ActionInfo> GetAllActions()
         {
-            _logger.Info("Getting available Actions ...");
+            WriteProgress(new ProgressRecord(0, "Loading", $"Getting available Actions ...") { PercentComplete = 10 });
 
             var query = new QueryExpression("workflow");
             query.LinkEntities.Add(new LinkEntity("workflow", "sdkmessage", "sdkmessageid", "sdkmessageid", JoinOperator.Inner));
@@ -94,7 +92,8 @@ namespace PentaWork.Xrm.PowerShell
 
         private List<EntityMetadata> GetAllEntityMetadata(List<Entity> sdkMessages)
         {
-            _logger.Info("Getting metadata ...");
+            WriteProgress(new ProgressRecord(0, "Loading", $"Getting metadata ...") { PercentComplete = 20 });
+
             var request = new RetrieveAllEntitiesRequest
             {
                 EntityFilters = EntityFilters.Entity | EntityFilters.Attributes | EntityFilters.Relationships,
@@ -114,7 +113,7 @@ namespace PentaWork.Xrm.PowerShell
 
         private List<Entity> GetAllSystemForms()
         {
-            _logger.Info("Getting system forms ...");
+            WriteProgress(new ProgressRecord(0, "Loading", $"Getting system forms ...") { PercentComplete = 30 });
 
             var query = new QueryExpression("systemform");
             query.Criteria.AddCondition("objecttypecode", ConditionOperator.NotEqual, "none");
@@ -127,19 +126,19 @@ namespace PentaWork.Xrm.PowerShell
         {
             if(UseBaseProxy)
             {
-                WriteVerbose("Generating Base Proxy ...");
+                WriteProgress(new ProgressRecord(0, "Generating", $"Generating Base Proxy ...") { PercentComplete = 40 });
                 var baseProxyTemplate = new BaseProxy { ProxyNamespace = ProxyNamespace };
                 File.WriteAllText(Path.Combine(CSOutputPath, "BaseProxy.cs"), baseProxyTemplate.TransformText());
             }            
 
-            WriteVerbose("Generating Attributes ...");
+            WriteProgress(new ProgressRecord(0, "Generating", $"Generating Attributes ...") { PercentComplete = 40 });
             var attributesTemplate = new Attributes { ProxyNamespace = ProxyNamespace };
             File.WriteAllText(Path.Combine(CSOutputPath, "Attributes.cs"), attributesTemplate.TransformText());
 
             var assemblyInfoAddition = new AssemblyInfoAddition();
             File.WriteAllText(Path.Combine(CSOutputPath, "AssemblyInfoAddition.cs"), assemblyInfoAddition.TransformText());
 
-            WriteVerbose("Generating Extensions ...");
+            WriteProgress(new ProgressRecord(0, "Generating", $"Generating Extensions ...") { PercentComplete = 45 });
             EnsureFolder(Path.Combine(CSOutputPath, "Extensions"));
 
             var enumExtensionTemplate = new EnumExtensions { ProxyNamespace = ProxyNamespace };
@@ -148,7 +147,7 @@ namespace PentaWork.Xrm.PowerShell
 
         private void GenerateAllCSharp(EntityInfoList entityInfoList)
         {
-            _logger.Info("[CS] Generating Proxy & Fake Classes ...");
+            WriteProgress(new ProgressRecord(0, "Generating", $"[CS] Generating Proxy & Fake Classes ...") { PercentComplete = 50 });
             EnsureFolder(Path.Combine(CSOutputPath, "Entities"));
             EnsureFolder(Path.Combine(OutputPath.FullName, "Fake"));
             foreach (var entityInfo in entityInfoList)
@@ -160,7 +159,7 @@ namespace PentaWork.Xrm.PowerShell
                 File.WriteAllText(Path.Combine(OutputPath.FullName, "Fake", $"{entityInfo.UniqueDisplayName}.cs"), fakeTemplate.TransformText());
             }
 
-            _logger.Info("[CS] Generating Relation Classes ...");
+            WriteProgress(new ProgressRecord(0, "Generating", $"[CS] Generating Relation Classes ...") { PercentComplete = 65 });
             EnsureFolder(Path.Combine(CSOutputPath, "Relations"));
             foreach (var relationClassInfo in entityInfoList.SelectMany(e => e.ManyToManyRelationList))
             {
@@ -171,11 +170,12 @@ namespace PentaWork.Xrm.PowerShell
 
         private void GenerateAllJavascript(EntityInfoList entityInfoList)
         {
-            _logger.Info("[TS] Generating Proxy Base Types ...");
+
+            WriteProgress(new ProgressRecord(0, "Generating", $"[TS] Generating Proxy Base Types ...") { PercentComplete = 75 });
             var proxyTypesTemplate = new ProxyTypes();
             File.WriteAllText(Path.Combine(TSOutputPath, "ProxyTypes.ts"), proxyTypesTemplate.TransformText());
 
-            _logger.Info($"[TS] Generating Entity Proxies...");
+            WriteProgress(new ProgressRecord(0, "Generating", $"[TS] Generating Entity Proxies...") { PercentComplete = 85 });
             EnsureFolder(Path.Combine(TSOutputPath, "Entities"));
             foreach (var entityInfo in entityInfoList)
             {
@@ -183,7 +183,7 @@ namespace PentaWork.Xrm.PowerShell
                 File.WriteAllText(Path.Combine(TSOutputPath, "Entities", $"{entityInfo.UniqueDisplayName}.ts"), proxyTemplate.TransformText());
             }
 
-            _logger.Info($"[TS] Generating Attribute Name Modules...");
+            WriteProgress(new ProgressRecord(0, "Generating", $"[TS] Generating Attribute Name Modules...") { PercentComplete = 90 });
             EnsureFolder(Path.Combine(TSOutputPath, "Attributes"));
             foreach (var entityInfo in entityInfoList)
             {
@@ -191,7 +191,7 @@ namespace PentaWork.Xrm.PowerShell
                 File.WriteAllText(Path.Combine(TSOutputPath, "Attributes", $"{entityInfo.UniqueDisplayName}.ts"), attributeModule.TransformText());
             }
 
-            _logger.Info($"[TS] Generating Form Info Modules...");
+            WriteProgress(new ProgressRecord(0, "Generating", $"[TS] Generating Form Info Modules...") { PercentComplete = 95 });
             EnsureFolder(Path.Combine(TSOutputPath, "FormInfos"));
             foreach (var entityInfo in entityInfoList)
             {

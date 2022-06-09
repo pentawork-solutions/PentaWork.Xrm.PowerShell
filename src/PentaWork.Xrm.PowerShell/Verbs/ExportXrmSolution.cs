@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
@@ -23,8 +22,6 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     [Cmdlet(VerbsData.Export, "XrmSolution")]
     public class ExportXrmSolution : PSCmdlet
     {
-        private readonly ConsoleLogger _logger = new ConsoleLogger();
-
         protected override void ProcessRecord()
         {
             if (PublishAll) Connection.Execute(new PublishAllXmlRequest());
@@ -32,18 +29,19 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             var solutionVersion = RetrieveSolutionVersion();
             var solutionFilePath = Path.Combine(ExportPath, $"{UniqueName} - {solutionVersion} - {Connection.ConnectedOrgFriendlyName} - { (Managed ? "managed" : "unmanaged") }.zip");
 
-            if (File.Exists(solutionFilePath) && !Force) _logger.Warn("Solution already existing in target path. Skipping ...");
+            if (File.Exists(solutionFilePath) && !Force) WriteWarning("Solution already existing in target path. Skipping ...");
             else
             {
-                _logger.Info($"Exporting solution '{UniqueName}' ({solutionVersion}) from '{Connection.ConnectedOrgFriendlyName}'...");
+                WriteProgress(new ProgressRecord(0, "Exporting", $"Exporting solution '{UniqueName}' ({solutionVersion}) from '{Connection.ConnectedOrgFriendlyName}'...") { PercentComplete = 0 });
 
                 var exportSolutionRequest = new ExportSolutionRequest();
                 exportSolutionRequest.Managed = Managed;
                 exportSolutionRequest.SolutionName = UniqueName;
 
                 var exportSolutionResponse = (ExportSolutionResponse)Connection.Execute(exportSolutionRequest);
-                var exportBytes = exportSolutionResponse.ExportSolutionFile;
 
+                WriteProgress(new ProgressRecord(0, "Saving", $"Saving solution ...") { PercentComplete = 75 });
+                var exportBytes = exportSolutionResponse.ExportSolutionFile;
                 File.WriteAllBytes(solutionFilePath, exportBytes);
             }
 

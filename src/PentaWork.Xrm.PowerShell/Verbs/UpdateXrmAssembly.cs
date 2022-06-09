@@ -21,15 +21,13 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     [Cmdlet(VerbsData.Update, "XrmAssembly")]
     public class UpdateXrmAssembly : PSCmdlet
     {
-        private readonly ConsoleLogger _logger = new ConsoleLogger();
-
         protected override void ProcessRecord()
         {
             var assembly = Assembly.ReflectionOnlyLoadFrom(AssemblyFile.FullName);
             var assemblyProperties = assembly.GetName().FullName.Split(",= ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             var assemblyShortName = assemblyProperties[0];
 
-            _logger.Info($"Processing assembly '{assemblyShortName}' ...");
+            WriteVerbose($"Processing assembly '{assemblyShortName}' ...");
 
             var assemblyQuery = new QueryExpression
             {
@@ -50,9 +48,9 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                     crmAssembly["publickeytoken"] = assemblyProperties[6];
                     crmAssembly["content"] = Convert.ToBase64String(File.ReadAllBytes(assembly.Location));
 
-                    _logger.Info($"Publishing assembly '{assemblyShortName}' to XRM ...");
+                    WriteVerbose($"Publishing assembly '{assemblyShortName}' to XRM ...");
                     Connection.Update(crmAssembly);
-                    _logger.Info($"Publishing done!");
+                    WriteVerbose($"Publishing done!");
                 }
             }
         }

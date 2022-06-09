@@ -109,7 +109,6 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     [Cmdlet(VerbsData.Export, "XrmEntities")]
     public class ExportXrmEntities : PSCmdlet
     {
-        private readonly ConsoleLogger _logger = new ConsoleLogger();
         private readonly List<EntityMetadata> _fetchedMetaData = new List<EntityMetadata>();
 
         protected override void ProcessRecord()
@@ -232,7 +231,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                 var schemaDefinition = entityMetadata.ManyToManyRelationships.SingleOrDefault(r => r.SchemaName == relation);
                 if (schemaDefinition == null)
                 {
-                    _logger.Warn($"No relation definition matching the schema name '{relation}' was found!");
+                    WriteWarning($"No relation definition matching the schema name '{relation}' was found!");
                     continue;
                 }
 

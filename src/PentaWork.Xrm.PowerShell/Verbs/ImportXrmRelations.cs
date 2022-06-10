@@ -87,13 +87,14 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                             }
                             relatedEntityReferences.Add(relatedEntity.ToEntityReference());
                         }
-                        WriteProgress(new ProgressRecord(1, "Importing", $"Importing relations for schema '{relationInfo.SchemaName}' ...") { PercentComplete = 100 });
+                        WriteProgress(new ProgressRecord(1, "Importing", "Done!") { RecordType = ProgressRecordType.Completed });
 
                         Connection.Disassociate(relatingEntity.LogicalName, relatingEntity.Id, new Relationship(relationInfo.SchemaName), relatedEntityReferences);
                         Connection.Associate(relatingEntity.LogicalName, relatingEntity.Id, new Relationship(relationInfo.SchemaName), relatedEntityReferences);
                     }
                 }
             }
+            WriteProgress(new ProgressRecord(0, "Importing", "Done!") { RecordType = ProgressRecordType.Completed });
         }
 
         private void AddRelationConditions(QueryExpression query, Entity relatingEntity, string schemaName)

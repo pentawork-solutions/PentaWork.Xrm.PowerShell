@@ -48,6 +48,8 @@ namespace PentaWork.Xrm.PowerShell
             GenerateBaseClasses();
             GenerateAllCSharp(entityInfoList);
             GenerateAllJavascript(entityInfoList);
+
+            WriteProgress(new ProgressRecord(0, "Generating", "Done!") { RecordType = ProgressRecordType.Completed });
         }
 
         private void EnsureFolder(string folderPath)
@@ -57,7 +59,7 @@ namespace PentaWork.Xrm.PowerShell
 
         private List<Entity> GetAllSdkMessages()
         {
-            WriteProgress(new ProgressRecord(0, "Loading", $"Getting SDK Messages ...") { PercentComplete = 0 });
+            WriteProgress(new ProgressRecord(0, "Generating", $"Getting SDK Messages ...") { PercentComplete = 0 });
 
             var query = new QueryExpression("sdkmessage");
             query.LinkEntities.Add(new LinkEntity("sdkmessage", "sdkmessagefilter", "sdkmessageid", "sdkmessageid", JoinOperator.Inner));
@@ -72,7 +74,7 @@ namespace PentaWork.Xrm.PowerShell
 
         private List<ActionInfo> GetAllActions()
         {
-            WriteProgress(new ProgressRecord(0, "Loading", $"Getting available Actions ...") { PercentComplete = 10 });
+            WriteProgress(new ProgressRecord(0, "Generating", $"Getting available Actions ...") { PercentComplete = 10 });
 
             var query = new QueryExpression("workflow");
             query.LinkEntities.Add(new LinkEntity("workflow", "sdkmessage", "sdkmessageid", "sdkmessageid", JoinOperator.Inner));
@@ -92,7 +94,7 @@ namespace PentaWork.Xrm.PowerShell
 
         private List<EntityMetadata> GetAllEntityMetadata(List<Entity> sdkMessages)
         {
-            WriteProgress(new ProgressRecord(0, "Loading", $"Getting metadata ...") { PercentComplete = 20 });
+            WriteProgress(new ProgressRecord(0, "Generating", $"Getting metadata ...") { PercentComplete = 20 });
 
             var request = new RetrieveAllEntitiesRequest
             {
@@ -113,7 +115,7 @@ namespace PentaWork.Xrm.PowerShell
 
         private List<Entity> GetAllSystemForms()
         {
-            WriteProgress(new ProgressRecord(0, "Loading", $"Getting system forms ...") { PercentComplete = 30 });
+            WriteProgress(new ProgressRecord(0, "Generating", $"Getting system forms ...") { PercentComplete = 30 });
 
             var query = new QueryExpression("systemform");
             query.Criteria.AddCondition("objecttypecode", ConditionOperator.NotEqual, "none");

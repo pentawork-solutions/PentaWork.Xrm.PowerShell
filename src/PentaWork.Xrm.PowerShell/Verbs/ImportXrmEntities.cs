@@ -68,6 +68,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                     WriteError(new ErrorRecord(ex, "ImportError", ErrorCategory.WriteError, null));
                 }
             }
+            WriteProgress(new ProgressRecord(0, "Importing", "Done!") { RecordType = ProgressRecordType.Completed });
             WriteVerbose($"Created: {created} Updated: {updated}");
         }
 

@@ -61,6 +61,8 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                     }
                 }
             }
+            WriteProgress(new ProgressRecord(1, "Importing", "Done!") { RecordType = ProgressRecordType.Completed });
+            WriteProgress(new ProgressRecord(0, "Importing", "Done!") { RecordType = ProgressRecordType.Completed });
         }
 
         private Entity GetPrincipal(ShareInfo share)

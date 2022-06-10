@@ -40,9 +40,12 @@ namespace PentaWork.Xrm.PowerShell.Verbs
 
                 var exportSolutionResponse = (ExportSolutionResponse)Connection.Execute(exportSolutionRequest);
 
-                WriteProgress(new ProgressRecord(0, "Saving", $"Saving solution ...") { PercentComplete = 75 });
+                WriteProgress(new ProgressRecord(0, "Exporting", $"Saving solution ...") { PercentComplete = 75 });
+
                 var exportBytes = exportSolutionResponse.ExportSolutionFile;
                 File.WriteAllBytes(solutionFilePath, exportBytes);
+
+                WriteProgress(new ProgressRecord(0, "Exporting", "Done!") { RecordType = ProgressRecordType.Completed });
             }
 
             WriteObject(new FileInfo(solutionFilePath));

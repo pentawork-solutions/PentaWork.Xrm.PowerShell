@@ -22,8 +22,11 @@ Exported Commands
 - Export-XrmSolution
 - Get-XrmProxies
 - Get-XrmSolutions
+- Get-XrmUserViews
 - Import-XrmSolution
-- Import-XrmEntitie
+- Import-XrmSharings
+- Import-XrmEntities
+- Import-XrmRelations
 - Update-XrmAssembly
 - Set-XrmTimeout
 

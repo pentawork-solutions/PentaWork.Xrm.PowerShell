@@ -54,6 +54,16 @@ namespace PentaWork.Xrm.PowerShell.Common
             return ((RetrieveEntityResponse)client.Execute(request)).EntityMetadata;
         }
 
+        public static List<Entity> GetAll(this CrmServiceClient client, string logicalName, params string[] columns)
+        {
+            var query = new QueryExpression
+            {
+                EntityName = logicalName,
+                ColumnSet = new ColumnSet(columns)
+            };
+            return client.Query(query, true);
+        }
+
         public static List<Entity> GetEntitiesByName(this CrmServiceClient client, string logicalName, string nameField, string entityName)
         {
             var query = new QueryExpression

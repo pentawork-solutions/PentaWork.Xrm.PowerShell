@@ -155,6 +155,8 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                 ExportedOn = DateTime.UtcNow
             };
 
+            if (metadata.PrimaryNameAttribute != null) entities = entities.OrderBy(e => e[metadata.PrimaryNameAttribute].ToString()).ToList();
+
             var entityInfos = new List<EntityInfo>();
             foreach (var entity in entities)
             {
@@ -195,12 +197,12 @@ namespace PentaWork.Xrm.PowerShell.Verbs
 
         private ShareInfo[] GetSharings(Entity entity)
         {
-            if(!Sharings) return new ShareInfo[0];
+            if (!Sharings) return new ShareInfo[0];
 
             var shares = new List<ShareInfo>();
             var request = new RetrieveSharedPrincipalsAndAccessRequest { Target = entity.ToEntityReference() };
-            var response = (RetrieveSharedPrincipalsAndAccessResponse) Connection.Execute(request);
-            foreach(var share in response.PrincipalAccesses.OrderBy(p => p.Principal.Name))
+            var response = (RetrieveSharedPrincipalsAndAccessResponse)Connection.Execute(request);
+            foreach (var share in response.PrincipalAccesses.OrderBy(p => p.Principal.Name))
             {
                 var primaryNameField = share.Principal.LogicalName == "systemuser"
                     ? "fullname"
@@ -222,11 +224,11 @@ namespace PentaWork.Xrm.PowerShell.Verbs
         }
 
         private RelationInfo[] GetRelations(Entity entity, EntityMetadata entityMetadata)
-        { 
-            if(Relations.Count == 0) return new RelationInfo[0];
+        {
+            if (Relations.Count == 0) return new RelationInfo[0];
 
             var relations = new List<RelationInfo>();
-            foreach(var relation in Relations)
+            foreach (var relation in Relations)
             {
                 var schemaDefinition = entityMetadata.ManyToManyRelationships.SingleOrDefault(r => r.SchemaName == relation);
                 if (schemaDefinition == null)
@@ -267,8 +269,8 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                     Entities = relatedEntities
                         .OrderBy(r => r.Contains(toEntityMetaData.PrimaryNameAttribute) ? r[toEntityMetaData.PrimaryNameAttribute].ToString() : r.Id.ToString())
                         .Select(r => new RelatedEntityInfo
-                        { 
-                            Id = r.Id, 
+                        {
+                            Id = r.Id,
                             Name = r.Contains(toEntityMetaData.PrimaryNameAttribute) ? r[toEntityMetaData.PrimaryNameAttribute].ToString() : string.Empty
                         })
                         .ToArray()

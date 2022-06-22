@@ -82,44 +82,51 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             
             #line default
             #line hidden
-            this.Write("\r\n\t{\t\r\n\t\tpublic new const string LogicalName = \"");
+            this.Write("\r\n\t{\t\r\n\t\tpublic new const int? TypeCode = \"");
             
             #line 24 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(EntityInfo.TypeCode));
+            
+            #line default
+            #line hidden
+            this.Write("\";\r\n\t\tpublic new const string LogicalName = \"");
+            
+            #line 25 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(EntityInfo.LogicalName));
             
             #line default
             #line hidden
             this.Write("\";\r\n\t\tpublic ");
             
-            #line 25 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 26 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(UseBaseProxy ? "new " : ""));
             
             #line default
             #line hidden
             this.Write("const string PrimaryIdAttribute = \"");
             
-            #line 25 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 26 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(EntityInfo.PrimaryIdAttribute.LogicalName));
             
             #line default
             #line hidden
             this.Write("\";\r\n\t\tpublic ");
             
-            #line 26 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 27 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(UseBaseProxy ? "new " : ""));
             
             #line default
             #line hidden
             this.Write("const string PrimaryNameAttribute = \"");
             
-            #line 26 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 27 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(EntityInfo.PrimaryNameAttribute != null ? EntityInfo.PrimaryNameAttribute.LogicalName : string.Empty));
             
             #line default
             #line hidden
             this.Write("\";\r\n\t\r\n");
             
-            #line 28 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 29 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
 		if(UseBaseProxy)
 		{ 
             
@@ -127,56 +134,56 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             #line hidden
             this.Write("\t\tpublic ");
             
-            #line 30 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 31 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(EntityInfo.UniqueDisplayName));
             
             #line default
             #line hidden
             this.Write("() : base(new Entity(\"");
             
-            #line 30 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 31 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(EntityInfo.LogicalName));
             
             #line default
             #line hidden
             this.Write("\")) { }\r\n\r\n\t\tpublic ");
             
-            #line 32 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 33 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(EntityInfo.UniqueDisplayName));
             
             #line default
             #line hidden
             this.Write("(Entity entity) : base(entity) { }\r\n");
             
-            #line 33 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 34 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
 		} else { 
             
             #line default
             #line hidden
             this.Write("\t\tpublic ");
             
-            #line 34 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 35 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(EntityInfo.UniqueDisplayName));
             
             #line default
             #line hidden
             this.Write("() : base(\"");
             
-            #line 34 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 35 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(EntityInfo.LogicalName));
             
             #line default
             #line hidden
             this.Write("\") { }\r\n");
             
-            #line 35 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 36 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
 		}
             
             #line default
             #line hidden
             this.Write("\r\n\t\t#region Attributes\r\n");
             
-            #line 38 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 39 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
 		foreach(var attribute in EntityInfo.AttributeList)
 		{
 			var attType = attribute.AttributeType;
@@ -188,42 +195,42 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             #line hidden
             this.Write("\t\t/// <summary>\r\n        /// ");
             
-            #line 45 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 46 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));
             
             #line default
             #line hidden
             this.Write("\r\n        /// </summary>\r\n\t\t[DisplayName(\"");
             
-            #line 47 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 48 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.AttributeMetadata.DisplayName.GetLabel(attribute.AttributeMetadata.LogicalName)));
             
             #line default
             #line hidden
             this.Write("\")]\r\n\t\t[AttributeLogicalName(\"");
             
-            #line 48 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 49 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));
             
             #line default
             #line hidden
             this.Write("\")]\r\n\t\tpublic decimal? ");
             
-            #line 49 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 50 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.UniqueDisplayName));
             
             #line default
             #line hidden
             this.Write("\r\n\t\t{\t\r\n\t\t\tget { return GetAttributeValue<Money>(\"");
             
-            #line 51 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 52 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));
             
             #line default
             #line hidden
             this.Write("\")?.Value; }\r\n\t\t\tset \r\n\t\t\t{ \r\n\t\t\t\tif(value == ");
             
-            #line 54 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 55 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.UniqueDisplayName));
             
             #line default
@@ -231,21 +238,21 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             this.Write(") return;\r\n\r\n\t\t\t\tMoney moneyValue = null;\r\n\t\t\t\tif(value != null) moneyValue = new" +
                     " Money(value.Value);\r\n\t\t\t\t");
             
-            #line 58 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 59 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue"));
             
             #line default
             #line hidden
             this.Write("(\"");
             
-            #line 58 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 59 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));
             
             #line default
             #line hidden
             this.Write("\", moneyValue);  \r\n\t\t\t}\r\n\t\t}\r\n\r\n");
             
-            #line 62 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 63 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
                   break;
                 case AttributeTypeCode.Picklist:
 				case AttributeTypeCode.Status:
@@ -255,35 +262,35 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             #line hidden
             this.Write("\t\t/// <summary>\r\n        /// ");
             
-            #line 67 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 68 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));
             
             #line default
             #line hidden
             this.Write("\r\n        /// </summary>\r\n\t\t[DisplayName(\"");
             
-            #line 69 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 70 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.AttributeMetadata.DisplayName.GetLabel(attribute.AttributeMetadata.LogicalName)));
             
             #line default
             #line hidden
             this.Write("\")]\r\n\t\t[AttributeLogicalName(\"");
             
-            #line 70 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 71 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));
             
             #line default
             #line hidden
             this.Write("\")]\r\n\t\tpublic ");
             
-            #line 71 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 72 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.ReturnType));
             
             #line default
             #line hidden
             this.Write("? ");
             
-            #line 71 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 72 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.UniqueDisplayName));
             
             #line default
@@ -291,14 +298,14 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             this.Write("\r\n\t\t{\t\r\n\t\t\tget \r\n\t\t\t{ \r\n\t\t\t\tvar optionSetValue = GetAttributeValue<OptionSetValue" +
                     ">(\"");
             
-            #line 75 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 76 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));
             
             #line default
             #line hidden
             this.Write("\");\r\n\t\t\t\tif (optionSetValue != null) return (");
             
-            #line 76 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 77 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.ReturnType));
             
             #line default
@@ -306,7 +313,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             this.Write(")optionSetValue.Value;\r\n\t\t\t\telse return null;\r\n\t\t\t}\r\n\t\t\tset \r\n\t\t\t{ \r\n\t\t\t\tif(value" +
                     " == ");
             
-            #line 81 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 82 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.UniqueDisplayName));
             
             #line default
@@ -314,21 +321,21 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             this.Write(") return;\r\n\r\n\t\t\t\tOptionSetValue optionSetValue = null;\r\n\t\t\t\tif(value != null) opt" +
                     "ionSetValue = new OptionSetValue((int)value);\r\n\t\t\t\t");
             
-            #line 85 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 86 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue"));
             
             #line default
             #line hidden
             this.Write("(\"");
             
-            #line 85 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 86 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));
             
             #line default
             #line hidden
             this.Write("\", optionSetValue); \r\n\t\t\t}\r\n\t\t}\r\n\r\n");
             
-            #line 89 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 90 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
                   break;
 				case AttributeTypeCode.Virtual:
 					if(attribute.AttributeMetadata is MultiSelectPicklistAttributeMetadata multiSelect)
@@ -338,35 +345,35 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             #line hidden
             this.Write("\t\t/// <summary>\r\n        /// ");
             
-            #line 94 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 95 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));
             
             #line default
             #line hidden
             this.Write("\r\n        /// </summary>\r\n\t\t[DisplayName(\"");
             
-            #line 96 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 97 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.AttributeMetadata.DisplayName.GetLabel(attribute.AttributeMetadata.LogicalName)));
             
             #line default
             #line hidden
             this.Write("\")]\r\n\t\t[AttributeLogicalName(\"");
             
-            #line 97 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 98 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));
             
             #line default
             #line hidden
             this.Write("\")]\r\n\t\tpublic List<");
             
-            #line 98 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 99 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.ReturnType));
             
             #line default
             #line hidden
             this.Write("> ");
             
-            #line 98 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 99 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.UniqueDisplayName));
             
             #line default
@@ -374,7 +381,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             this.Write("\r\n\t\t{\t\r\n\t\t\tget \r\n\t\t\t{ \r\n\t\t\t\tvar optionSetCollection = GetAttributeValue<OptionSet" +
                     "ValueCollection>(\"");
             
-            #line 102 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 103 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));
             
             #line default
@@ -382,28 +389,28 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             this.Write("\");\r\n\t\t\t\tif (optionSetCollection != null) return optionSetCollection.Select(o => " +
                     "(");
             
-            #line 103 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 104 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.ReturnType));
             
             #line default
             #line hidden
             this.Write(")o.Value).ToList();\r\n\t\t\t\telse return new List<");
             
-            #line 104 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 105 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.ReturnType));
             
             #line default
             #line hidden
             this.Write(">();\r\n\t\t\t}\r\n\t\t\tset \r\n\t\t\t{ \r\n\t\t\t\tvar firstNotSecond = value.Except(");
             
-            #line 108 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 109 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.UniqueDisplayName));
             
             #line default
             #line hidden
             this.Write(").ToList();\r\n\t\t\t\tvar secondNotFirst = ");
             
-            #line 109 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 110 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.UniqueDisplayName));
             
             #line default
@@ -411,14 +418,14 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             this.Write(".Except(value).ToList();\r\n\t\t\t\tif (!firstNotSecond.Any() && !secondNotFirst.Any())" +
                     " return;\r\n\r\n\t\t\t\t");
             
-            #line 112 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 113 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue"));
             
             #line default
             #line hidden
             this.Write("(\"");
             
-            #line 112 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 113 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));
             
             #line default
@@ -426,7 +433,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             this.Write("\", new OptionSetValueCollection(value.Select(v => new OptionSetValue((int)v)).ToL" +
                     "ist()));\r\n\t\t\t}\r\n\t\t}\r\n");
             
-            #line 115 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 116 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
 					}
 					break;
 				default: 
@@ -436,21 +443,21 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             #line hidden
             this.Write("\t\t/// <summary>\r\n        /// ");
             
-            #line 120 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 121 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));
             
             #line default
             #line hidden
             this.Write("\r\n        /// </summary>\r\n\t\t[DisplayName(\"");
             
-            #line 122 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 123 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.AttributeMetadata.DisplayName.GetLabel(attribute.AttributeMetadata.LogicalName)));
             
             #line default
             #line hidden
             this.Write("\")]\r\n\t\t[AttributeLogicalName(\"");
             
-            #line 123 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 124 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));
             
             #line default
@@ -458,98 +465,98 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             this.Write("\")]\r\n\t\tpublic override Guid Id\r\n\t\t{\r\n\t\t\tget => base.Id;\r\n\t\t\tset { base.Id = value" +
                     "; ");
             
-            #line 127 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 128 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue"));
             
             #line default
             #line hidden
             this.Write("(\"");
             
-            #line 127 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 128 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));
             
             #line default
             #line hidden
             this.Write("\", value); }\r\n\t\t}\r\n\r\n\t\t\t\t\t");
             
-            #line 130 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 131 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
  }  else { 
             
             #line default
             #line hidden
             this.Write("\t\t/// <summary>\r\n        /// ");
             
-            #line 132 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 133 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));
             
             #line default
             #line hidden
             this.Write("\r\n        /// </summary>\r\n\t\t[DisplayName(\"");
             
-            #line 134 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 135 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.AttributeMetadata.DisplayName.GetLabel(attribute.AttributeMetadata.LogicalName)));
             
             #line default
             #line hidden
             this.Write("\")]\r\n\t\t[AttributeLogicalName(\"");
             
-            #line 135 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 136 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));
             
             #line default
             #line hidden
             this.Write("\")]\r\n\t\tpublic ");
             
-            #line 136 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 137 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.ReturnType));
             
             #line default
             #line hidden
             this.Write(" ");
             
-            #line 136 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 137 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.UniqueDisplayName));
             
             #line default
             #line hidden
             this.Write("\r\n\t\t{\t\r\n\t\t\tget { return GetAttributeValue<");
             
-            #line 138 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 139 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.ReturnType));
             
             #line default
             #line hidden
             this.Write(">(\"");
             
-            #line 138 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 139 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));
             
             #line default
             #line hidden
             this.Write("\"); }\r\n\t\t\tset\r\n\t\t\t{ \r\n\t\t\t\tif(value == ");
             
-            #line 141 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 142 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.UniqueDisplayName));
             
             #line default
             #line hidden
             this.Write(") return;\r\n\t\t\t\t");
             
-            #line 142 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 143 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue"));
             
             #line default
             #line hidden
             this.Write("(\"");
             
-            #line 142 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 143 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));
             
             #line default
             #line hidden
             this.Write("\", value);\r\n\t\t\t}\r\n\t\t}\t\r\n\t\t\t\r\n");
             
-            #line 146 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 147 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
               }    
 				break;
             }
@@ -559,7 +566,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             #line hidden
             this.Write("\t\t#endregion\t\r\n\r\n\t\t#region Relations\r\n\t");
             
-            #line 153 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 154 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
 		foreach(var relation in EntityInfo.OneToManyRelationList)
 		{ 
 			var relatedClassInfo = relation.RelatedEntityInfo; 
@@ -568,56 +575,56 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             #line hidden
             this.Write("\t\t/// <summary>\r\n        /// 1:N Get entities for \'");
             
-            #line 157 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 158 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(relation.SchemaName));
             
             #line default
             #line hidden
             this.Write("\'\r\n        /// </summary>\r\n\t\t[RelationshipSchemaName(\"");
             
-            #line 159 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 160 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(relation.SchemaName));
             
             #line default
             #line hidden
             this.Write("\")]\r\n\t\tpublic IEnumerable<");
             
-            #line 160 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 161 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(relatedClassInfo.UniqueDisplayName));
             
             #line default
             #line hidden
             this.Write("> ");
             
-            #line 160 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 161 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(relation.UniqueDisplayName));
             
             #line default
             #line hidden
             this.Write("\r\n\t\t{\r\n\t\t\tget { return GetRelatedEntities<");
             
-            #line 162 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 163 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(relatedClassInfo.UniqueDisplayName));
             
             #line default
             #line hidden
             this.Write(">(\"");
             
-            #line 162 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 163 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(relation.SchemaName));
             
             #line default
             #line hidden
             this.Write("\", null); }\r\n\t\t\tset { SetRelatedEntities(\"");
             
-            #line 163 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 164 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(relation.SchemaName));
             
             #line default
             #line hidden
             this.Write("\", null, value); }\r\n\t\t}\r\n");
             
-            #line 165 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 166 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
 		}
 
 		foreach(var relation in EntityInfo.ManyToManyRelationList)
@@ -628,63 +635,63 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             #line hidden
             this.Write("\t\t/// <summary>\r\n        /// N:N Get entities for \'");
             
-            #line 171 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 172 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(relatedClassInfo.UniqueDisplayName));
             
             #line default
             #line hidden
             this.Write("\'\r\n        /// </summary>\r\n\t\t[RelationshipSchemaName(\"");
             
-            #line 173 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 174 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(relation.SchemaName));
             
             #line default
             #line hidden
             this.Write("\")]\r\n\t\tpublic IEnumerable<");
             
-            #line 174 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 175 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(relation.RelatedEntityInfo.UniqueDisplayName));
             
             #line default
             #line hidden
             this.Write("> ");
             
-            #line 174 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 175 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(relation.UniqueDisplayName));
             
             #line default
             #line hidden
             this.Write("\r\n\t\t{\r\n\t\t\tget { return GetRelatedEntities<");
             
-            #line 176 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 177 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(relation.RelatedEntityInfo.UniqueDisplayName));
             
             #line default
             #line hidden
             this.Write(">(\"");
             
-            #line 176 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 177 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(relation.SchemaName));
             
             #line default
             #line hidden
             this.Write("\", null); }\r\n\t\t\tset { SetRelatedEntities(\"");
             
-            #line 177 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 178 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(relation.SchemaName));
             
             #line default
             #line hidden
             this.Write("\", null, value); }\r\n\t\t}\r\n");
             
-            #line 179 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 180 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
 		} 
             
             #line default
             #line hidden
             this.Write("\t\t#endregion\r\n\r\n\t\t#region Actions\r\n");
             
-            #line 183 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 184 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
 		foreach(var action in EntityInfo.ActionList)
 		{ 
             
@@ -692,7 +699,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             #line hidden
             this.Write("\t\tpublic OrganizationResponse Execute");
             
-            #line 185 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 186 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(action.UniqueDisplayName));
             
             #line default
@@ -700,7 +707,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             this.Write("(OrganizationServiceContext serviceContext)\r\n\t\t{\r\n\t\t\tvar orgRequest = new Organiz" +
                     "ationRequest(\"");
             
-            #line 187 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 188 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(action.SdkMessageName));
             
             #line default
@@ -708,132 +715,132 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             this.Write("\");\r\n\t\t\torgRequest[\"Target\"] = ToEntityReference();\r\n            return serviceCo" +
                     "ntext.Execute(orgRequest);\r\n\t\t}\r\n");
             
-            #line 191 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 192 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
 		} 
             
             #line default
             #line hidden
             this.Write("\t\t#endregion\r\n\r\n\t\t#region OptionSetEnums\r\n");
             
-            #line 195 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 196 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
 		foreach(var optionSetInfo in EntityInfo.OptionSetList) {
         var optionSetTemplate = new OptionSet { OptionSetInfo = optionSetInfo }; 
             
             #line default
             #line hidden
             
-            #line 197 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 198 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(optionSetTemplate.TransformText()));
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 198 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 199 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
 		} 
             
             #line default
             #line hidden
             this.Write("\t\t#endregion\t\r\n\r\n\t\t#region Properties\r\n\t\tpublic static class Properties \r\n\t\t{\r\n");
             
-            #line 204 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 205 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
 		foreach(var attribute in EntityInfo.AttributeList){ 
             
             #line default
             #line hidden
             this.Write("\t\t\t/// <summary>");
             
-            #line 205 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 206 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));
             
             #line default
             #line hidden
             this.Write("</summary>\r\n\t\t\tpublic const string ");
             
-            #line 206 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 207 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.UniqueDisplayName));
             
             #line default
             #line hidden
             this.Write(" = \"");
             
-            #line 206 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 207 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));
             
             #line default
             #line hidden
             this.Write("\";\r\n\r\n");
             
-            #line 208 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 209 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
 		} 
             
             #line default
             #line hidden
             this.Write("\t\t}\r\n\t\t#endregion\r\n\r\n\t\t#region Schemas\r\n\t\tpublic static class Schemas \r\n\t\t{\r\n");
             
-            #line 215 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 216 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
 		foreach(var relation in EntityInfo.OneToManyRelationList){ 
             
             #line default
             #line hidden
             this.Write("\t\t\t/// <summary>1:N ");
             
-            #line 216 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 217 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(relation.SchemaName));
             
             #line default
             #line hidden
             this.Write("</summary>\r\n\t\t\tpublic const string ");
             
-            #line 217 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 218 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(relation.UniqueDisplayName));
             
             #line default
             #line hidden
             this.Write(" = \"");
             
-            #line 217 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 218 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(relation.SchemaName));
             
             #line default
             #line hidden
             this.Write("\";\r\n\r\n");
             
-            #line 219 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 220 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
 		} 
             
             #line default
             #line hidden
             
-            #line 220 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 221 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
 		foreach(var relation in EntityInfo.ManyToManyRelationList){ 
             
             #line default
             #line hidden
             this.Write("\t\t\t/// <summary>N:N ");
             
-            #line 221 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 222 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(relation.SchemaName));
             
             #line default
             #line hidden
             this.Write("</summary>\r\n\t\t\tpublic const string ");
             
-            #line 222 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 223 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(relation.UniqueDisplayName));
             
             #line default
             #line hidden
             this.Write(" = \"");
             
-            #line 222 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 223 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(relation.SchemaName));
             
             #line default
             #line hidden
             this.Write("\";\r\n\r\n");
             
-            #line 224 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            #line 225 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
 		} 
             
             #line default
@@ -842,7 +849,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             return this.GenerationEnvironment.ToString();
         }
         
-        #line 230 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+        #line 231 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
 
 public EntityInfo EntityInfo { get; set; }
 public string ProxyNamespace { get; set; }

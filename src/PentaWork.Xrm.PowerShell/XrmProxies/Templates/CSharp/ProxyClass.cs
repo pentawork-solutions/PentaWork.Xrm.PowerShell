@@ -82,14 +82,14 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             
             #line default
             #line hidden
-            this.Write("\r\n\t{\t\r\n\t\tpublic new const int? TypeCode = \"");
+            this.Write("\r\n\t{\t\r\n\t\tpublic static readonly int? EntityTypeCode = ");
             
             #line 24 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(EntityInfo.TypeCode));
             
             #line default
             #line hidden
-            this.Write("\";\r\n\t\tpublic new const string LogicalName = \"");
+            this.Write(";\r\n\t\tpublic new const string LogicalName = \"");
             
             #line 25 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(EntityInfo.LogicalName));

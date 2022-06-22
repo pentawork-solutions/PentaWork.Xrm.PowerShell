@@ -15,6 +15,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Model
             _varNameDic.Add($"entity.{entityMetadata.LogicalName}", uniqueDisplayName);
 
             UniqueDisplayName = uniqueDisplayName;
+            TypeCode = entityMetadata.ObjectTypeCode;
             LogicalName = entityMetadata.LogicalName;
 
             ActionList = actionList;
@@ -111,6 +112,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Model
             return parsedAttributes;
         }
 
+        public int? TypeCode { get; }
         public string LogicalName { get; }
         public string UniqueDisplayName { get; }
         public AttributeInfo PrimaryNameAttribute { get; }

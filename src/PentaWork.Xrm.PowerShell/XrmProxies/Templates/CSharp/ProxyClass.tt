@@ -21,6 +21,7 @@ namespace <#= ProxyNamespace #>.Entities
 	[EntityLogicalName("<#= EntityInfo.LogicalName #>")]
 	public sealed class <#= EntityInfo.UniqueDisplayName #> : <#= UseBaseProxy ? "BaseProxy" : "Entity" #>
 	{	
+		public new const int? TypeCode = "<#= EntityInfo.TypeCode #>";
 		public new const string LogicalName = "<#= EntityInfo.LogicalName #>";
 		public <#= UseBaseProxy ? "new " : "" #>const string PrimaryIdAttribute = "<#= EntityInfo.PrimaryIdAttribute.LogicalName #>";
 		public <#= UseBaseProxy ? "new " : "" #>const string PrimaryNameAttribute = "<#= EntityInfo.PrimaryNameAttribute != null ? EntityInfo.PrimaryNameAttribute.LogicalName : string.Empty #>";

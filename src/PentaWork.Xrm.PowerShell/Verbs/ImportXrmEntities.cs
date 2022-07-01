@@ -59,7 +59,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                     var ownerRef = SetOwner(systemEntity, metadata);
                     ExecuteChange(systemEntity, isUpdate);
 
-                    WriteVerbose($"{(isUpdate ? "UPDATED" : "CREATED")}: {entityInfo.Name} {(ownerRef != null ? $"[Owner: {ownerRef.Name}]" : "")}");
+                    WriteVerbose($"{(isUpdate ? "UPDATED" : "CREATED")}: {entityInfo.Name} {(!string.IsNullOrEmpty(ownerRef?.Name) ? $"[Owner: {ownerRef.Name}]" : "")}");
                     created += isUpdate ? 0 : 1;
                     updated += isUpdate ? 1 : 0;
                 }

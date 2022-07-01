@@ -99,6 +99,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
 
         private void AddRelationConditions(QueryExpression query, Entity relatingEntity, string schemaName)
         {
+            if (RelationConditions == null) return;
             foreach (var condition in RelationConditions.Where(r => r.SchemaName == schemaName))
             {
                 if (!relatingEntity.Contains(condition.SourceField)) continue;

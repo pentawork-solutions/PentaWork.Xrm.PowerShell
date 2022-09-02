@@ -125,7 +125,7 @@ namespace <#= ProxyNamespace #>.Entities
 		public override Guid Id
 		{
 			get => base.Id;
-			set { base.Id = value; <#= UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue" #>("<#= attribute.LogicalName #>", value); }
+			set { base.Id = value; SetAttributeValue("<#= attribute.LogicalName #>", value); }
 		}
 
 					<# }  else { #>

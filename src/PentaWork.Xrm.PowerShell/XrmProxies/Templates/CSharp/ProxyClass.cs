@@ -463,14 +463,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             #line default
             #line hidden
             this.Write("\")]\r\n\t\tpublic override Guid Id\r\n\t\t{\r\n\t\t\tget => base.Id;\r\n\t\t\tset { base.Id = value" +
-                    "; ");
-            
-            #line 128 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue"));
-            
-            #line default
-            #line hidden
-            this.Write("(\"");
+                    "; SetAttributeValue(\"");
             
             #line 128 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));

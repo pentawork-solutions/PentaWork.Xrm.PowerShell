@@ -41,9 +41,14 @@ namespace <#= ProxyNamespace #>.Entities
 			var attType = attribute.AttributeType;
             switch (attType)
             { 				
-				case AttributeTypeCode.Money: #>
+				case AttributeTypeCode.Money:
+					var moneyMetadata = (MoneyAttributeMetadata) attribute.AttributeMetadata; #>
 		/// <summary>
         /// <#= attribute.LogicalName #>
+		///
+		/// Precision: <#= moneyMetadata.Precision #>
+		/// MaxValue: <#= moneyMetadata.MaxValue #>
+		/// MinValue: <#= moneyMetadata.MinValue #>
         /// </summary>
 		[DisplayName("<#= attribute.AttributeMetadata.DisplayName.GetLabel(attribute.AttributeMetadata.LogicalName) #>")]
 		[AttributeLogicalName("<#= attribute.LogicalName #>")]
@@ -51,16 +56,68 @@ namespace <#= ProxyNamespace #>.Entities
 		{	
 			get { return GetAttributeValue<Money>("<#= attribute.LogicalName #>")?.Value; }
 			set 
-			{ 
-				if(value == <#= attribute.UniqueDisplayName #>) return;
-
+			{
 				Money moneyValue = null;
-				if(value != null) moneyValue = new Money(value.Value);
+				if(value != null) 
+				{
+					var roundedValue = Decimal.Round(value.Value, <#= moneyMetadata.Precision #>);
+					moneyValue = new Money(roundedValue);
+				}
+
+				if(moneyValue.Value == <#= attribute.UniqueDisplayName #>) return;
 				<#= UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue" #>("<#= attribute.LogicalName #>", moneyValue);  
 			}
 		}
 
-<#                  break;
+<#					break;
+				case AttributeTypeCode.Decimal:
+					var decimalMetadata = (DecimalAttributeMetadata) attribute.AttributeMetadata; #>
+		/// <summary>
+        /// <#= attribute.LogicalName #>
+		///
+		/// Precision: <#= decimalMetadata.Precision #>
+		/// MaxValue: <#= decimalMetadata.MaxValue #>
+		/// MinValue: <#= decimalMetadata.MinValue #>
+        /// </summary>
+		[DisplayName("<#= attribute.AttributeMetadata.DisplayName.GetLabel(attribute.AttributeMetadata.LogicalName) #>")]
+		[AttributeLogicalName("<#= attribute.LogicalName #>")]
+		public decimal? <#= attribute.UniqueDisplayName #>
+		{	
+			get { return GetAttributeValue<decimal?>("<#= attribute.LogicalName #>"); }
+			set 
+			{
+				decimal? decimalValue = null;
+				if(value != null) decimalValue = Decimal.Round(value.Value, <#= decimalMetadata.Precision #>);
+				if(decimalValue == <#= attribute.UniqueDisplayName #>) return;
+				<#= UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue" #>("<#= attribute.LogicalName #>", decimalValue);  
+			}
+		}
+
+<#					break;
+				case AttributeTypeCode.Double:
+					var doubleMetadata = (DoubleAttributeMetadata) attribute.AttributeMetadata; #>
+		/// <summary>
+        /// <#= attribute.LogicalName #>
+		///
+		/// Precision: <#= doubleMetadata.Precision #>
+		/// MaxValue: <#= doubleMetadata.MaxValue #>
+		/// MinValue: <#= doubleMetadata.MinValue #>
+        /// </summary>
+		[DisplayName("<#= attribute.AttributeMetadata.DisplayName.GetLabel(attribute.AttributeMetadata.LogicalName) #>")]
+		[AttributeLogicalName("<#= attribute.LogicalName #>")]
+		public double? <#= attribute.UniqueDisplayName #>
+		{	
+			get { return GetAttributeValue<double?>("<#= attribute.LogicalName #>"); }
+			set 
+			{
+				double? doubleValue = null;
+				if(value != null) doubleValue = Math.Round(value.Value, <#= doubleMetadata.Precision #>);
+				if(doubleValue == <#= attribute.UniqueDisplayName #>) return;
+				<#= UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue" #>("<#= attribute.LogicalName #>", doubleValue);  
+			}
+		}
+
+<#					break;
                 case AttributeTypeCode.Picklist:
 				case AttributeTypeCode.Status:
 				case AttributeTypeCode.State:#>

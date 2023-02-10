@@ -16,7 +16,8 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies
             if (label.LocalizedLabels.Count == 0) return fallback;
 
             var localizedLabel = label.LocalizedLabels.SingleOrDefault(l => l.LanguageCode == 1033);
-            return localizedLabel.Label.Replace("\"", "'").Trim();
+            localizedLabel = localizedLabel ?? label.LocalizedLabels.FirstOrDefault();
+            return localizedLabel.Label?.Replace("\"", "'").Trim();
         }
     }
 }

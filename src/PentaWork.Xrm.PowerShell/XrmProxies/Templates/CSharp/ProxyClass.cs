@@ -258,8 +258,8 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             
             #line default
             #line hidden
-            this.Write(");\r\n\t\t\t\t\tmoneyValue = new Money(roundedValue);\r\n\t\t\t\t}\r\n\r\n\t\t\t\tif(moneyValue.Value " +
-                    "== ");
+            this.Write(");\r\n\t\t\t\t\tmoneyValue = new Money(roundedValue);\r\n\t\t\t\t}\r\n\r\n\t\t\t\tif(moneyValue?.Value" +
+                    " == ");
             
             #line 67 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.UniqueDisplayName));

@@ -64,7 +64,7 @@ namespace <#= ProxyNamespace #>.Entities
 					moneyValue = new Money(roundedValue);
 				}
 
-				if(moneyValue.Value == <#= attribute.UniqueDisplayName #>) return;
+				if(moneyValue?.Value == <#= attribute.UniqueDisplayName #>) return;
 				<#= UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue" #>("<#= attribute.LogicalName #>", moneyValue);  
 			}
 		}

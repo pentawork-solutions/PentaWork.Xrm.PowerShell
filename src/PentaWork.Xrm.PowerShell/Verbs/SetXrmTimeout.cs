@@ -19,7 +19,12 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     {
         protected override void ProcessRecord()
         {
-            Connection.OrganizationServiceProxy.Timeout = new TimeSpan(0, Timeout, 0);
+            if (Connection.OrganizationServiceProxy != null) Connection.OrganizationServiceProxy.Timeout = new TimeSpan(0, Timeout, 0);
+            if (Connection.OrganizationWebProxyClient != null)
+            {
+                Connection.OrganizationWebProxyClient.Endpoint.Binding.ReceiveTimeout = new TimeSpan(0, Timeout, 0);
+                Connection.OrganizationWebProxyClient.Endpoint.Binding.SendTimeout = new TimeSpan(0, Timeout, 0);
+            }
             WriteObject(Connection);
         }
 

@@ -39,7 +39,14 @@ namespace PentaWork.Xrm.PowerShell
             var actions = GetAllActions();
             var entityMetadata = GetAllEntityMetadata(sdkMessages);
             var systemForms = GetAllSystemForms();
-            var entityInfoList = new EntityInfoList(entityMetadata, systemForms, actions);
+
+            if(!string.IsNullOrEmpty(Solution))
+            {
+                var solutionEntities = GetSolutionEntityNames(Solution);
+                IncludeEntities.AddRange(entityMetadata.Where(e => solutionEntities.Any(s => s == e.MetadataId)).Select(e => e.LogicalName));
+            }
+            var filteredEntityMetadata = GetFilteredEntityMetaData(entityMetadata);
+            var entityInfoList = new EntityInfoList(filteredEntityMetadata, systemForms, actions);
 
             EnsureFolder(OutputPath.FullName);
             EnsureFolder(CSOutputPath);
@@ -122,6 +129,43 @@ namespace PentaWork.Xrm.PowerShell
             query.ColumnSet = new ColumnSet(true);
 
             return Connection.Query(query, true);
+        }
+
+        private List<Guid> GetSolutionEntityNames(string solution)
+        {
+            WriteProgress(new ProgressRecord(0, "Generating", $"Getting Solution Entities ...") { PercentComplete = 35 });
+
+            var solutionQuery = new QueryExpression
+            {
+                EntityName = "solution",
+                ColumnSet = new ColumnSet(new string[] { "uniquename", "friendlyname", "isvisible" })
+            };
+            solutionQuery.Criteria.AddCondition("isvisible", ConditionOperator.Equal, true);
+            solutionQuery.Criteria.AddCondition("uniquename", ConditionOperator.Equal, solution);
+
+            var solutionId = (Connection
+                .Query(solutionQuery, true)
+                .SingleOrDefault()?.Id) ?? throw new Exception($"Solution with unique name '{solution}' not found!");
+
+            var componentQuery = new QueryExpression
+            {
+                EntityName = "solutioncomponent",
+                ColumnSet = new ColumnSet(new string[] { "objectid", "solutioncomponentid", "componenttype" })
+            };
+            componentQuery.Criteria.AddCondition("solutionid", ConditionOperator.Equal, solutionId);
+            componentQuery.Criteria.AddCondition("componenttype", ConditionOperator.Equal, 1); // Entity
+
+            return Connection.Query(componentQuery, true).Select(c => new Guid(c.Attributes["objectid"].ToString())).ToList();
+        }
+
+        private List<EntityMetadata> GetFilteredEntityMetaData(List<EntityMetadata> entityMetadataList)
+        {
+            var filteredEntityMetadataList = new List<EntityMetadata>();
+            if (IncludeEntities.Any())
+                filteredEntityMetadataList = entityMetadataList.Where(e => IncludeEntities.Any(i => i == e.LogicalName)).ToList();
+            else
+                filteredEntityMetadataList = entityMetadataList;
+            return filteredEntityMetadataList.Where(f => ExcludeEntities.All(e => e != f.LogicalName)).ToList();
         }
 
         private void GenerateBaseClasses()
@@ -222,6 +266,25 @@ namespace PentaWork.Xrm.PowerShell
         /// </summary>
         [Parameter(Mandatory = true)]
         public string FakeNamespace { get; set; }
+
+        /// <summary>
+        /// <para type="description">Only create proxies for entities which are part of the given solution (uniquename).</para>
+        /// </summary>
+        [Parameter]
+        public string Solution { get; set; }
+
+        /// <summary>
+        /// <para type="description">If used with the solution parameter, this list will add
+        /// entities which are not part of the given solution.</para>
+        /// </summary>
+        [Parameter]
+        public List<string> IncludeEntities { get; set; } = new List<string>();
+
+        /// <summary>
+        /// <para type="description">All entities in this list will be excluded in the proxy generation.</para>
+        /// </summary>
+        [Parameter]
+        public List<string> ExcludeEntities { get; set; } = new List<string>();
 
         /// <summary>
         /// <para type="description">The output path for the proxy classes.</para>

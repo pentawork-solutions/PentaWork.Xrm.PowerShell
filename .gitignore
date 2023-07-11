@@ -9,10 +9,7 @@ packages/*
 **/node_modules/*
 **/dist/*
 src/packages/*
-tools/Cake/*
-tools/nuget.exe
-tools/packages.config
-tools/packages.config.md5sum
+tools/*
 coverage.opencover.xml
 coverreport/*
 

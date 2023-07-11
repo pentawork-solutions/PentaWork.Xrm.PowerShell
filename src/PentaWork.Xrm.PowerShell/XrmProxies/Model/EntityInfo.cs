@@ -38,6 +38,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Model
         {
             var relationInfo = new ManyToManyRelationInfo(
                 relatedEntityInfo,
+                metadata.IntersectEntityName,
                 metadata.SchemaName,
                 _varNameDic.GetUniqueName(metadata.SchemaName, metadata.SchemaName))
             {

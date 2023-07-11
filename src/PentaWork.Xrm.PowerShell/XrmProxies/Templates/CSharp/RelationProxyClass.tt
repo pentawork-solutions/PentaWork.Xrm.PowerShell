@@ -15,7 +15,7 @@ namespace <#= ProxyNamespace #>.Relations
 	/// <#= RelationClassInfo.SchemaName #> 
 	/// </summary>
 	[Relation]
-	[EntityLogicalName("<#= RelationClassInfo.SchemaName #>")]
+	[EntityLogicalName("<#= RelationClassInfo.IntersectEntityName #>")]
 	public sealed class <#= RelationClassInfo.UniqueDisplayName #> : <#= UseBaseProxy ? "BaseProxy" : "Entity" #>
 	{	
 		public const string SchemaName = "<#= RelationClassInfo.SchemaName #>";

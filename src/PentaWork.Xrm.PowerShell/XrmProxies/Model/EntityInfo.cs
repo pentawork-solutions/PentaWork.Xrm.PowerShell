@@ -40,7 +40,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Model
                 relatedEntityInfo,
                 metadata.IntersectEntityName,
                 metadata.SchemaName,
-                _varNameDic.GetUniqueName(metadata.IntersectEntityName, metadata.IntersectEntityName))
+                _varNameDic.GetUniqueName(metadata.SchemaName, metadata.SchemaName))
             {
                 Entity1Attribute = metadata.Entity1IntersectAttribute,
                 Entity1LogicalName = metadata.Entity1LogicalName,

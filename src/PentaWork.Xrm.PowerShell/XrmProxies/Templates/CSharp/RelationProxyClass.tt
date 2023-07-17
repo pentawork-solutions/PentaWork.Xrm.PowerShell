@@ -22,11 +22,11 @@ namespace <#= ProxyNamespace #>.Relations
 	
 <#		if(UseBaseProxy)
 		{ #>
-		public <#= RelationClassInfo.UniqueDisplayName #>() : base(new Entity("<#= RelationClassInfo.SchemaName #>")) { }
+		public <#= RelationClassInfo.UniqueDisplayName #>() : base(new Entity("<#= RelationClassInfo.IntersectEntityName #>")) { }
 
 		public <#= RelationClassInfo.UniqueDisplayName #>(Entity entity) : base(entity) { }
 <#		} else { #>
-		public <#= RelationClassInfo.UniqueDisplayName #>() : base("<#= RelationClassInfo.SchemaName #>") { }
+		public <#= RelationClassInfo.UniqueDisplayName #>() : base("<#= RelationClassInfo.IntersectEntityName #>") { }
 <#		}#>
 
 		[AttributeLogicalName("<#= RelationClassInfo.Entity1Attribute #>")]

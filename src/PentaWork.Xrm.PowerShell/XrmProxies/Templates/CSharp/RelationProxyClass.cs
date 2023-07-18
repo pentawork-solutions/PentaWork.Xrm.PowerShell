@@ -91,7 +91,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             this.Write("() : base(new Entity(\"");
             
             #line 25 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.SchemaName));
+            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.IntersectEntityName));
             
             #line default
             #line hidden
@@ -119,7 +119,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             this.Write("() : base(\"");
             
             #line 29 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.SchemaName));
+            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.IntersectEntityName));
             
             #line default
             #line hidden

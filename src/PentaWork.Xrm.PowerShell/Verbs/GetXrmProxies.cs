@@ -207,10 +207,12 @@ namespace PentaWork.Xrm.PowerShell
 
             WriteProgress(new ProgressRecord(0, "Generating", $"[CS] Generating Relation Classes ...") { PercentComplete = 65 });
             EnsureFolder(Path.Combine(CSOutputPath, "Relations"));
-            foreach (var relationClassInfo in entityInfoList.SelectMany(e => e.ManyToManyRelationList))
+            // Group by intersect entity. It is possible, that multiple schemas are using the same intersect entity!
+            foreach (var relationInfoGroup in entityInfoList.SelectMany(e => e.ManyToManyRelationList).GroupBy(e => e.IntersectEntityName))
             {
-                var proxyTemplate = new RelationProxyClass { RelationClassInfo = relationClassInfo, ProxyNamespace = ProxyNamespace, UseBaseProxy = UseBaseProxy };
-                File.WriteAllText(Path.Combine(CSOutputPath, "Relations", $"{relationClassInfo.UniqueDisplayName}.cs"), proxyTemplate.TransformText());
+                var relationInfo = relationInfoGroup.First();
+                var proxyTemplate = new RelationProxyClass { RelationClassInfo = relationInfo, ProxyNamespace = ProxyNamespace, UseBaseProxy = UseBaseProxy };
+                File.WriteAllText(Path.Combine(CSOutputPath, "Relations", $"{relationInfo.UniqueIntersectDisplayName}.cs"), proxyTemplate.TransformText());
             }
         }
 

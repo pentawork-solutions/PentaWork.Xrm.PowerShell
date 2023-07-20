@@ -16,17 +16,15 @@ namespace <#= ProxyNamespace #>.Relations
 	/// </summary>
 	[Relation]
 	[EntityLogicalName("<#= RelationClassInfo.IntersectEntityName #>")]
-	public sealed class <#= RelationClassInfo.UniqueDisplayName #> : <#= UseBaseProxy ? "BaseProxy" : "Entity" #>
-	{	
-		public const string SchemaName = "<#= RelationClassInfo.SchemaName #>";
-	
+	public sealed class <#= RelationClassInfo.UniqueIntersectDisplayName #> : <#= UseBaseProxy ? "BaseProxy" : "Entity" #>
+	{		
 <#		if(UseBaseProxy)
 		{ #>
-		public <#= RelationClassInfo.UniqueDisplayName #>() : base(new Entity("<#= RelationClassInfo.IntersectEntityName #>")) { }
+		public <#= RelationClassInfo.UniqueIntersectDisplayName #>() : base(new Entity("<#= RelationClassInfo.IntersectEntityName #>")) { }
 
-		public <#= RelationClassInfo.UniqueDisplayName #>(Entity entity) : base(entity) { }
+		public <#= RelationClassInfo.UniqueIntersectDisplayName #>(Entity entity) : base(entity) { }
 <#		} else { #>
-		public <#= RelationClassInfo.UniqueDisplayName #>() : base("<#= RelationClassInfo.IntersectEntityName #>") { }
+		public <#= RelationClassInfo.UniqueIntersectDisplayName #>() : base("<#= RelationClassInfo.IntersectEntityName #>") { }
 <#		}#>
 
 		[AttributeLogicalName("<#= RelationClassInfo.Entity1Attribute #>")]

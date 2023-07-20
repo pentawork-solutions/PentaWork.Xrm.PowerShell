@@ -4,15 +4,17 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Model
     {
         private readonly UniqueNameDictionary _attrNameDic = new UniqueNameDictionary();
 
-        public ManyToManyRelationInfo(EntityInfo relatedEntityInfo, string intersectEntityName, string schemaName, string uniqueDisplayName)
+        public ManyToManyRelationInfo(EntityInfo relatedEntityInfo, string intersectEntityName, string schemaName, string uniqueDisplayName, string uniqueIntersectDisplayName)
         {
             IntersectEntityName = intersectEntityName;
             SchemaName = schemaName;
             RelatedEntityInfo = relatedEntityInfo;
             UniqueDisplayName = uniqueDisplayName;
+            UniqueIntersectDisplayName = uniqueIntersectDisplayName;
         }
 
         public string UniqueDisplayName { get; }
+        public string UniqueIntersectDisplayName { get; }
         public string SchemaName { get; }
         public string IntersectEntityName { get; }
         public EntityInfo RelatedEntityInfo { get; }

@@ -55,7 +55,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             this.Write("\")]\r\n\tpublic sealed class ");
             
             #line 19 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.UniqueDisplayName));
+            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.UniqueIntersectDisplayName));
             
             #line default
             #line hidden
@@ -66,16 +66,9 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             
             #line default
             #line hidden
-            this.Write("\r\n\t{\t\r\n\t\tpublic const string SchemaName = \"");
+            this.Write("\r\n\t{\t\t\r\n");
             
             #line 21 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.SchemaName));
-            
-            #line default
-            #line hidden
-            this.Write("\";\r\n\t\r\n");
-            
-            #line 23 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
 		if(UseBaseProxy)
 		{ 
             
@@ -83,119 +76,119 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             #line hidden
             this.Write("\t\tpublic ");
             
-            #line 25 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.UniqueDisplayName));
+            #line 23 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.UniqueIntersectDisplayName));
             
             #line default
             #line hidden
             this.Write("() : base(new Entity(\"");
             
-            #line 25 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
+            #line 23 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.IntersectEntityName));
             
             #line default
             #line hidden
             this.Write("\")) { }\r\n\r\n\t\tpublic ");
             
-            #line 27 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.UniqueDisplayName));
+            #line 25 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.UniqueIntersectDisplayName));
             
             #line default
             #line hidden
             this.Write("(Entity entity) : base(entity) { }\r\n");
             
-            #line 28 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
+            #line 26 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
 		} else { 
             
             #line default
             #line hidden
             this.Write("\t\tpublic ");
             
-            #line 29 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.UniqueDisplayName));
+            #line 27 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.UniqueIntersectDisplayName));
             
             #line default
             #line hidden
             this.Write("() : base(\"");
             
-            #line 29 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
+            #line 27 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.IntersectEntityName));
             
             #line default
             #line hidden
             this.Write("\") { }\r\n");
             
-            #line 30 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
+            #line 28 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
 		}
             
             #line default
             #line hidden
             this.Write("\r\n\t\t[AttributeLogicalName(\"");
             
-            #line 32 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
+            #line 30 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.Entity1Attribute));
             
             #line default
             #line hidden
             this.Write("\")]\r\n\t\tpublic Guid ");
             
-            #line 33 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
+            #line 31 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.UniqueEntity1AttributeName));
             
             #line default
             #line hidden
             this.Write("\r\n\t\t{\t\r\n\t\t\tget { return GetAttributeValue<Guid>(\"");
             
-            #line 35 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
+            #line 33 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.Entity1Attribute));
             
             #line default
             #line hidden
             this.Write("\"); }\r\n\t\t\tset { ");
             
-            #line 36 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
+            #line 34 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue"));
             
             #line default
             #line hidden
             this.Write("(\"");
             
-            #line 36 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
+            #line 34 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.Entity1Attribute));
             
             #line default
             #line hidden
             this.Write("\", value); }\r\n\t\t}\r\n\r\n\t\t[AttributeLogicalName(\"");
             
-            #line 39 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
+            #line 37 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.Entity2Attribute));
             
             #line default
             #line hidden
             this.Write("\")]\r\n\t\tpublic Guid ");
             
-            #line 40 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
+            #line 38 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.UniqueEntity2AttributeName));
             
             #line default
             #line hidden
             this.Write("\r\n\t\t{\t\r\n\t\t\tget { return GetAttributeValue<Guid>(\"");
             
-            #line 42 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
+            #line 40 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.Entity2Attribute));
             
             #line default
             #line hidden
             this.Write("\"); }\r\n\t\t\tset { ");
             
-            #line 43 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
+            #line 41 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue"));
             
             #line default
             #line hidden
             this.Write("(\"");
             
-            #line 43 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
+            #line 41 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(RelationClassInfo.Entity2Attribute));
             
             #line default
@@ -204,7 +197,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             return this.GenerationEnvironment.ToString();
         }
         
-        #line 48 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
+        #line 46 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\RelationProxyClass.tt"
 
 public ManyToManyRelationInfo RelationClassInfo { get; set; }
 public string ProxyNamespace { get; set; }

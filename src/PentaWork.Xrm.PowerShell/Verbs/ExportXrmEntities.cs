@@ -293,7 +293,6 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                     break;
                 case AttributeTypeCode.DateTime:
                 case AttributeTypeCode.Boolean:
-                case AttributeTypeCode.Money:
                 case AttributeTypeCode.Double:
                 case AttributeTypeCode.Integer:
                 case AttributeTypeCode.BigInt:
@@ -303,6 +302,9 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                 case AttributeTypeCode.String:
                 case AttributeTypeCode.EntityName:
                     serializedValue = value.ToString();
+                    break;
+                case AttributeTypeCode.Money:
+                    serializedValue = ((Money)value).Value.ToString();
                     break;
                 case AttributeTypeCode.Customer:
                 case AttributeTypeCode.Lookup:

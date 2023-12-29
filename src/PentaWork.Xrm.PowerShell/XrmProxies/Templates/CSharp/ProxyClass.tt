@@ -64,7 +64,7 @@ namespace <#= ProxyNamespace #>.Entities
 					moneyValue = new Money(roundedValue);
 				}
 
-				if(moneyValue?.Value == <#= attribute.UniqueDisplayName #>) return;
+				if(Attributes.ContainsKey("<#= attribute.LogicalName #>") && moneyValue?.Value == <#= attribute.UniqueDisplayName #>) return;
 				<#= UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue" #>("<#= attribute.LogicalName #>", moneyValue);  
 			}
 		}
@@ -88,7 +88,7 @@ namespace <#= ProxyNamespace #>.Entities
 			{
 				decimal? decimalValue = null;
 				if(value != null) decimalValue = Decimal.Round(value.Value, <#= decimalMetadata.Precision #>);
-				if(decimalValue == <#= attribute.UniqueDisplayName #>) return;
+				if(Attributes.ContainsKey("<#= attribute.LogicalName #>") && decimalValue == <#= attribute.UniqueDisplayName #>) return;
 				<#= UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue" #>("<#= attribute.LogicalName #>", decimalValue);  
 			}
 		}
@@ -112,7 +112,7 @@ namespace <#= ProxyNamespace #>.Entities
 			{
 				double? doubleValue = null;
 				if(value != null) doubleValue = Math.Round(value.Value, <#= doubleMetadata.Precision #>);
-				if(doubleValue == <#= attribute.UniqueDisplayName #>) return;
+				if(Attributes.ContainsKey("<#= attribute.LogicalName #>") && doubleValue == <#= attribute.UniqueDisplayName #>) return;
 				<#= UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue" #>("<#= attribute.LogicalName #>", doubleValue);  
 			}
 		}
@@ -136,7 +136,7 @@ namespace <#= ProxyNamespace #>.Entities
 			}
 			set 
 			{ 
-				if(value == <#= attribute.UniqueDisplayName #>) return;
+				if(Attributes.ContainsKey("<#= attribute.LogicalName #>") && value == <#= attribute.UniqueDisplayName #>) return;
 
 				OptionSetValue optionSetValue = null;
 				if(value != null) optionSetValue = new OptionSetValue((int)value);
@@ -196,7 +196,7 @@ namespace <#= ProxyNamespace #>.Entities
 			get { return GetAttributeValue<<#= attribute.ReturnType #>>("<#= attribute.LogicalName #>"); }
 			set
 			{ 
-				if(value == <#= attribute.UniqueDisplayName #>) return;
+				if(Attributes.ContainsKey("<#= attribute.LogicalName #>") && value == <#= attribute.UniqueDisplayName #>) return;
 				<#= UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue" #>("<#= attribute.LogicalName #>", value);
 			}
 		}	

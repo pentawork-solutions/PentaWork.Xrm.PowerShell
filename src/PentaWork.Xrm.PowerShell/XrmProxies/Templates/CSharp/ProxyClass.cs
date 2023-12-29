@@ -258,8 +258,15 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             
             #line default
             #line hidden
-            this.Write(");\r\n\t\t\t\t\tmoneyValue = new Money(roundedValue);\r\n\t\t\t\t}\r\n\r\n\t\t\t\tif(moneyValue?.Value" +
-                    " == ");
+            this.Write(");\r\n\t\t\t\t\tmoneyValue = new Money(roundedValue);\r\n\t\t\t\t}\r\n\r\n\t\t\t\tif(Attributes.Contai" +
+                    "nsKey(\"");
+            
+            #line 67 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));
+            
+            #line default
+            #line hidden
+            this.Write("\") && moneyValue?.Value == ");
             
             #line 67 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.UniqueDisplayName));
@@ -353,7 +360,14 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             
             #line default
             #line hidden
-            this.Write(");\r\n\t\t\t\tif(decimalValue == ");
+            this.Write(");\r\n\t\t\t\tif(Attributes.ContainsKey(\"");
+            
+            #line 91 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));
+            
+            #line default
+            #line hidden
+            this.Write("\") && decimalValue == ");
             
             #line 91 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.UniqueDisplayName));
@@ -447,7 +461,14 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             
             #line default
             #line hidden
-            this.Write(");\r\n\t\t\t\tif(doubleValue == ");
+            this.Write(");\r\n\t\t\t\tif(Attributes.ContainsKey(\"");
+            
+            #line 115 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));
+            
+            #line default
+            #line hidden
+            this.Write("\") && doubleValue == ");
             
             #line 115 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.UniqueDisplayName));
@@ -528,8 +549,15 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             
             #line default
             #line hidden
-            this.Write(")optionSetValue.Value;\r\n\t\t\t\telse return null;\r\n\t\t\t}\r\n\t\t\tset \r\n\t\t\t{ \r\n\t\t\t\tif(value" +
-                    " == ");
+            this.Write(")optionSetValue.Value;\r\n\t\t\t\telse return null;\r\n\t\t\t}\r\n\t\t\tset \r\n\t\t\t{ \r\n\t\t\t\tif(Attri" +
+                    "butes.ContainsKey(\"");
+            
+            #line 139 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));
+            
+            #line default
+            #line hidden
+            this.Write("\") && value == ");
             
             #line 139 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.UniqueDisplayName));
@@ -744,7 +772,14 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             
             #line default
             #line hidden
-            this.Write("\"); }\r\n\t\t\tset\r\n\t\t\t{ \r\n\t\t\t\tif(value == ");
+            this.Write("\"); }\r\n\t\t\tset\r\n\t\t\t{ \r\n\t\t\t\tif(Attributes.ContainsKey(\"");
+            
+            #line 199 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(attribute.LogicalName));
+            
+            #line default
+            #line hidden
+            this.Write("\") && value == ");
             
             #line 199 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\ProxyClass.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(attribute.UniqueDisplayName));
@@ -1092,7 +1127,7 @@ public bool UseBaseProxy { get; set; }
         /// <summary>
         /// The string builder that generation-time code is using to assemble generated output
         /// </summary>
-        protected System.Text.StringBuilder GenerationEnvironment
+        public System.Text.StringBuilder GenerationEnvironment
         {
             get
             {

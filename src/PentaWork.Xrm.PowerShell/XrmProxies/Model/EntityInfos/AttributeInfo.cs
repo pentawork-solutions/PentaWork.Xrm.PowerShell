@@ -151,7 +151,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Model
                     XrmTypingsControlType = "Xrm.Controls.LookupControl";
                     break;
                 case AttributeTypeCode.Virtual:
-                    XrmTypingsAttributeType = "Xrm.Attributes.EnumAttribute";
+                    XrmTypingsAttributeType = $"Xrm.Attributes.EnumAttribute<{JavascriptReturnType}>";
                     XrmTypingsControlType = "Xrm.Controls.OptionSetControl";
                     break;
                 default:

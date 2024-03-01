@@ -110,7 +110,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Model
                 default:
                     throw new Exception($"{attrMetadata.LogicalName}");
             }
-            return returnType;
+            return returnType.RemoveDiacritics();
         }
 
         private void SetXrmTypingValues(AttributeMetadata attrMetadata)

@@ -65,18 +65,22 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.Javascript
                     "    * @returns Returns an asynchronous promise.\r\n     */\r\n    public refresh(sav" +
                     "e: boolean): Promise<void> {        \r\n        return new Promise((resolve, rejec" +
                     "t) => {\r\n            this.Xrm.Page.data.refresh(save)\r\n            .then(resolve" +
-                    ", reject);\r\n        });\r\n    }\r\n\r\n    /**\r\n     * Gets form type.\r\n     * @retur" +
-                    "ns The form type.\r\n     * @remarks **Values returned are**:\r\n     * * 0  Undefin" +
-                    "ed\r\n     * * 1  Create\r\n     * * 2  Update\r\n     * * 3  Read Only\r\n     * * 4  D" +
-                    "isabled\r\n     * * 6  Bulk Edit\r\n     * * Deprecated values are 5 (Quick Create)," +
-                    " and 11 (Read Optimized)\r\n     */\r\n    get FormType(): XrmEnum.FormType {\r\n     " +
-                    "   return Xrm.Page.ui.getFormType();\r\n    }\r\n\r\n    /**\r\n     * Gets the label fo" +
-                    "r the form.\r\n     * @returns The FormName.\r\n     */\r\n    get FormName(): FormNam" +
-                    "e {\r\n        return { name: Xrm.Page.ui.formSelector.getCurrentItem().getLabel()" +
-                    " };\r\n    }  \r\n\r\n    /**\r\n     * @returns The current Xrm Object on this script\r\n" +
-                    "     */  \r\n    get Xrm() {\r\n        return this._xrm;\r\n    }\r\n\r\n    /**\r\n     * " +
-                    "@return The current Form Context\r\n     */\r\n    get FormContext() {\r\n        retu" +
-                    "rn this._formContext;\r\n    }\r\n}");
+                    ", reject);\r\n        });\r\n    }\r\n\r\n    /**\r\n     * @returns The current entity id" +
+                    ".\r\n     */  \r\n    public getEntityId(removeBraces: boolean = false) {\r\n        i" +
+                    "f(removeBraces) return this._formContext.data.entity.getId().replace(/[{}]/g, \"\"" +
+                    ");\r\n        else return this._formContext.data.entity.getId();\r\n    }\r\n\r\n    /**" +
+                    "\r\n     * Gets form type.\r\n     * @returns The form type.\r\n     * @remarks **Valu" +
+                    "es returned are**:\r\n     * * 0  Undefined\r\n     * * 1  Create\r\n     * * 2  Updat" +
+                    "e\r\n     * * 3  Read Only\r\n     * * 4  Disabled\r\n     * * 6  Bulk Edit\r\n     * * " +
+                    "Deprecated values are 5 (Quick Create), and 11 (Read Optimized)\r\n     */\r\n    ge" +
+                    "t FormType(): XrmEnum.FormType {\r\n        return this._formContext.ui.getFormTyp" +
+                    "e();\r\n    }\r\n\r\n    /**\r\n     * Gets the label for the form.\r\n     * @returns The" +
+                    " FormName.\r\n     */\r\n    get FormName(): FormName {\r\n        return { name: this" +
+                    "._formContext.ui.formSelector.getCurrentItem().getLabel() };\r\n    }  \r\n\r\n    /**" +
+                    "\r\n     * @returns The current Xrm Object on this script\r\n     */  \r\n    get Xrm(" +
+                    ") {\r\n        return this._xrm;\r\n    }\r\n\r\n    /**\r\n     * @return The current For" +
+                    "m Context\r\n     */\r\n    get FormContext() {\r\n        return this._formContext;\r\n" +
+                    "    }\r\n}");
             return this.GenerationEnvironment.ToString();
         }
     }

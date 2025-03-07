@@ -93,6 +93,14 @@ export abstract class FormProxy {
     }
 
     /**
+     * @returns The current entity id.
+     */  
+    public getEntityId(removeBraces: boolean = false) {
+        if(removeBraces) return this._formContext.data.entity.getId().replace(/[{}]/g, "");
+        else return this._formContext.data.entity.getId();
+    }
+
+    /**
      * Gets form type.
      * @returns The form type.
      * @remarks **Values returned are**:
@@ -105,7 +113,7 @@ export abstract class FormProxy {
      * * Deprecated values are 5 (Quick Create), and 11 (Read Optimized)
      */
     get FormType(): XrmEnum.FormType {
-        return Xrm.Page.ui.getFormType();
+        return this._formContext.ui.getFormType();
     }
 
     /**
@@ -113,7 +121,7 @@ export abstract class FormProxy {
      * @returns The FormName.
      */
     get FormName(): FormName {
-        return { name: Xrm.Page.ui.formSelector.getCurrentItem().getLabel() };
+        return { name: this._formContext.ui.formSelector.getCurrentItem().getLabel() };
     }  
 
     /**

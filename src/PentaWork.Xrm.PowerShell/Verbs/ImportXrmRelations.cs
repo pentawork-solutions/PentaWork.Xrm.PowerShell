@@ -5,6 +5,8 @@ using System.Linq;
 using Microsoft.Xrm.Sdk;
 using PentaWork.Xrm.PowerShell.Common;
 using Microsoft.Xrm.Sdk.Query;
+using PentaWork.Xrm.PowerShell.XrmProxies.Model;
+using System;
 
 namespace PentaWork.Xrm.PowerShell.Verbs
 {
@@ -56,45 +58,74 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                         continue;
                     }
 
-                    int processedRelations = 0;
                     var relatingEntity = matchingSystemEntities.First();
-                    foreach (var relationInfo in entityInfo.Relations)
-                    {
-                        var relatedEntityReferences = new EntityReferenceCollection();
-                        foreach (var relation in relationInfo.Entities)
-                        {
-                            WriteProgress(new ProgressRecord(1, "Importing", $"Importing relations for schema '{relationInfo.SchemaName}' ...") { PercentComplete = 100 * processedRelations++ / entityInfo.Relations.Sum(r => r.Entities.Length) });
-
-                            var relatedEntity = Connection.TryRetrieve(relationInfo.ToLogicalName, relation.Id, new ColumnSet());
-                            if (MapRelatedEntitiesByName)
-                            {
-                                var query = new QueryExpression
-                                {
-                                    EntityName = relationInfo.ToLogicalName,
-                                    ColumnSet = new ColumnSet(true)
-                                };
-                                query.Criteria.AddCondition(relationInfo.ToPrimaryNameAttribute, ConditionOperator.Equal, relation.Name);
-                                AddRelationConditions(query, relatingEntity, relationInfo.SchemaName);
-
-                                var matches = Connection.Query(query);
-                                if (matches.Count > 1) WriteWarning($"Multiple related entities for '{relation.Name}' found ...");
-                                relatedEntity = matches.FirstOrDefault();
-                            }
-                            if (relatedEntity == null)
-                            {
-                                WriteWarning($"Related entity '{relation.Name}' not found!");
-                                continue;
-                            }
-                            relatedEntityReferences.Add(relatedEntity.ToEntityReference());
-                        }
-                        WriteProgress(new ProgressRecord(1, "Importing", "Done!") { RecordType = ProgressRecordType.Completed });
-
-                        Connection.Disassociate(relatingEntity.LogicalName, relatingEntity.Id, new Relationship(relationInfo.SchemaName), relatedEntityReferences);
-                        Connection.Associate(relatingEntity.LogicalName, relatingEntity.Id, new Relationship(relationInfo.SchemaName), relatedEntityReferences);
-                    }
+                    if (ClearTargetRelations) ClearRelations(entityInfo, relatingEntity);
+                    ImportRelations(entityInfo, relatingEntity);
                 }
             }
             WriteProgress(new ProgressRecord(0, "Importing", "Done!") { RecordType = ProgressRecordType.Completed });
+        }
+
+        private void ClearRelations(EntityInfo entityInfo, Entity relatingEntity)
+        {
+            int processedRelations = 0;
+            foreach (var relationInfo in entityInfo.Relations)
+            {
+                WriteProgress(new ProgressRecord(1, "Clearing", $"Clearing relations for schema '{relationInfo.SchemaName}' ...") { PercentComplete = 100 * processedRelations++ / entityInfo.Relations.Sum(r => r.Entities.Length) });
+                var query = new QueryExpression
+                {
+                    EntityName = relationInfo.IntersectEntityName,
+                    ColumnSet = new ColumnSet(true)
+                };
+                query.Criteria.AddCondition(relationInfo.FromPrimaryIdAttribute, ConditionOperator.Equal, relatingEntity.Id);
+
+                var relations = Connection.Query(query);
+                Connection.Disassociate(relatingEntity.LogicalName, relatingEntity.Id, new Relationship(relationInfo.SchemaName),
+                    new EntityReferenceCollection(relations
+                        .Select(r => new EntityReference(relationInfo.ToLogicalName, r.GetAttributeValue<Guid>(relationInfo.ToPrimaryIdAttribute)))
+                        .ToList()
+                    ));
+
+                WriteProgress(new ProgressRecord(1, "Clearing", "Done!") { RecordType = ProgressRecordType.Completed });
+            }
+        }
+
+        private void ImportRelations(EntityInfo entityInfo, Entity relatingEntity)
+        {
+            int processedRelations = 0;
+            foreach (var relationInfo in entityInfo.Relations)
+            {
+                var relatedEntityReferences = new EntityReferenceCollection();
+                foreach (var relation in relationInfo.Entities)
+                {
+                    WriteProgress(new ProgressRecord(1, "Importing", $"Importing relations for schema '{relationInfo.SchemaName}' ...") { PercentComplete = 100 * processedRelations++ / entityInfo.Relations.Sum(r => r.Entities.Length) });
+
+                    var relatedEntity = Connection.TryRetrieve(relationInfo.ToLogicalName, relation.Id, new ColumnSet());
+                    if (MapRelatedEntitiesByName)
+                    {
+                        var query = new QueryExpression
+                        {
+                            EntityName = relationInfo.ToLogicalName,
+                            ColumnSet = new ColumnSet(true)
+                        };
+                        query.Criteria.AddCondition(relationInfo.ToPrimaryNameAttribute, ConditionOperator.Equal, relation.Name);
+                        AddRelationConditions(query, relatingEntity, relationInfo.SchemaName);
+
+                        var matches = Connection.Query(query);
+                        if (matches.Count > 1) WriteWarning($"Multiple related entities for '{relation.Name}' found ...");
+                        relatedEntity = matches.FirstOrDefault();
+                    }
+                    if (relatedEntity == null)
+                    {
+                        WriteWarning($"Related entity '{relation.Name}' not found!");
+                        continue;
+                    }
+                    relatedEntityReferences.Add(relatedEntity.ToEntityReference());
+                }
+
+                Connection.Associate(relatingEntity.LogicalName, relatingEntity.Id, new Relationship(relationInfo.SchemaName), relatedEntityReferences);
+                WriteProgress(new ProgressRecord(1, "Importing", "Done!") { RecordType = ProgressRecordType.Completed });
+            }
         }
 
         private void AddRelationConditions(QueryExpression query, Entity relatingEntity, string schemaName)
@@ -128,6 +159,12 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             ValueFromPipeline = true,
             ValueFromPipelineByPropertyName = true)]
         public EntityData EntityData { get; set; }
+
+        /// <summary>
+        /// <para type="description">Set, if you want to clear the relations of the target entities before importing the new ones.</para>
+        /// </summary>
+        [Parameter]
+        public SwitchParameter ClearTargetRelations { get; set; }
 
         /// <summary>
         /// <para type="description">Set, if the entities should get mapped by name instead of the id.</para>

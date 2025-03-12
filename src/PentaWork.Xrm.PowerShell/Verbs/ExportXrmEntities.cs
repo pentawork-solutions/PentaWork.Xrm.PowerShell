@@ -70,6 +70,8 @@ namespace PentaWork.Xrm.PowerShell.Verbs
         public string IntersectEntityName { get; set; }
         public string ToLogicalName { get; set; }
         public string ToPrimaryNameAttribute { get; set; }
+        public string ToPrimaryIdAttribute { get; set; }
+        public string FromPrimaryIdAttribute { get; set; }
         public RelatedEntityInfo[] Entities { get; set; }
     }
 
@@ -266,6 +268,8 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                     IntersectEntityName = schemaDefinition.IntersectEntityName,
                     ToLogicalName = toEntityMetaData.LogicalName,
                     ToPrimaryNameAttribute = toEntityMetaData.PrimaryNameAttribute,
+                    ToPrimaryIdAttribute = toEntityMetaData.PrimaryIdAttribute,
+                    FromPrimaryIdAttribute = fromEntityIdField,
                     Entities = relatedEntities
                         .OrderBy(r => r.Contains(toEntityMetaData.PrimaryNameAttribute) ? r[toEntityMetaData.PrimaryNameAttribute].ToString() : r.Id.ToString())
                         .Select(r => new RelatedEntityInfo

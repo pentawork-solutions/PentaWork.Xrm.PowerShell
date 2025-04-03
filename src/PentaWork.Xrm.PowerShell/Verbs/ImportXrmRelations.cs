@@ -1,12 +1,11 @@
-﻿using Microsoft.Xrm.Tooling.Connector;
-using System.Management.Automation;
+﻿using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Query;
+using Microsoft.Xrm.Tooling.Connector;
+using PentaWork.Xrm.PowerShell.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Xrm.Sdk;
-using PentaWork.Xrm.PowerShell.Common;
-using Microsoft.Xrm.Sdk.Query;
-using PentaWork.Xrm.PowerShell.XrmProxies.Model;
-using System;
+using System.Management.Automation;
 
 namespace PentaWork.Xrm.PowerShell.Verbs
 {
@@ -123,6 +122,8 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                     relatedEntityReferences.Add(relatedEntity.ToEntityReference());
                 }
 
+                // Disassociate first to ensure no duplicates get assoiciated!
+                Connection.Disassociate(relatingEntity.LogicalName, relatingEntity.Id, new Relationship(relationInfo.SchemaName), relatedEntityReferences);
                 Connection.Associate(relatingEntity.LogicalName, relatingEntity.Id, new Relationship(relationInfo.SchemaName), relatedEntityReferences);
                 WriteProgress(new ProgressRecord(1, "Importing", "Done!") { RecordType = ProgressRecordType.Completed });
             }

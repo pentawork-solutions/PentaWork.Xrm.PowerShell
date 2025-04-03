@@ -10,6 +10,7 @@ using System;
 using FakeXrmEasy;
 using System.Collections.Generic;
 using <#= ProxyNamespace #>.Entities;
+using <#= ProxyNamespace #>.Extensions;
 
 namespace <#= FakeNamespace #>
 {
@@ -52,8 +53,9 @@ namespace <#= FakeNamespace #>
 		public static <#= EntityInfo.UniqueDisplayName #> Create()
 		{
 <#		var rules = new List<string>();
+		var formattedValues = new Dictionary<string, string>();
 		foreach(var attribute in EntityInfo.AttributeList)
-		{
+		{ 
 			var attType = attribute.AttributeType;
             switch (attType)
             { 				
@@ -68,6 +70,7 @@ namespace <#= FakeNamespace #>
 				case AttributeTypeCode.Status:
 				case AttributeTypeCode.State:
 					rules.Add($".RuleFor(e => e.{attribute.UniqueDisplayName}, fake => fake.PickRandom<{EntityInfo.UniqueDisplayName}.{attribute.ReturnType}>())");
+					formattedValues.Add(attribute.LogicalName, attribute.UniqueDisplayName);
                     break;
 				case AttributeTypeCode.Virtual:
 					if(attribute.AttributeMetadata is MultiSelectPicklistAttributeMetadata multiSelect)
@@ -100,7 +103,14 @@ namespace <#= FakeNamespace #>
 		}#>
 			var faker = new Faker<<#= EntityInfo.UniqueDisplayName #>>()
 			<#= string.Join($"{Environment.NewLine}\t\t\t", rules.ToArray()) #>;
-			return faker.Generate();
+
+			var fakeEntity = faker.Generate();
+<#			foreach(var formattedValue in formattedValues)
+			{ #>
+				fakeEntity.FormattedValues.Add("<#= formattedValue.Key #>", fakeEntity.<#= formattedValue.Value #>.GetEnumLabel());
+<#			} #>
+
+			return fakeEntity;
 		}
 		#endregion
 	}

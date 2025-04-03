@@ -1,14 +1,14 @@
-﻿using System;
+﻿using Microsoft.Crm.Sdk.Messages;
+using Microsoft.Xrm.Sdk.Query;
+using Microsoft.Xrm.Tooling.Connector;
+using PentaWork.Xrm.PowerShell.Common;
+using System;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Management.Automation;
 using System.Xml.Linq;
 using System.Xml.XPath;
-using Microsoft.Crm.Sdk.Messages;
-using Microsoft.Xrm.Sdk.Query;
-using Microsoft.Xrm.Tooling.Connector;
-using PentaWork.Xrm.PowerShell.Common;
 
 namespace PentaWork.Xrm.PowerShell.Verbs
 {
@@ -34,7 +34,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             if (targetVersion != null) WriteVerbose($"Found version {targetVersion} in target system ...");
             else WriteVerbose("No version found in target system ...");
 
-            if(targetVersion != solutionVersion || Force)
+            if (targetVersion != solutionVersion || Force)
             {
                 if (Delete) RemoveSolution(solutionName);
 

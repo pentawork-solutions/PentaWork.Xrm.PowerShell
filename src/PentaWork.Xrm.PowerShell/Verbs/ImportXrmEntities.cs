@@ -1,13 +1,13 @@
-﻿using Microsoft.Xrm.Sdk.Query;
+﻿using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Metadata;
+using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
-using System.Management.Automation;
+using PentaWork.Xrm.PowerShell.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Metadata;
-using System;
+using System.Management.Automation;
 using System.Numerics;
-using PentaWork.Xrm.PowerShell.Common;
 
 namespace PentaWork.Xrm.PowerShell.Verbs
 {
@@ -81,7 +81,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                 // Skip Id Attribute, if mapped by name. Otherwise it could be a problem for certain entities like userqueries for example.
                 // If a user query gets created, and reassigned, the module wont find the view and would try to 
                 // create a entity with an entity already present in the system.
-                if (MapByName && attr.Name == EntityData.PrimaryIdField) continue; 
+                if (MapByName && attr.Name == EntityData.PrimaryIdField) continue;
                 systemEntity[attr.Name] = DeserializeValue(attr);
             }
         }
@@ -166,8 +166,21 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                 case AttributeTypeCode.EntityName:
                     deserializedValue = attr.Value;
                     break;
+                case AttributeTypeCode.Virtual:
+                    if (attr.Value.StartsWith("virt-os;"))
+                    {
+                        deserializedValue = new OptionSetValue(int.Parse(attr.Value.Split(';')[1]));
+                    }
+                    else if (attr.Value.StartsWith("virt-osc;"))
+                    {
+                        var splitted = attr.Value.Split(';');
+                        var optionValues = splitted[1].Split(',').Select(o => new OptionSetValue(int.Parse(o))).ToList();
+                        deserializedValue = new OptionSetValueCollection(optionValues);
+                    }
+                    else throw new Exception($"Can't serialize attribute type with value type: {attr.Type}");
+                    break;
                 default:
-                    throw new Exception($"{attr.Type}");
+                    throw new Exception($"Can't deserialize attribute type: {attr.Type}");
             }
             return deserializedValue;
         }

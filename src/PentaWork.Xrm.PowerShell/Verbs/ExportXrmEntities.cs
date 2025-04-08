@@ -1,13 +1,13 @@
-﻿using Microsoft.Xrm.Sdk.Query;
-using Microsoft.Xrm.Tooling.Connector;
-using System.Management.Automation;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Metadata;
-using System;
-using Microsoft.Crm.Sdk.Messages;
+using Microsoft.Xrm.Sdk.Query;
+using Microsoft.Xrm.Tooling.Connector;
 using PentaWork.Xrm.PowerShell.Common;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Management.Automation;
 
 namespace PentaWork.Xrm.PowerShell.Verbs
 {
@@ -322,8 +322,15 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                     var metadata = _fetchedMetaData.Single(m => m.LogicalName == entityRef.LogicalName);
                     serializedValue = $"{entityRef.LogicalName};{entityRef.Id};{entityRef.Name};{metadata.PrimaryNameAttribute}";
                     break;
+                case AttributeTypeCode.Virtual:
+                    if (value is OptionSetValue osValue)
+                        serializedValue = $"virt-os;{osValue.Value}";
+                    else if (value is OptionSetValueCollection osValues)
+                        serializedValue = $"virt-osc;{string.Join(",", osValues.Select(o => o.Value.ToString()).ToArray())}";
+                    else throw new Exception($"Can't serialize attribute type with value type: {type} / {value.GetType()}");
+                    break;
                 default:
-                    throw new Exception($"{type}");
+                    throw new Exception($"Can't serialize attribute type: {type}");
             }
             return serializedValue;
         }

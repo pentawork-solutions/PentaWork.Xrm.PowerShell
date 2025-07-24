@@ -1,9 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31205.134
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36301.6 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PentaWork.Xrm.PowerShell", "PentaWork.Xrm.PowerShell\PentaWork.Xrm.PowerShell.csproj", "{6A1F0403-DA23-4680-84E5-0FDEA9C385A6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PentaWork.Xrm.PluginGraphAnalyzer.Tests", "..\tests\PentaWork.Xrm.PluginGraphAnalyzer.Tests\PentaWork.Xrm.PluginGraphAnalyzer.Tests.csproj", "{1F5EF19D-4488-6480-7CBC-6395A16B70AE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PentaWork.Xrm.Tests.Plugins", "..\tests\PentaWork.Xrm.Tests.Plugins\PentaWork.Xrm.Tests.Plugins.csproj", "{EB888695-8971-1152-4B02-91B4D064B92C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PentaWork.Xrm.Tests.PluginsTestSideAssembly", "..\tests\PentaWork.Xrm.Tests.PluginsTestSideAssembly\PentaWork.Xrm.Tests.PluginsTestSideAssembly.csproj", "{EE1FBA06-1F92-5E4A-F3AA-827EC652AE4F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PentaWork.Xrm.PluginGraph", "PentaWork.Xrm.PluginGraphAnalyzer\PentaWork.Xrm.PluginGraph.csproj", "{3C875B52-1549-40AE-8234-7B8027F8E3AF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +25,30 @@ Global
 		{6A1F0403-DA23-4680-84E5-0FDEA9C385A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A1F0403-DA23-4680-84E5-0FDEA9C385A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A1F0403-DA23-4680-84E5-0FDEA9C385A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F5EF19D-4488-6480-7CBC-6395A16B70AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F5EF19D-4488-6480-7CBC-6395A16B70AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F5EF19D-4488-6480-7CBC-6395A16B70AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F5EF19D-4488-6480-7CBC-6395A16B70AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB888695-8971-1152-4B02-91B4D064B92C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB888695-8971-1152-4B02-91B4D064B92C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB888695-8971-1152-4B02-91B4D064B92C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB888695-8971-1152-4B02-91B4D064B92C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE1FBA06-1F92-5E4A-F3AA-827EC652AE4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE1FBA06-1F92-5E4A-F3AA-827EC652AE4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE1FBA06-1F92-5E4A-F3AA-827EC652AE4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE1FBA06-1F92-5E4A-F3AA-827EC652AE4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C875B52-1549-40AE-8234-7B8027F8E3AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C875B52-1549-40AE-8234-7B8027F8E3AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C875B52-1549-40AE-8234-7B8027F8E3AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C875B52-1549-40AE-8234-7B8027F8E3AF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1F5EF19D-4488-6480-7CBC-6395A16B70AE} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{EB888695-8971-1152-4B02-91B4D064B92C} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{EE1FBA06-1F92-5E4A-F3AA-827EC652AE4F} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {88FE3957-CDE4-4E1A-983A-CF1C0EC7E51F}

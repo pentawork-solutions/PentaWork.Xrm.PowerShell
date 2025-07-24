@@ -1,5 +1,6 @@
 ﻿using dnlib.DotNet;
 using PentaWork.Xrm.PluginGraph.Model;
+using PentaWork.Xrm.PluginGraph.Model.VMObjects;
 using System.Diagnostics;
 
 namespace PentaWork.Xrm.PluginGraph

@@ -1,6 +1,8 @@
 ﻿using dnlib.DotNet;
 using dnlib.DotNet.Emit;
+using PentaWork.Xrm.PluginGraph.Hooks;
 using PentaWork.Xrm.PluginGraph.Model;
+using PentaWork.Xrm.PluginGraph.Model.VMObjects;
 using System.Diagnostics;
 
 namespace PentaWork.Xrm.PluginGraph
@@ -14,16 +16,23 @@ namespace PentaWork.Xrm.PluginGraph
     /// </summary>
     public class PluginGraphVM
     {
-        private readonly PluginModuleList _moduleList;
-
-        private readonly Stack<object> _stack = new();
-        private readonly object[] _localVars = new object[255];
-
-        private readonly List<XrmApiCall> _apiCalls = new();
+        private readonly PluginGraphVMData _vmData;
+        private readonly List<IHook> _callHooks;
+        private readonly List<IHook> _creationHooks;
 
         public PluginGraphVM(PluginModuleList moduleList)
         {
-            _moduleList = moduleList;
+            _vmData = new PluginGraphVMData(moduleList);
+
+            _callHooks = GetType().Assembly.GetTypes()
+                .Where(t => t.GetInterfaces().Any(i => i.Name == "ICallHook"))
+                .Select(t => (IHook)Activator.CreateInstance(t)!)
+                .ToList();
+
+            _creationHooks = GetType().Assembly.GetTypes()
+                .Where(t => t.GetInterfaces().Any(i => i.Name == "ICreationHook"))
+                .Select(t => (IHook)Activator.CreateInstance(t)!)
+                .ToList();
         }
 
         /// <summary>
@@ -43,67 +52,67 @@ namespace PentaWork.Xrm.PluginGraph
                 switch (instr.OpCode.Code)
                 {
                     case Code.Ldarg_0:
-                        _stack.Push(parameters?.Count > 0 ? parameters[0] : $"Dummy Value for '{instr.OpCode.ToString()}'");
-                        Debug.WriteLine($"[↑ {_stack.Count}] {instr.ToString()} // Load argument 0 onto stack");
+                        _vmData.Stack.Push(parameters?.Count > 0 ? parameters[0] : $"Dummy Value for '{instr.OpCode.ToString()}'");
+                        Debug.WriteLine($"[↑ {_vmData.Stack.Count}] {instr.ToString()} // Load argument 0 onto stack");
                         break;
                     case Code.Ldarg_1:
-                        _stack.Push(parameters?.Count > 1 ? parameters[1] : $"Dummy Value for '{instr.OpCode.ToString()}'");
-                        Debug.WriteLine($"[↑ {_stack.Count}] {instr.ToString()} // Load argument 1 onto stack");
+                        _vmData.Stack.Push(parameters?.Count > 1 ? parameters[1] : $"Dummy Value for '{instr.OpCode.ToString()}'");
+                        Debug.WriteLine($"[↑ {_vmData.Stack.Count}] {instr.ToString()} // Load argument 1 onto stack");
                         break;
                     case Code.Ldarg_2:
-                        _stack.Push(parameters?.Count > 2 ? parameters[2] : $"Dummy Value for '{instr.OpCode.ToString()}'");
-                        Debug.WriteLine($"[↑ {_stack.Count}] {instr.ToString()} // Load argument 2 onto stack");
+                        _vmData.Stack.Push(parameters?.Count > 2 ? parameters[2] : $"Dummy Value for '{instr.OpCode.ToString()}'");
+                        Debug.WriteLine($"[↑ {_vmData.Stack.Count}] {instr.ToString()} // Load argument 2 onto stack");
                         break;
                     case Code.Ldarg_3:
-                        _stack.Push(parameters?.Count > 3 ? parameters[3] : $"Dummy Value for '{instr.OpCode.ToString()}'");
-                        Debug.WriteLine($"[↑ {_stack.Count}] {instr.ToString()} // Load argument 3 onto stack");
+                        _vmData.Stack.Push(parameters?.Count > 3 ? parameters[3] : $"Dummy Value for '{instr.OpCode.ToString()}'");
+                        Debug.WriteLine($"[↑ {_vmData.Stack.Count}] {instr.ToString()} // Load argument 3 onto stack");
                         break;
                     case Code.Stloc_0:
-                        _localVars[0] = _stack.Pop();
-                        Debug.WriteLine($"[↓ {_stack.Count}] {instr.ToString()} // Pops a value from the stack into local variable 0");
+                        _vmData.LocalVars[0] = _vmData.Stack.Pop();
+                        Debug.WriteLine($"[↓ {_vmData.Stack.Count}] {instr.ToString()} // Pops a value from the stack into local variable 0");
                         break;
                     case Code.Stloc_1:
-                        _localVars[1] = _stack.Pop();
-                        Debug.WriteLine($"[↓ {_stack.Count}] {instr.ToString()} // Pops a value from the stack into local variable 1");
+                        _vmData.LocalVars[1] = _vmData.Stack.Pop();
+                        Debug.WriteLine($"[↓ {_vmData.Stack.Count}] {instr.ToString()} // Pops a value from the stack into local variable 1");
                         break;
                     case Code.Stloc_2:
-                        _localVars[2] = _stack.Pop();
-                        Debug.WriteLine($"[↓ {_stack.Count}] {instr.ToString()} // Pops a value from the stack into local variable 2");
+                        _vmData.LocalVars[2] = _vmData.Stack.Pop();
+                        Debug.WriteLine($"[↓ {_vmData.Stack.Count}] {instr.ToString()} // Pops a value from the stack into local variable 2");
                         break;
                     case Code.Stloc_3:
-                        _localVars[3] = _stack.Pop();
-                        Debug.WriteLine($"[↓ {_stack.Count}] {instr.ToString()} // Pops a value from the stack into local variable 3");
+                        _vmData.LocalVars[3] = _vmData.Stack.Pop();
+                        Debug.WriteLine($"[↓ {_vmData.Stack.Count}] {instr.ToString()} // Pops a value from the stack into local variable 3");
                         break;
                     case Code.Stloc:
                     case Code.Stloc_S:
                         {
                             var operand = (Local)instr.Operand;
-                            _localVars[operand.Index] = _stack.Pop();
-                            Debug.WriteLine($"[↓ {_stack.Count}] {instr.ToString()} // Pops a value from the stack and stores it in local variable index");
+                            _vmData.LocalVars[operand.Index] = _vmData.Stack.Pop();
+                            Debug.WriteLine($"[↓ {_vmData.Stack.Count}] {instr.ToString()} // Pops a value from the stack and stores it in local variable index");
                             break;
                         }
                     case Code.Ldloc_0:
-                        _stack.Push(_localVars[0]);
-                        Debug.WriteLine($"[↑ {_stack.Count}] {instr.ToString()} // Loads the local variable at index 0 onto the evaluation stack");
+                        _vmData.Stack.Push(_vmData.LocalVars[0]);
+                        Debug.WriteLine($"[↑ {_vmData.Stack.Count}] {instr.ToString()} // Loads the local variable at index 0 onto the evaluation stack");
                         break;
                     case Code.Ldloc_1:
-                        _stack.Push(_localVars[1]);
-                        Debug.WriteLine($"[↑ {_stack.Count}] {instr.ToString()} // Loads the local variable at index 1 onto the evaluation stack");
+                        _vmData.Stack.Push(_vmData.LocalVars[1]);
+                        Debug.WriteLine($"[↑ {_vmData.Stack.Count}] {instr.ToString()} // Loads the local variable at index 1 onto the evaluation stack");
                         break;
                     case Code.Ldloc_2:
-                        _stack.Push(_localVars[2]);
-                        Debug.WriteLine($"[↑ {_stack.Count}] {instr.ToString()} // Loads the local variable at index 2 onto the evaluation stack");
+                        _vmData.Stack.Push(_vmData.LocalVars[2]);
+                        Debug.WriteLine($"[↑ {_vmData.Stack.Count}] {instr.ToString()} // Loads the local variable at index 2 onto the evaluation stack");
                         break;
                     case Code.Ldloc_3:
-                        _stack.Push(_localVars[3]);
-                        Debug.WriteLine($"[↑ {_stack.Count}] {instr.ToString()} // Loads the local variable at index 3 onto the evaluation stack");
+                        _vmData.Stack.Push(_vmData.LocalVars[3]);
+                        Debug.WriteLine($"[↑ {_vmData.Stack.Count}] {instr.ToString()} // Loads the local variable at index 3 onto the evaluation stack");
                         break;
                     case Code.Ldloc:
                     case Code.Ldloc_S:
                         {
                             var operand = (Local)instr.Operand;
-                            _stack.Push(_localVars[operand.Index]);
-                            Debug.WriteLine($"[↑ {_stack.Count}] {instr.ToString()} // Loads the local variable at index index onto stack");
+                            _vmData.Stack.Push(_vmData.LocalVars[operand.Index]);
+                            Debug.WriteLine($"[↑ {_vmData.Stack.Count}] {instr.ToString()} // Loads the local variable at index index onto stack");
                             break;
                         }
                     case Code.Ldloca:
@@ -112,28 +121,34 @@ namespace PentaWork.Xrm.PluginGraph
                             // Normally the adress of a local variable would get pushed onto the stack.
                             // We are not interested in actual values. Therefore we just init the local variable directly.
                             var operand = (Local)instr.Operand;
-                            _localVars[operand.Index] = $"Dummy Value for '{instr.OpCode.ToString()}'";
-                            _stack.Push(_localVars[operand.Index]);
-                            Debug.WriteLine($"[↑ {_stack.Count}] {instr.ToString()} // Loads the address of the local variable at index onto the evaluation stack");
+                            _vmData.LocalVars[operand.Index] = $"Dummy Value for '{instr.OpCode.ToString()}'";
+                            _vmData.Stack.Push(_vmData.LocalVars[operand.Index]);
+                            Debug.WriteLine($"[↑ {_vmData.Stack.Count}] {instr.ToString()} // Loads the address of the local variable at index onto the evaluation stack");
                             break;
                         }
                     case Code.Ldstr:
                         {
                             var operand = (string)instr.Operand;
-                            _stack.Push(operand);
-                            Debug.WriteLine($"[↑ {_stack.Count}] {instr.ToString()} {operand} // Pushes a string object for the metadata string token mdToken");
+                            _vmData.Stack.Push(operand);
+                            Debug.WriteLine($"[↑ {_vmData.Stack.Count}] {instr.ToString()} {operand} // Pushes a string object for the metadata string token mdToken");
                             break;
                         }
+                    case Code.Dup:
+                        var obj = _vmData.Stack.Peek();
+                        if (obj is IVMObj) _vmData.Stack.Push(obj);
+                        else _vmData.Stack.Push($"Dummy Value for '{instr.OpCode.ToString()}'");
+                        Debug.WriteLine($"[↑ {_vmData.Stack.Count}] {instr.ToString()} // Duplicates the value on the top of the stack.");
+                        break;
                     case Code.Newobj:
                         Debug.WriteLine($"- [Start {instr.ToString()}]");
-                        HandleObjectCreation(instr);
+                        HandleCall(instr, _creationHooks, true);
                         Debug.WriteLine($"- [End {instr.ToString()}]");
                         break;
                     case Code.Call:
                     case Code.Calli:
                     case Code.Callvirt:
                         Debug.WriteLine($"- [Start {instr.ToString()}]");
-                        HandleCall(instr);
+                        HandleCall(instr, _callHooks);
                         Debug.WriteLine($"- [End {instr.ToString()}]");
                         break;
                     #region Dummy Stack Manipulations
@@ -156,14 +171,13 @@ namespace PentaWork.Xrm.PluginGraph
                     case Code.Ldtoken:
                     case Code.Ldftn:
                     case Code.Ldsfld:
-                    case Code.Dup:
-                        _stack.Push($"Dummy Value for '{instr.OpCode.ToString()}'");
-                        Debug.WriteLine($"[↑ {_stack.Count}] {instr.ToString()} // Push a value on the stack");
+                        _vmData.Stack.Push($"Dummy Value for '{instr.OpCode.ToString()}'");
+                        Debug.WriteLine($"[↑ {_vmData.Stack.Count}] {instr.ToString()} // Push a value on the stack");
                         break;
                     case Code.Ldfld:
-                        _stack.Pop();
-                        _stack.Push($"Dummy Value for '{instr.OpCode.ToString()}'");
-                        Debug.WriteLine($"[∙ {_stack.Count}] {instr.ToString()} // Pushes the value of a field in a specified object onto the stack (pops the object reference during operation)");
+                        _vmData.Stack.Pop();
+                        _vmData.Stack.Push($"Dummy Value for '{instr.OpCode.ToString()}'");
+                        Debug.WriteLine($"[∙ {_vmData.Stack.Count}] {instr.ToString()} // Pushes the value of a field in a specified object onto the stack (pops the object reference during operation)");
                         break;
                     case Code.Ceq:
                     case Code.Cgt:
@@ -171,17 +185,17 @@ namespace PentaWork.Xrm.PluginGraph
                     case Code.And:
                     case Code.Or:
                     case Code.Xor:
-                        _stack.Pop();
-                        _stack.Pop();
-                        _stack.Push($"Dummy Value for '{instr.OpCode.ToString()}'");
-                        Debug.WriteLine($"[↓ {_stack.Count}] {instr.ToString()} // Compares two values and pushes result");
+                        _vmData.Stack.Pop();
+                        _vmData.Stack.Pop();
+                        _vmData.Stack.Push($"Dummy Value for '{instr.OpCode.ToString()}'");
+                        Debug.WriteLine($"[↓ {_vmData.Stack.Count}] {instr.ToString()} // Compares two values and pushes result");
                         break;
                     case Code.Stfld:
                     case Code.Beq:
                     case Code.Beq_S:
-                        _stack.Pop();
-                        _stack.Pop();
-                        Debug.WriteLine($"[↓ {_stack.Count}] {instr.ToString()} // Acts based on two values");
+                        _vmData.Stack.Pop();
+                        _vmData.Stack.Pop();
+                        Debug.WriteLine($"[↓ {_vmData.Stack.Count}] {instr.ToString()} // Acts based on two values");
                         break;
                     case Code.Pop:
                     case Code.Stsfld:
@@ -190,8 +204,8 @@ namespace PentaWork.Xrm.PluginGraph
                     case Code.Brfalse_S:
                     case Code.Brtrue:
                     case Code.Brtrue_S:
-                        _stack.Pop();
-                        Debug.WriteLine($"[↓ {_stack.Count}] {instr.ToString()} // Pops a value for its operation");
+                        _vmData.Stack.Pop();
+                        Debug.WriteLine($"[↓ {_vmData.Stack.Count}] {instr.ToString()} // Pops a value for its operation");
                         break;
                     case Code.Leave:
                     case Code.Leave_S:
@@ -200,14 +214,14 @@ namespace PentaWork.Xrm.PluginGraph
                         {
                             var operand = (Instruction)instr.Operand;
                             while (instructions[index].Offset != operand.Offset) index++;
-                            Debug.WriteLine($"[∙ {_stack.Count}] {instr.ToString()} // Jumps to another code part");
+                            Debug.WriteLine($"[∙ {_vmData.Stack.Count}] {instr.ToString()} // Jumps to another code part");
                             break;
                         }
                     #endregion
                     case Code.Nop:
                     case Code.Ret:
                     case Code.Castclass:
-                        Debug.WriteLine($"[∙ {_stack.Count}] {instr.ToString()}");
+                        Debug.WriteLine($"[∙ {_vmData.Stack.Count}] {instr.ToString()}");
                         break;
                     default:
                         Debug.WriteLine($"NOT IMPLEMENTED {instr.OpCode.ToString()}");
@@ -215,194 +229,65 @@ namespace PentaWork.Xrm.PluginGraph
                 }
             }
 
-            return (_apiCalls, _stack.Count > 0 ? _stack.Pop() : null);
+            return (_vmData.ApiCalls, _vmData.Stack.Count > 0 ? _vmData.Stack.Pop() : null);
         }
 
-        private void HandleObjectCreation(Instruction instr)
+        private void HandleCall(Instruction instr, List<IHook> hooks, bool isNewObj = false)
         {
             var method = (IMethod)instr.Operand;
-            var methodDef = _moduleList.TryFindMethod(method.DeclaringType.FullName, method.FullName);
-
-            // Entity Creation
-            if (method.FullName == "System.Void Microsoft.Xrm.Sdk.Entity::.ctor(System.String)")
-            {
-                var entity = new EntityObj();
-                entity.LogicalName = (string)_stack.Pop();
-                _stack.Push(entity);
-                Debug.WriteLine($"[↑ {_stack.Count}] {method.FullName}");
-            }
-            // Maybe a proxy class creation
-            else if (methodDef != null && methodDef.DeclaringType.BaseType?.FullName == "Microsoft.Xrm.Sdk.Entity")
-            {
-                var entity = new EntityObj();
-                var vm = new PluginGraphVM(_moduleList);
-                var (apicalls, returnValue) = vm.Execute(methodDef, [entity]);
-
-                _stack.Push(entity);
-                _apiCalls.AddRange(apicalls);
-                if (returnValue != null)
-                {
-                    _stack.Push(returnValue);
-                    Debug.WriteLine($"[↑ {_stack.Count}] {method.FullName}");
-                }
-            }
-            // ServiceContext Creation
-            else if (method.FullName == "System.Void Microsoft.Xrm.Sdk.Client.OrganizationServiceContext::.ctor(Microsoft.Xrm.Sdk.IOrganizationService)")
-            {
-                var serviceContext = new ServiceContextObj();
-                _stack.Push(serviceContext);
-                Debug.WriteLine($"[↑ {_stack.Count}] {method.FullName}");
-            }
-            else
-            {
-                // get the constructor parameters from the stack
-                var parameters = new Stack<object>();
-                for (var i = 0; i < method.MethodSig.GetParamCount(); i++) parameters.Push(_stack.Pop());
-
-                _stack.Push($"New Object ({method.FullName})");
-                Debug.WriteLine($"[↑ {_stack.Count}] {method.FullName}");
-            }
-        }
-
-        private void HandleCall(Instruction instr)
-        {
-            var method = (IMethod)instr.Operand;
-            var methodDef = _moduleList.TryFindMethod(method.DeclaringType.FullName, method.FullName);
+            var methodDef = _vmData.ModuleList.TryFindMethod(method.DeclaringType.FullName, method.FullName);
 
             // Get all parameters from the current stack
             var parameters = new List<object>();
-            for (var i = 0; i < method.MethodSig.GetParamCount(); i++) parameters.Add(_stack.Pop());
+            for (var i = 0; i < method.MethodSig.GetParamCount(); i++) parameters.Add(_vmData.Stack.Pop());
 
             // If not a static call, pop 'this' from the stack
-            if (method.MethodSig.HasThis) parameters.Add(_stack.Pop());
+            if (!isNewObj && method.MethodSig.HasThis) parameters.Add(_vmData.Stack.Pop());
 
             // Reverse List to have the parameters in order: this, param1, param2 ....
             parameters.Reverse();
-            if (parameters.Any()) Debug.WriteLine($"[↓ {_stack.Count}] Popped method arguments");
+            if (parameters.Any()) Debug.WriteLine($"[↓ {_vmData.Stack.Count}] Popped method arguments");
 
-            // Base Constructor Call, if proxies are used
-            if (method.FullName == "System.Void Microsoft.Xrm.Sdk.Entity::.ctor(System.String)")
+            var hookExecuted = false;
+            foreach (var hook in hooks)
             {
-                var entity = (EntityObj)parameters[0];
-                entity.LogicalName = (string)parameters[1];
-            }
-            else if (method.FullName == "System.Guid Microsoft.Xrm.Sdk.IOrganizationService::Create(Microsoft.Xrm.Sdk.Entity)")
-            {
-                var apiCall = new XrmApiCall();
-                apiCall.Message = "create";
-                apiCall.EntityInfo = (EntityObj)parameters[1];
-
-                _apiCalls.Add(apiCall);
-
-                _stack.Push($"Dummy return value for '{method.FullName}'");
-                Debug.WriteLine($"[↑ {_stack.Count}] Return value from {method.FullName}");
-            }
-            else if (method.FullName == "System.Void Microsoft.Xrm.Sdk.IOrganizationService::Update(Microsoft.Xrm.Sdk.Entity)")
-            {
-                var apiCall = new XrmApiCall();
-                apiCall.Message = "update";
-                apiCall.EntityInfo = (EntityObj)parameters[1];
-
-                _apiCalls.Add(apiCall);
-            }
-            else if (method.FullName == "System.Void Microsoft.Xrm.Sdk.IOrganizationService::Delete(System.String,System.Guid)")
-            {
-                var apiCall = new XrmApiCall();
-                apiCall.Message = "delete";
-                apiCall.EntityInfo = new EntityObj();
-                apiCall.EntityInfo.LogicalName = (string)parameters[1];
-
-                _apiCalls.Add(apiCall);
-
-                _stack.Push($"Dummy return value for '{method.FullName}'");
-                Debug.WriteLine($"[↑ {_stack.Count}] Return value from {method.FullName}");
-            }
-            else if (method.FullName == "System.Void Microsoft.Xrm.Sdk.Client.OrganizationServiceContext::AddObject(Microsoft.Xrm.Sdk.Entity)")
-            {
-                var apiCall = new XrmApiCall();
-                apiCall.Message = "create";
-                apiCall.EntityInfo = (EntityObj)parameters[1];
-                apiCall.IsExecuted = false;
-
-                _apiCalls.Add(apiCall);
-
-                var serviceContext = (ServiceContextObj)parameters[0];
-                serviceContext.AddCall(apiCall);
-            }
-            else if (method.FullName == "System.Void Microsoft.Xrm.Sdk.Client.OrganizationServiceContext::UpdateObject(Microsoft.Xrm.Sdk.Entity)")
-            {
-                var apiCall = new XrmApiCall();
-                apiCall.Message = "update";
-                apiCall.EntityInfo = (EntityObj)parameters[1];
-                apiCall.IsExecuted = false;
-
-                _apiCalls.Add(apiCall);
-
-                var serviceContext = (ServiceContextObj)parameters[0];
-                serviceContext.AddCall(apiCall);
-            }
-            else if (method.FullName == "System.Void Microsoft.Xrm.Sdk.Client.OrganizationServiceContext::DeleteObject(Microsoft.Xrm.Sdk.Entity)")
-            {
-                var apiCall = new XrmApiCall();
-                apiCall.Message = "delete";
-                apiCall.EntityInfo = (EntityObj)parameters[1];
-                apiCall.IsExecuted = false;
-
-                _apiCalls.Add(apiCall);
-
-                var serviceContext = (ServiceContextObj)parameters[0];
-                serviceContext.AddCall(apiCall);
-            }
-            else if (method.FullName == "System.Void Microsoft.Xrm.Sdk.Client.OrganizationServiceContext::ClearChanges()")
-            {
-                var serviceContext = (ServiceContextObj)parameters[0];
-                serviceContext.ClearQueue();
-            }
-            else if (method.FullName == "Microsoft.Xrm.Sdk.SaveChangesResultCollection Microsoft.Xrm.Sdk.Client.OrganizationServiceContext::SaveChanges()")
-            {
-                var serviceContext = (ServiceContextObj)parameters[0];
-                serviceContext.MarkCallsExecuted();
-
-                _stack.Push($"Dummy return value for '{method.FullName}'");
-                Debug.WriteLine($"[↑ {_stack.Count}] Return value from {method.FullName}");
-            }
-            // Add the entity object to the top of the stack
-            else if (method.FullName == "Microsoft.Xrm.Sdk.AttributeCollection Microsoft.Xrm.Sdk.Entity::get_Attributes()")
-            {
-                _stack.Push(parameters[0]);
-                Debug.WriteLine($"[↑ {_stack.Count}] Return value from {method.FullName}");
-            }
-            // The entity object should be on top of the stack and we are able to add the used fields
-            // Parameters Stack Top to Bottom => Entity, Field Name, Field Value
-            else if (method.FullName is
-                "System.Void Microsoft.Xrm.Sdk.Entity::SetAttributeValue(System.String,System.Object)" or
-                "System.Void Microsoft.Xrm.Sdk.DataCollection`2<System.String,System.Object>::set_Item(System.String,System.Object)")
-            {
-                var entity = (EntityObj)parameters[0];
-                entity.UsedFields.Add((string)parameters[1]);
-            }
-            // The called method is part of the loaded dlls
-            // Interpret it to get more call information
-            else if (methodDef != null && methodDef.Body != null)
-            {
-                var vm = new PluginGraphVM(_moduleList);
-                var (apicalls, returnValue) = vm.Execute(methodDef, parameters);
-
-                _apiCalls.AddRange(apicalls);
-                if (returnValue != null)
+                if (hook.HookApplicable(method, methodDef, parameters))
                 {
-                    _stack.Push(returnValue);
-                    Debug.WriteLine($"[↑ {_stack.Count}] Return value from {methodDef.FullName}");
+                    hook.ExecuteHook(_vmData, method, methodDef, parameters);
+                    hookExecuted = true;
+                    Debug.WriteLine($"[∙ {_vmData.Stack.Count}] Hook executed!");
+                    break;
                 }
             }
-            else
+
+            if (!hookExecuted && isNewObj)
             {
-                if (method.MethodSig.RetType.FullName != "System.Void")
+                // get the constructor parameters from the stack
+                _vmData.Stack.Push($"New Object ({method.FullName})");
+            }
+            else if (!hookExecuted && !isNewObj)
+            {
+                // The called method is part of the loaded dlls
+                // Interpret it to get more call information
+                if (methodDef != null && methodDef.Body != null)
                 {
-                    _stack.Push($"Dummy return value for '{method.FullName}'");
-                    Debug.WriteLine($"[↑ {_stack.Count}] Return value from {method.FullName}");
+                    var vm = new PluginGraphVM(_vmData.ModuleList);
+                    var (apicalls, returnValue) = vm.Execute(methodDef, parameters);
+
+                    _vmData.ApiCalls.AddRange(apicalls);
+                    if (returnValue != null)
+                    {
+                        _vmData.Stack.Push(returnValue);
+                        Debug.WriteLine($"[↑ {_vmData.Stack.Count}] Return value from {methodDef.FullName}");
+                    }
+                }
+                else if (method.MethodSig.RetType.FullName != "System.Void")
+                {
+                    _vmData.Stack.Push($"Dummy return value for '{method.FullName}'");
+                    Debug.WriteLine($"[↑ {_vmData.Stack.Count}] Return value from {method.FullName}");
                 }
             }
+            if (isNewObj) Debug.WriteLine($"[↑ {_vmData.Stack.Count}] New object {method.FullName}");
         }
     }
 }

@@ -1,6 +1,6 @@
-﻿namespace PentaWork.Xrm.PluginGraph.Model
+﻿namespace PentaWork.Xrm.PluginGraph.Model.VMObjects
 {
-    public class ServiceContextObj
+    public class ServiceContextObj : IVMObj
     {
         public void AddCall(XrmApiCall apiCall)
         {

@@ -26,6 +26,7 @@ namespace PentaWork.Xrm.PluginGraphTests
 
             // Assert
             Assert.IsNotNull(pluginApiCalls);
+            Assert.IsTrue(pluginApiCalls.FirstOrDefault()?.IsExecuted);
             Assert.AreEqual("create", pluginApiCalls.FirstOrDefault()?.Message);
             Assert.AreEqual(2, pluginApiCalls.FirstOrDefault()?.EntityInfo.UsedFields.Count);
             Assert.AreEqual("account", pluginApiCalls.FirstOrDefault()?.EntityInfo.LogicalName);
@@ -42,9 +43,72 @@ namespace PentaWork.Xrm.PluginGraphTests
 
             // Assert
             Assert.IsNotNull(pluginApiCalls);
+            Assert.IsTrue(pluginApiCalls.FirstOrDefault()?.IsExecuted);
             Assert.AreEqual("update", pluginApiCalls.FirstOrDefault()?.Message);
             Assert.AreEqual(2, pluginApiCalls.FirstOrDefault()?.EntityInfo.UsedFields.Count);
             Assert.AreEqual("account", pluginApiCalls.FirstOrDefault()?.EntityInfo.LogicalName);
+        }
+
+        [TestMethod]
+        public void ShouldAnalyseServiceContextDeleteWithProxiesSuccessfully()
+        {
+            // Arrange
+            // Act
+            var apiCalls = _pluginGraphAnalyzer.Analyze([
+                "PentaWork.Xrm.Tests.Plugins.TestPluginServiceContextWithProxyDelete"]);
+            var pluginApiCalls = apiCalls.FirstOrDefault().Value;
+
+            // Assert
+            Assert.IsNotNull(pluginApiCalls);
+            Assert.IsTrue(pluginApiCalls.FirstOrDefault()?.IsExecuted);
+            Assert.AreEqual("delete", pluginApiCalls.FirstOrDefault()?.Message);
+            Assert.AreEqual("account", pluginApiCalls.FirstOrDefault()?.EntityInfo.LogicalName);
+        }
+
+        [TestMethod]
+        public void ShouldRecognizeNotExecutedCallsSuccessfully()
+        {
+            // Arrange
+            // Act
+            var apiCalls = _pluginGraphAnalyzer.Analyze([
+                "PentaWork.Xrm.Tests.Plugins.TestPluginServiceContextWithProxyDeleteNoSave"]);
+            var pluginApiCalls = apiCalls.FirstOrDefault().Value;
+
+            // Assert
+            Assert.IsNotNull(pluginApiCalls);
+            Assert.IsFalse(pluginApiCalls.FirstOrDefault()?.IsExecuted);
+            Assert.AreEqual("delete", pluginApiCalls.FirstOrDefault()?.Message);
+            Assert.AreEqual("account", pluginApiCalls.FirstOrDefault()?.EntityInfo.LogicalName);
+        }
+
+        [TestMethod]
+        public void ShouldRecognizeNotExecutedCallsButOtherContextCallsSuccessfully()
+        {
+            // Arrange
+            // Act
+            var apiCalls = _pluginGraphAnalyzer.Analyze([
+                "PentaWork.Xrm.Tests.Plugins.TestPluginServiceContextWithProxyNoSaveButOtherContext"]);
+            var pluginApiCalls = apiCalls.FirstOrDefault().Value;
+
+            // Assert
+            Assert.IsTrue(pluginApiCalls.Count == 2);
+            Assert.IsTrue(pluginApiCalls.Any(p => p.IsExecuted));
+            Assert.IsTrue(pluginApiCalls.Any(p => !p.IsExecuted));
+        }
+
+        [TestMethod]
+        public void ShouldRecognizeAttachedAndClearedCallsSuccessfully()
+        {
+            // Arrange
+            // Act
+            var apiCalls = _pluginGraphAnalyzer.Analyze([
+                "PentaWork.Xrm.Tests.Plugins.TestPluginServiceContextWithProxyClearsChangesAndAddsSomeAgain"]);
+            var pluginApiCalls = apiCalls.FirstOrDefault().Value;
+
+            // Assert
+            Assert.IsTrue(pluginApiCalls.Count == 2);
+            Assert.IsTrue(pluginApiCalls.Any(p => p.IsExecuted));
+            Assert.IsTrue(pluginApiCalls.Any(p => !p.IsExecuted));
         }
     }
 }

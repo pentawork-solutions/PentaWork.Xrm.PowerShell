@@ -31,10 +31,8 @@ namespace PentaWork.Xrm.PluginGraph
                 var executeMethod = pluginType.Methods.SingleOrDefault(m => m.Name == "Execute");
                 if (executeMethod == null) continue;
 
-                var instructions = executeMethod.Body.Instructions;
-
                 var vm = new PluginGraphVM(ModuleList);
-                apiCalls.Add(pluginType.FullName, vm.Execute(instructions).Item1);
+                apiCalls.Add(pluginType.FullName, vm.Execute(executeMethod).Item1);
             }
 
             return apiCalls;

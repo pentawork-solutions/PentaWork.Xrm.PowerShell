@@ -1,10 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Management.Automation;
-using Microsoft.Xrm.Sdk;
+﻿using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
 using PentaWork.Xrm.PowerShell.Common;
+using System.Management.Automation;
 
 namespace PentaWork.Xrm.PowerShell.Verbs
 {
@@ -17,6 +15,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     /// </summary>
     public class SolutionInfo
     {
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public string UniqueName { get; set; }
         public Version Version { get; set; }
@@ -48,7 +47,9 @@ namespace PentaWork.Xrm.PowerShell.Verbs
 
             Connection
                 .Query(solutionQuery, true)
-                .Select(e => new SolutionInfo {
+                .Select(e => new SolutionInfo
+                {
+                    Id = e.Id,
                     Name = e.Attributes["friendlyname"].ToString(),
                     UniqueName = e.Attributes["uniquename"].ToString(),
                     Version = new Version(e.Attributes["version"].ToString()),

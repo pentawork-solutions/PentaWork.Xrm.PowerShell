@@ -14,6 +14,16 @@ namespace PentaWork.Xrm.PluginGraph
 
         public Dictionary<string, List<XrmApiCall>> Analyze(List<string>? pluginTypeFullNames = null)
         {
+            //var pluginInfos = AnalyzePlugins();
+            return AnalyzeApiCalls(pluginTypeFullNames);
+        }
+
+        private void AnalyzePlugins()
+        {
+        }
+
+        private Dictionary<string, List<XrmApiCall>> AnalyzeApiCalls(List<string>? pluginTypeFullNames = null)
+        {
             var apiCalls = new Dictionary<string, List<XrmApiCall>>();
 
             var assemblyList = Directory.GetFiles(PluginPath, "*.dll");

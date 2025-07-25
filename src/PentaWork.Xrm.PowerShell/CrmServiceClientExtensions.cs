@@ -3,14 +3,21 @@ using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
-using System;
-using System.Collections.Generic;
 using System.ServiceModel;
 
 namespace PentaWork.Xrm.PowerShell.Common
 {
     internal static class CrmServiceClientExtensions
     {
+        public static List<Entity> QueryEntity(this CrmServiceClient client, string logicalName, bool getAll, params ConditionExpression[] conditions)
+        {
+            var query = new QueryExpression(logicalName);
+            query.ColumnSet = new ColumnSet(true);
+            conditions?.ToList().ForEach(query.Criteria.AddCondition);
+
+            return client.Query(query, getAll);
+        }
+
         public static List<Entity> Query(this CrmServiceClient client, QueryExpression query, bool getAll = false)
         {
             var entities = new List<Entity>();

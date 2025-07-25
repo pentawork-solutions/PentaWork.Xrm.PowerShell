@@ -20,7 +20,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\BaseProxy.tt"
+    #line 1 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\BaseProxy.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "17.0.0.0")]
     public partial class BaseProxy : BaseProxyBase
     {
@@ -33,7 +33,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             this.Write("using Microsoft.Xrm.Sdk;\r\nusing System;\r\nusing System.Collections;\r\nusing System." +
                     "Collections.Generic;\r\nusing System.Linq;\r\n\r\nnamespace ");
             
-            #line 14 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\BaseProxy.tt"
+            #line 14 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\BaseProxy.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ProxyNamespace));
             
             #line default
@@ -99,7 +99,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             return this.GenerationEnvironment.ToString();
         }
         
-        #line 128 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\BaseProxy.tt"
+        #line 128 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\BaseProxy.tt"
 
 public string ProxyNamespace { get; set; }
 
@@ -129,7 +129,7 @@ public string ProxyNamespace { get; set; }
         /// <summary>
         /// The string builder that generation-time code is using to assemble generated output
         /// </summary>
-        protected System.Text.StringBuilder GenerationEnvironment
+        public System.Text.StringBuilder GenerationEnvironment
         {
             get
             {

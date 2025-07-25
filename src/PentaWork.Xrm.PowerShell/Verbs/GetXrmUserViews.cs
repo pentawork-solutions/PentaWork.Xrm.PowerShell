@@ -1,11 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Management.Automation;
-using Microsoft.Xrm.Sdk;
+﻿using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
 using PentaWork.Xrm.PowerShell.Common;
-using Microsoft.Xrm.Sdk.Query;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Management.Automation;
 
 namespace PentaWork.Xrm.PowerShell
 {
@@ -50,7 +50,7 @@ namespace PentaWork.Xrm.PowerShell
 
             var processed = 0;
             var userObjects = new List<UserObjectInfo>();
-            foreach(var user in users)
+            foreach (var user in users)
             {
                 WriteProgress(new ProgressRecord(0, "Retrieving", $"Retrieving views for user '{user["fullname"]}' ...") { PercentComplete = 20 + (80 * processed++ / users.Count) });
                 userObjects.AddRange(GetUserObjects(user));

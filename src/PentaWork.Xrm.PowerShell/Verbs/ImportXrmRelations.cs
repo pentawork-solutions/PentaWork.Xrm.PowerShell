@@ -38,8 +38,6 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     [Cmdlet(VerbsData.Import, "XrmRelations")]
     public class ImportXrmRelations : PSCmdlet
     {
-        private List<Entity> _relationEntities = new List<Entity>();
-
         protected override void ProcessRecord()
         {
             int processedEntities = 0;

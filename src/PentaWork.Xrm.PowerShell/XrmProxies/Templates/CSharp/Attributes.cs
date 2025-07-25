@@ -15,7 +15,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\Attributes.tt"
+    #line 1 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\Attributes.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "17.0.0.0")]
     public partial class Attributes : AttributesBase
     {
@@ -27,7 +27,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
         {
             this.Write("using System;\r\n\r\nnamespace ");
             
-            #line 3 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\Attributes.tt"
+            #line 3 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\Attributes.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ProxyNamespace));
             
             #line default
@@ -39,7 +39,7 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates.CSharp
             return this.GenerationEnvironment.ToString();
         }
         
-        #line 16 "C:\Users\GerritGazic\Git\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\Attributes.tt"
+        #line 16 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PowerShell\XrmProxies\Templates\CSharp\Attributes.tt"
 
 public string ProxyNamespace { get; set; }
 
@@ -69,7 +69,7 @@ public string ProxyNamespace { get; set; }
         /// <summary>
         /// The string builder that generation-time code is using to assemble generated output
         /// </summary>
-        protected System.Text.StringBuilder GenerationEnvironment
+        public System.Text.StringBuilder GenerationEnvironment
         {
             get
             {

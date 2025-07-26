@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
+using PentaWork.Xrm.PluginGraph;
 using PentaWork.Xrm.PluginGraph.Model.XrmInfoObjects;
 using PentaWork.Xrm.PowerShell.Common;
 using System.Management.Automation;
@@ -22,14 +23,13 @@ namespace PentaWork.Xrm.PowerShell.Verbs
         public int ComponentType { get; set; }
     }
     #endregion
-
     [OutputType(typeof(EntityData))]
     [Cmdlet(VerbsData.Export, "PluginGraphs")]
     public class ExportPluginGraphs : PSCmdlet
     {
         protected override void ProcessRecord()
         {
-            IEnumerable<ComponentInfo> solutionComponents = null;
+            IEnumerable<ComponentInfo>? solutionComponents = null;
             if (SolutionInfo != null)
             {
                 // We are fetching the solution components first, instead of filtering the plugin types based on the solution id.
@@ -39,36 +39,47 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                     .QueryEntity("solutioncomponent", true, new ConditionExpression("solutionid", ConditionOperator.Equal, SolutionInfo.Id))
                     .Select(e => new ComponentInfo(e));
             }
-
             var pluginInfos = GetPluginSteps(solutionComponents);
+            var pluginGraphAnalyzer = new PluginGraphAnalyzer(pluginInfos, null);
+            pluginGraphAnalyzer.Analyze();
 
             var l = "";
         }
 
-        private IEnumerable<PluginStepInfo> GetPluginSteps(IEnumerable<ComponentInfo> componentInfos)
+        private IEnumerable<PluginStepInfo> GetPluginSteps(IEnumerable<ComponentInfo>? componentInfos)
         {
             var query = new QueryExpression("sdkmessageprocessingstep");
             query.ColumnSet = new ColumnSet(true);
 
             // SDK Message Filters
-            query.LinkEntities.Add(new LinkEntity("sdkmessageprocessingstep", "sdkmessagefilter", "sdkmessagefilterid", "sdkmessagefilterid", JoinOperator.Inner));
-            query.LinkEntities[0].Columns.AddColumns("primaryobjecttypecode", "secondaryobjecttypecode");
-            query.LinkEntities[0].EntityAlias = "sdmessagefilter";
+            var linkedFilters = new LinkEntity("sdkmessageprocessingstep", "sdkmessagefilter", "sdkmessagefilterid", "sdkmessagefilterid", JoinOperator.Inner);
+            query.LinkEntities.Add(linkedFilters);
+            linkedFilters.Columns.AddColumns("primaryobjecttypecode", "secondaryobjecttypecode");
+            linkedFilters.EntityAlias = "sdmessagefilter";
 
             // PluginTypes
-            query.LinkEntities.Add(new LinkEntity("sdkmessageprocessingstep", "plugintype", "eventhandler", "plugintypeid", JoinOperator.Inner));
-            query.LinkEntities[1].Columns.AddColumns("plugintypeexportkey", "typename", "assemblyname", "pluginassemblyid");
-            query.LinkEntities[1].EntityAlias = "plugintype";
+            var linkedPluginTypes = new LinkEntity("sdkmessageprocessingstep", "plugintype", "eventhandler", "plugintypeid", JoinOperator.Inner);
+            query.LinkEntities.Add(linkedPluginTypes);
+            linkedPluginTypes.Columns.AddColumns("plugintypeexportkey", "typename", "assemblyname", "pluginassemblyid");
+            linkedPluginTypes.EntityAlias = "plugintype";
 
             // SDK Message
-            query.LinkEntities.Add(new LinkEntity("sdkmessageprocessingstep", "sdkmessage", "sdkmessageid", "sdkmessageid", JoinOperator.Inner));
-            query.LinkEntities[2].Columns.AddColumns("name");
-            query.LinkEntities[2].EntityAlias = "sdkmessage";
+            var linkedMessages = new LinkEntity("sdkmessageprocessingstep", "sdkmessage", "sdkmessageid", "sdkmessageid", JoinOperator.Inner);
+            query.LinkEntities.Add(linkedMessages);
+            linkedMessages.Columns.AddColumns("name");
+            linkedMessages.EntityAlias = "sdkmessage";
 
             // Plugin Assembly
-            query.LinkEntities.Add(new LinkEntity("plugintype", "pluginassembly", "plugintype.pluginassemblyid", "pluginassemblyid", JoinOperator.Inner));
-            query.LinkEntities[3].Columns.AddColumns("name", "packageid");
-            query.LinkEntities[3].EntityAlias = "pluginassembly";
+            var linkedAssemblies = new LinkEntity("plugintype", "pluginassembly", "pluginassemblyid", "pluginassemblyid", JoinOperator.Inner);
+            linkedPluginTypes.LinkEntities.Add(linkedAssemblies);
+            linkedAssemblies.Columns.AddColumns("name", "packageid");
+            linkedAssemblies.EntityAlias = "pluginassembly";
+
+            // Packages
+            var linkedPackages = new LinkEntity("pluginassembly", "pluginpackage", "packageid", "pluginpackageid", JoinOperator.Inner);
+            linkedAssemblies.LinkEntities.Add(linkedPackages);
+            linkedPackages.Columns.AddColumns("name", "package");
+            linkedPackages.EntityAlias = "pluginpackage";
 
             if (componentInfos?.Any() == true)
                 query.Criteria.AddCondition("sdkmessageprocessingstepid", ConditionOperator.In,
@@ -95,7 +106,13 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                         Id = ((EntityReference)e["eventhandler"]).Id,
                         PlugintypeExportKey = (string)((AliasedValue)e["plugintype.plugintypeexportkey"]).Value,
                         TypeName = (string)((AliasedValue)e["plugintype.typename"]).Value,
-                        AssemblyName = (string)((AliasedValue)e["plugintype.assemblyname"]).Value,
+                        AssemblyName = (string)((AliasedValue)e["pluginassembly.name"]).Value,
+                        PackageName = e.Contains("pluginpackage.name")
+                            ? (string)((AliasedValue)e["pluginpackage.name"]).Value
+                            : null,
+                        PackageFileId = e.Contains("pluginpackage.package")
+                            ? (Guid)((AliasedValue)e["pluginpackage.package"]).Value
+                            : null,
                     },
                     SdkMessage = new SdkMessageInfo
                     {

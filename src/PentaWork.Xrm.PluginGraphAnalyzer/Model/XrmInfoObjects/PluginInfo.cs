@@ -6,5 +6,7 @@
         public string? PlugintypeExportKey { get; set; }
         public string? TypeName { get; set; }
         public string? AssemblyName { get; set; }
+        public string? PackageName { get; set; }
+        public Guid? PackageFileId { get; set; }
     }
 }

@@ -1,20 +1,28 @@
-﻿using dnlib.DotNet;
-using PentaWork.Xrm.PluginGraph.Model;
+﻿using PentaWork.Xrm.PluginGraph.Model;
+using PentaWork.Xrm.PluginGraph.Model.GraphObjects;
 using PentaWork.Xrm.PluginGraph.Model.VMObjects;
-using System.Diagnostics;
+using PentaWork.Xrm.PluginGraph.Model.XrmInfoObjects;
 
 namespace PentaWork.Xrm.PluginGraph
 {
     public class PluginGraphAnalyzer
     {
-        public PluginGraphAnalyzer(string pluginPath)
+        private readonly IEnumerable<PluginStepInfo> _pluginStepInfos;
+        private readonly IEnumerable<byte[]>? _pluginPackages;
+
+        private readonly PluginModuleList _moduleList = new();
+
+        public PluginGraphAnalyzer(IEnumerable<PluginStepInfo> pluginStepInfos, IEnumerable<byte[]>? pluginPackages = null)
         {
-            PluginPath = pluginPath;
+            _pluginStepInfos = pluginStepInfos;
+            _pluginPackages = pluginPackages;
         }
 
         public Dictionary<string, List<XrmApiCall>> Analyze(List<string>? pluginTypeFullNames = null)
         {
-            //var pluginInfos = AnalyzePlugins();
+            var entityGraphList = new EntityGraphList();
+            _pluginStepInfos.ToList().ForEach(entityGraphList.Add);
+
             return AnalyzeApiCalls(pluginTypeFullNames);
         }
 
@@ -26,7 +34,7 @@ namespace PentaWork.Xrm.PluginGraph
         {
             var apiCalls = new Dictionary<string, List<XrmApiCall>>();
 
-            var assemblyList = Directory.GetFiles(PluginPath, "*.dll");
+            /* var assemblyList = Directory.GetFiles(PluginPath, "*.dll");
             foreach (var assemblyFile in assemblyList)
             {
                 var module = ModuleDefMD.Load(assemblyFile);
@@ -44,12 +52,10 @@ namespace PentaWork.Xrm.PluginGraph
 
                 var vm = new PluginGraphVM(ModuleList);
                 apiCalls.Add(pluginType.FullName, vm.Execute(executeMethod).Item1);
-            }
+            }*/
 
             return apiCalls;
         }
 
-        public string PluginPath { get; }
-        public PluginModuleList ModuleList { get; } = new();
     }
 }

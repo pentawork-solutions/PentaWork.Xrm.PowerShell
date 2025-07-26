@@ -1,0 +1,24 @@
+﻿using PentaWork.Xrm.PluginGraph.Model.XrmInfoObjects;
+
+namespace PentaWork.Xrm.PluginGraph.Model.GraphObjects
+{
+    internal class MessageGraph
+    {
+        public MessageGraph(string message)
+        {
+            Message = message;
+        }
+
+        public void Add(PluginStepInfo pluginStepInfo)
+        {
+            if (!Stages.ContainsKey((Stage)pluginStepInfo.Stage))
+            {
+                Stages.Add((Stage)pluginStepInfo.Stage, new List<PluginStepInfo>());
+            }
+            Stages[(Stage)pluginStepInfo.Stage].Add(pluginStepInfo);
+        }
+
+        public string Message { get; }
+        public Dictionary<Stage, List<PluginStepInfo>> Stages { get; } = new();
+    }
+}

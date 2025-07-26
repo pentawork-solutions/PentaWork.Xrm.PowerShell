@@ -7,6 +7,8 @@
         public int? Stage { get; set; }
         public int? Rank { get; set; }
         public int? StateCode { get; set; }
+        public int? StatusCode { get; set; }
+        public bool AsyncAutoDelete { get; set; }
         public string? Name { get; set; }
         public string? Category { get; set; }
         public string? FilteringAttributes { get; set; }

@@ -4,9 +4,6 @@ using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
 using PentaWork.Xrm.PowerShell.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Management.Automation;
 
 namespace PentaWork.Xrm.PowerShell.Verbs
@@ -95,7 +92,6 @@ namespace PentaWork.Xrm.PowerShell.Verbs
         public AccessRights AccessMask { get; set; }
     }
     #endregion
-
     /// <summary>
     /// <para type="synopsis">Lists all entities of the given entity type.</para>
     /// <para type="description">

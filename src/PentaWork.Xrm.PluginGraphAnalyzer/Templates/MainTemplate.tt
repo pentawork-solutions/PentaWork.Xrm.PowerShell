@@ -1,0 +1,40 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="PentaWork.Xrm.PluginGraph.Model.GraphObjects" #>
+
+# <#= EntityGraph.EntityName #>
+
+// Warnings
+
+<# foreach(var messageGraph in EntityGraph.Messages){ #>
+## <#= messageGraph.Message #>
+
+<# foreach(var (stage, pluginStepInfos) in messageGraph.Stages.Select(d => (d.Key, d.Value))){ #>
+### <#= stage.ToString() #>
+
+<# foreach(var pluginStepInfo in pluginStepInfos) { #>
+- <#= pluginStepInfo.Name #>
+
+<# } #>
+<# } #>
+
+### Diagram
+
+```mermaid
+flowchart
+<# foreach(var (stage, pluginStepInfos) in messageGraph.Stages.Select(d => (d.Key, d.Value))){ #>
+    subgraph <#= stage.ToString() #>
+<# foreach(var pluginStepInfo in pluginStepInfos) { #>
+        <#= pluginStepInfo.Id #>(<#= pluginStepInfo.Name #>)
+<# } #>
+    end
+<# } #>
+```
+<# } #>
+
+<#+
+public EntityGraph EntityGraph { get; set; }
+#>

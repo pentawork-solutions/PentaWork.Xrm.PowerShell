@@ -2,7 +2,7 @@
 
 namespace PentaWork.Xrm.PluginGraph.Model.GraphObjects
 {
-    internal class MessageGraph
+    public class MessageGraph
     {
         public MessageGraph(string message)
         {

@@ -12,7 +12,7 @@ namespace PentaWork.Xrm.PluginGraph
     {
         private readonly PluginModuleList _moduleList = new();
 
-        public void AnalyzeSystem(CrmServiceClient connection, Guid? solutionId = null)
+        public EntityGraphList AnalyzeSystem(CrmServiceClient connection, Guid? solutionId = null)
         {
             IEnumerable<ComponentInfo>? solutionComponents = null;
             if (solutionId != null)
@@ -27,6 +27,8 @@ namespace PentaWork.Xrm.PluginGraph
 
             var entityGraphList = new EntityGraphList();
             pluginsStepInfos.ToList().ForEach(entityGraphList.Add);
+
+            return entityGraphList;
         }
 
         /*    public Dictionary<string, List<XrmApiCall>> AnalyzePluginStepInfos(IEnumerable<PluginStepInfo> pluginStepInfos)
@@ -39,6 +41,16 @@ namespace PentaWork.Xrm.PluginGraph
 
 
 
+        /*  private IDictionary<string, byte[]> DownloadPackages(IEnumerable<PluginStepInfo> pluginStepInfos)
+          {
+              var packageIds = pluginStepInfos
+                  .Where(p => p.Plugin != null)
+                  .Select(p => (p.Plugin!.PackageName, p.Plugin.PackageFileId))
+                  .DistinctBy(p => p.PackageFileId);
+              return packageIds
+                  .Select(p => (p.PackageName!, DownloadFile(new EntityReference("pluginpackage", p.PackageFileId!.Value), "package")))
+                  .ToDictionary(p => p.Item1, p => p.Item2);
+          } */
 
         private Dictionary<string, List<XrmApiCall>> AnalyzeApiCalls(List<string>? pluginTypeFullNames = null)
         {

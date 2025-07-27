@@ -10,25 +10,14 @@ namespace PentaWork.Xrm.PowerShell.Verbs
     {
         protected override void ProcessRecord()
         {
+            if (Clear && OutputPath.Exists) Directory.Delete(OutputPath.FullName, true);
+            if (!Directory.Exists(OutputPath.FullName)) Directory.CreateDirectory(OutputPath.FullName);
+
             var pluginGraphAnalyzer = new PluginGraphAnalyzer();
-            pluginGraphAnalyzer.AnalyzeSystem(Connection, SolutionInfo?.Id);
+            var entityGraphList = pluginGraphAnalyzer.AnalyzeSystem(Connection, SolutionInfo?.Id);
 
-            var l = "";
+            entityGraphList.ForEach(e => File.WriteAllText(Path.Combine(OutputPath.FullName, $"{e.EntityName}.md"), e.ToMarkdown()));
         }
-
-
-        /*  private IDictionary<string, byte[]> DownloadPackages(IEnumerable<PluginStepInfo> pluginStepInfos)
-          {
-              var packageIds = pluginStepInfos
-                  .Where(p => p.Plugin != null)
-                  .Select(p => (p.Plugin!.PackageName, p.Plugin.PackageFileId))
-                  .DistinctBy(p => p.PackageFileId);
-              return packageIds
-                  .Select(p => (p.PackageName!, DownloadFile(new EntityReference("pluginpackage", p.PackageFileId!.Value), "package")))
-                  .ToDictionary(p => p.Item1, p => p.Item2);
-          } */
-
-
 
         /// <summary>
         /// <para type="description">The connection to the XRM Organization (Get-CrmConnection).</para>
@@ -48,5 +37,17 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             ValueFromPipeline = true,
             ValueFromPipelineByPropertyName = true)]
         public SolutionInfo? SolutionInfo { get; set; }
+
+        /// <summary>
+        /// <para type="description">The output path for the markdown files.</para>
+        /// </summary>
+        [Parameter(Mandatory = true)]
+        public DirectoryInfo OutputPath { get; set; }
+
+        /// <summary>
+        /// <para type="description">Clear the output folder before generating markdowns.</para>
+        /// </summary>
+        [Parameter]
+        public SwitchParameter Clear { get; set; }
     }
 }

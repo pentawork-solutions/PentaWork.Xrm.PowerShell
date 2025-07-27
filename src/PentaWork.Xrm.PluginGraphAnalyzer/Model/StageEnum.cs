@@ -1,6 +1,6 @@
 ﻿namespace PentaWork.Xrm.PluginGraph.Model
 {
-    internal enum Stage
+    public enum Stage
     {
         PreValidation = 10,
         PreOperation = 20,

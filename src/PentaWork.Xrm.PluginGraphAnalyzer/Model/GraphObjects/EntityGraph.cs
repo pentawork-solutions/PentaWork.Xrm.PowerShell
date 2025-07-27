@@ -1,8 +1,9 @@
 ﻿using PentaWork.Xrm.PluginGraph.Model.XrmInfoObjects;
+using PentaWork.Xrm.PluginGraph.Templates;
 
 namespace PentaWork.Xrm.PluginGraph.Model.GraphObjects
 {
-    internal class EntityGraph
+    public class EntityGraph
     {
         public EntityGraph(string entityName)
         {
@@ -18,6 +19,12 @@ namespace PentaWork.Xrm.PluginGraph.Model.GraphObjects
                 Messages.Add(message);
             }
             message.Add(pluginStepInfo);
+        }
+
+        public string ToMarkdown()
+        {
+            var mainTemplate = new MainTemplate { EntityGraph = this };
+            return mainTemplate.TransformText();
         }
 
         public string EntityName { get; }

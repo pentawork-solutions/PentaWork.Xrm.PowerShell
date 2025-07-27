@@ -6,10 +6,10 @@ namespace PentaWork.Xrm.PluginGraph.Model.GraphObjects
     {
         public void Add(PluginStepInfo pluginStepInfo)
         {
-            var entity = this.SingleOrDefault(e => e.EntityName == pluginStepInfo.SdkFilter.PrimaryObjectTypecode);
+            var entity = this.SingleOrDefault(e => e.EntityName == pluginStepInfo.PrimaryEntityName);
             if (entity == null)
             {
-                entity = new EntityGraph(pluginStepInfo.SdkFilter.PrimaryObjectTypecode);
+                entity = new EntityGraph(pluginStepInfo.PrimaryEntityName);
                 Add(entity);
             }
             entity.Add(pluginStepInfo);

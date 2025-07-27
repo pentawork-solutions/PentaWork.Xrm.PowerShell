@@ -11,9 +11,10 @@
         public bool AsyncAutoDelete { get; set; }
         public string? Name { get; set; }
         public string? Category { get; set; }
+        public string? SdkMessage { get; set; }
         public string? FilteringAttributes { get; set; }
+        public string? PrimaryEntityName { get; set; }
+        public string? SecondaryEntityName { get; set; }
         public PluginInfo? Plugin { get; set; }
-        public SdkMessageInfo? SdkMessage { get; set; }
-        public SdkFilterInfo? SdkFilter { get; set; }
     }
 }

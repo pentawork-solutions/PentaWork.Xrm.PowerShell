@@ -11,10 +11,10 @@ namespace PentaWork.Xrm.PluginGraph.Model.GraphObjects
 
         public void Add(PluginStepInfo pluginStepInfo)
         {
-            var message = Messages.SingleOrDefault(e => e.Message == pluginStepInfo.SdkMessage.Name);
+            var message = Messages.SingleOrDefault(e => e.Message == pluginStepInfo.SdkMessage);
             if (message == null)
             {
-                message = new MessageGraph(pluginStepInfo.SdkMessage.Name);
+                message = new MessageGraph(pluginStepInfo.SdkMessage);
                 Messages.Add(message);
             }
             message.Add(pluginStepInfo);

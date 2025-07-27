@@ -1,4 +1,7 @@
-﻿using PentaWork.Xrm.PluginGraph.Model;
+﻿using Microsoft.Xrm.Sdk.Query;
+using Microsoft.Xrm.Tooling.Connector;
+using PentaWork.Xrm.PluginGraph.Extensions;
+using PentaWork.Xrm.PluginGraph.Model;
 using PentaWork.Xrm.PluginGraph.Model.GraphObjects;
 using PentaWork.Xrm.PluginGraph.Model.VMObjects;
 using PentaWork.Xrm.PluginGraph.Model.XrmInfoObjects;
@@ -7,28 +10,35 @@ namespace PentaWork.Xrm.PluginGraph
 {
     public class PluginGraphAnalyzer
     {
-        private readonly IEnumerable<PluginStepInfo> _pluginStepInfos;
-        private readonly IEnumerable<byte[]>? _pluginPackages;
-
         private readonly PluginModuleList _moduleList = new();
 
-        public PluginGraphAnalyzer(IEnumerable<PluginStepInfo> pluginStepInfos, IEnumerable<byte[]>? pluginPackages = null)
+        public void AnalyzeSystem(CrmServiceClient connection, Guid? solutionId = null)
         {
-            _pluginStepInfos = pluginStepInfos;
-            _pluginPackages = pluginPackages;
-        }
+            IEnumerable<ComponentInfo>? solutionComponents = null;
+            if (solutionId != null)
+            {
+                // We are fetching the solution components first, instead of filtering the plugin types based on the solution id.
+                // This way this module also works for unmanaged solutions -> Unmanaged Plugin Types are part of the default solution.
+                solutionComponents = connection
+                    .QueryEntity("solutioncomponent", true, new ConditionExpression("solutionid", ConditionOperator.Equal, solutionId))
+                    .Select(e => new ComponentInfo(e));
+            }
+            var pluginsStepInfos = connection.GetPluginSteps(solutionComponents);
 
-        public Dictionary<string, List<XrmApiCall>> Analyze(List<string>? pluginTypeFullNames = null)
-        {
             var entityGraphList = new EntityGraphList();
-            _pluginStepInfos.ToList().ForEach(entityGraphList.Add);
-
-            return AnalyzeApiCalls(pluginTypeFullNames);
+            pluginsStepInfos.ToList().ForEach(entityGraphList.Add);
         }
 
-        private void AnalyzePlugins()
-        {
-        }
+        /*    public Dictionary<string, List<XrmApiCall>> AnalyzePluginStepInfos(IEnumerable<PluginStepInfo> pluginStepInfos)
+            {
+                var entityGraphList = new EntityGraphList();
+                _pluginStepInfos.ToList().ForEach(entityGraphList.Add);
+
+                return AnalyzeApiCalls(pluginTypeFullNames);
+            } */
+
+
+
 
         private Dictionary<string, List<XrmApiCall>> AnalyzeApiCalls(List<string>? pluginTypeFullNames = null)
         {

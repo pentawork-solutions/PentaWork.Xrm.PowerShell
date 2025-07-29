@@ -15,9 +15,23 @@
 <# foreach(var (stage, pluginStepInfos) in messageGraph.Stages.Select(d => (d.Key, d.Value))){ #>
 ### <#= stage.ToString() #>
 
-<# foreach(var pluginStepInfo in pluginStepInfos) { #>
-- <#= pluginStepInfo.Name #>
+<# var modeGroups = pluginStepInfos.GroupBy(p => p.Async);
+   foreach(var modeGroup in modeGroups) { #>
+#### <#= modeGroup.Key ? "Async" : "Sync" #>
 
+<# var rankedGroups = modeGroup.GroupBy(p => p.Rank);
+   foreach(var rankedGroup in rankedGroups.OrderBy(r => r.Key)) { #>
+**Order <#= rankedGroup.Key == null ? "(default)" : rankedGroup.Key #>**
+
+<# foreach(var pluginStepInfo in rankedGroup) { #>
+- `<#= pluginStepInfo.Name #>`
+<# if(pluginStepInfo.AsyncAutoDelete) { #>  - **Auto Delete Async Operations**
+<# } #>
+<# if(pluginStepInfo.FilteringAttributes != null) { #>  <#= $"- **Filtering Attributes**: {string.Join(", ", pluginStepInfo.FilteringAttributes)}" #>
+<# } #>
+<# } #>
+
+<# } #>
 <# } #>
 <# } #>
 

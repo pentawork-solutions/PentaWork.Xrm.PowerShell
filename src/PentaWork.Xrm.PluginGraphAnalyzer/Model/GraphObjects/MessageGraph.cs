@@ -11,11 +11,11 @@ namespace PentaWork.Xrm.PluginGraph.Model.GraphObjects
 
         public void Add(PluginStepInfo pluginStepInfo)
         {
-            if (!Stages.ContainsKey((Stage)pluginStepInfo.Stage))
+            if (!Stages.ContainsKey(pluginStepInfo.Stage))
             {
-                Stages.Add((Stage)pluginStepInfo.Stage, new List<PluginStepInfo>());
+                Stages.Add(pluginStepInfo.Stage, new List<PluginStepInfo>());
             }
-            Stages[(Stage)pluginStepInfo.Stage].Add(pluginStepInfo);
+            Stages[pluginStepInfo.Stage].Add(pluginStepInfo);
         }
 
         public string Message { get; }

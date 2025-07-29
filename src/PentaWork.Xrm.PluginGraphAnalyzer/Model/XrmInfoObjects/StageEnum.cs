@@ -1,4 +1,4 @@
-﻿namespace PentaWork.Xrm.PluginGraph.Model
+﻿namespace PentaWork.Xrm.PluginGraph.Model.XrmInfoObjects
 {
     public enum Stage
     {

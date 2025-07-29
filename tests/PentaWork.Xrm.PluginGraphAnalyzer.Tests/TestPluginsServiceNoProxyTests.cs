@@ -1,27 +1,56 @@
-﻿using PentaWork.Xrm.PluginGraph;
+﻿using dnlib.DotNet;
+using PentaWork.Xrm.PluginGraph;
+using PentaWork.Xrm.PluginGraph.Model;
+using PentaWork.Xrm.PluginGraph.Model.XrmInfoObjects;
 
 namespace PentaWork.Xrm.PluginGraphTests
 {
     [TestClass]
     public sealed class TestPluginsServiceNoProxyTests
     {
-        private PluginGraphAnalyzer _pluginGraphAnalyzer;
+        private Dictionary<Guid, PluginModuleList> _moduleList;
+        private readonly PluginGraphAnalyzer _pluginGraphAnalyzer = new PluginGraphAnalyzer();
+        private readonly PluginStepInfo _pluginStepInfo = new PluginStepInfo
+        {
+            Plugin = new PluginInfo
+            {
+                AssemblyInfo = new AssemblyInfo
+                {
+                    Name = "PentaWork.Xrm.Tests.Plugins",
+                },
+                PackageInfo = new PackageInfo
+                {
+                    Id = new Guid("f305f42a-c37a-487a-a4b0-521b946315b6")
+                }
+            }
+        };
 
         [TestInitialize]
         public void Initialize()
         {
             var testAssemblyPath = GetType().Assembly.Location;
             var pluginAssemblyPath = Path.Combine(testAssemblyPath, "..\\..\\..\\..\\..\\PentaWork.Xrm.Tests.Plugins\\bin\\Debug\\net462");
-            _pluginGraphAnalyzer = new PluginGraphAnalyzer(pluginAssemblyPath);
+            var assemblyList = Directory.GetFiles(pluginAssemblyPath, "*.dll", SearchOption.AllDirectories);
+
+            var moduleList = new PluginModuleList();
+            foreach (var assemblyFile in assemblyList)
+            {
+                moduleList.Add(ModuleDefMD.Load(assemblyFile));
+            }
+            _moduleList = new Dictionary<Guid, PluginModuleList>
+            {
+                { new Guid("f305f42a-c37a-487a-a4b0-521b946315b6"), moduleList }
+            };
         }
 
         [TestMethod]
         public void ShouldAnalyseServiceCreateWithoutProxiesSuccessfully()
         {
             // Arrange
+            _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginServiceCreate";
+
             // Act
-            var apiCalls = _pluginGraphAnalyzer.Analyze([
-                "PentaWork.Xrm.Tests.Plugins.TestPluginServiceCreate"]);
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo]);
             var pluginApiCalls = apiCalls.FirstOrDefault().Value;
 
             // Assert
@@ -35,9 +64,10 @@ namespace PentaWork.Xrm.PluginGraphTests
         public void ShouldAnalyseServiceUpdateWithoutProxiesSuccessfully()
         {
             // Arrange
+            _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginServiceUpdate";
+
             // Act
-            var apiCalls = _pluginGraphAnalyzer.Analyze([
-                "PentaWork.Xrm.Tests.Plugins.TestPluginServiceUpdate"]);
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo]);
             var pluginApiCalls = apiCalls.FirstOrDefault().Value;
 
             // Assert
@@ -51,9 +81,10 @@ namespace PentaWork.Xrm.PluginGraphTests
         public void ShouldAnalyseServiceDeleteWithoutProxiesSuccessfully()
         {
             // Arrange
+            _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginServiceDelete";
+
             // Act
-            var apiCalls = _pluginGraphAnalyzer.Analyze([
-                "PentaWork.Xrm.Tests.Plugins.TestPluginServiceDelete"]);
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo]);
             var pluginApiCalls = apiCalls.FirstOrDefault().Value;
 
             // Assert

@@ -82,16 +82,15 @@ namespace PentaWork.Xrm.PluginGraph.Extensions
                 .Select(e => new PluginStepInfo
                 {
                     Id = e.Id,
-                    Mode = ((OptionSetValue)e["mode"]).Value,
-                    Stage = ((OptionSetValue)e["stage"]).Value,
+                    Async = ((OptionSetValue)e["mode"]).Value == 1,
                     Rank = (int)e["rank"],
-                    StateCode = ((OptionSetValue)e["statecode"]).Value,
-                    StatusCode = ((OptionSetValue)e["statuscode"]).Value,
+                    Active = ((OptionSetValue)e["statecode"]).Value == 0,
                     AsyncAutoDelete = (bool)e["asyncautodelete"],
                     Name = (string)e["name"],
+                    Stage = (Stage)((OptionSetValue)e["stage"]).Value,
                     Category = e.Contains("category") ? (string)e["category"] : null,
                     SdkMessage = e.AV<string>("sdkmessage.name"),
-                    FilteringAttributes = e.Contains("filteringattributes") ? (string)e["filteringattributes"] : null,
+                    FilteringAttributes = e.Contains("filteringattributes") ? ((string)e["filteringattributes"]).Split(',').ToList() : null,
                     PrimaryEntityName = e.AV<string>("sdmessagefilter.primaryobjecttypecode"),
                     SecondaryEntityName = e.AV<string>("sdmessagefilter.secondaryobjecttypecode"),
                     Plugin = new PluginInfo

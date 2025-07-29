@@ -1,18 +1,66 @@
-﻿using Microsoft.Xrm.Sdk.Query;
+﻿using dnlib.DotNet;
+using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
 using PentaWork.Xrm.PluginGraph.Extensions;
 using PentaWork.Xrm.PluginGraph.Model;
 using PentaWork.Xrm.PluginGraph.Model.GraphObjects;
 using PentaWork.Xrm.PluginGraph.Model.VMObjects;
 using PentaWork.Xrm.PluginGraph.Model.XrmInfoObjects;
+using System.IO.Compression;
 
 namespace PentaWork.Xrm.PluginGraph
 {
     public class PluginGraphAnalyzer
     {
-        private readonly PluginModuleList _moduleList = new();
-
         public EntityGraphList AnalyzeSystem(CrmServiceClient connection, Guid? solutionId = null)
+        {
+            var solutionComponents = GetSolutionComponents(connection, solutionId);
+            var pluginsStepInfos = connection.GetPluginSteps(solutionComponents);
+
+            var moduleLists = LoadModules(connection, pluginsStepInfos);
+            AnalyzeApiCalls(moduleLists, pluginsStepInfos);
+
+            var entityGraphList = new EntityGraphList();
+            pluginsStepInfos.ToList().ForEach(entityGraphList.Add);
+
+            return entityGraphList;
+        }
+
+        public Dictionary<string, List<XrmApiCall>> AnalyzeApiCalls(Dictionary<Guid, PluginModuleList> moduleLists, IEnumerable<PluginStepInfo> pluginStepInfos)
+        {
+            var apiCalls = new Dictionary<string, List<XrmApiCall>>();
+
+            foreach (var pluginStepInfo in pluginStepInfos)
+            {
+                var moduleId = pluginStepInfo.Plugin!.PackageInfo != null
+                    ? pluginStepInfo.Plugin.PackageInfo.Id
+                    : pluginStepInfo.Plugin.AssemblyInfo!.Id;
+                var moduleList = moduleLists[moduleId];
+                var pluginType = moduleList
+                    .Single(m => m.Assembly.Name == pluginStepInfo.Plugin.AssemblyInfo.Name)
+                    .GetTypes()
+                    .Single(t => t.FullName == pluginStepInfo.Plugin.TypeName);
+
+                var method = pluginType.Methods.SingleOrDefault(m => m.Name == "Execute");
+                if (method == null)
+                {
+                    while (pluginType.BaseType != null)
+                    {
+                        pluginType = pluginType.BaseType.ResolveTypeDef();
+                        method = pluginType.Methods.SingleOrDefault(m => m.Name == "Execute");
+                        if (method != null) break;
+                    }
+                }
+
+                var vm = new PluginGraphVM(moduleLists[moduleId]);
+                apiCalls.Add(pluginStepInfo.Plugin.TypeName, vm.Execute(method).Item1);
+            }
+
+            return apiCalls;
+        }
+
+        private IEnumerable<ComponentInfo>? GetSolutionComponents(CrmServiceClient connection, Guid? solutionId)
         {
             IEnumerable<ComponentInfo>? solutionComponents = null;
             if (solutionId != null)
@@ -23,61 +71,59 @@ namespace PentaWork.Xrm.PluginGraph
                     .QueryEntity("solutioncomponent", true, new ConditionExpression("solutionid", ConditionOperator.Equal, solutionId))
                     .Select(e => new ComponentInfo(e));
             }
-            var pluginsStepInfos = connection.GetPluginSteps(solutionComponents);
-
-            var entityGraphList = new EntityGraphList();
-            pluginsStepInfos.ToList().ForEach(entityGraphList.Add);
-
-            return entityGraphList;
+            return solutionComponents;
         }
 
-        /*    public Dictionary<string, List<XrmApiCall>> AnalyzePluginStepInfos(IEnumerable<PluginStepInfo> pluginStepInfos)
-            {
-                var entityGraphList = new EntityGraphList();
-                _pluginStepInfos.ToList().ForEach(entityGraphList.Add);
-
-                return AnalyzeApiCalls(pluginTypeFullNames);
-            } */
-
-
-
-        /*  private IDictionary<string, byte[]> DownloadPackages(IEnumerable<PluginStepInfo> pluginStepInfos)
-          {
-              var packageIds = pluginStepInfos
-                  .Where(p => p.Plugin != null)
-                  .Select(p => (p.Plugin!.PackageName, p.Plugin.PackageFileId))
-                  .DistinctBy(p => p.PackageFileId);
-              return packageIds
-                  .Select(p => (p.PackageName!, DownloadFile(new EntityReference("pluginpackage", p.PackageFileId!.Value), "package")))
-                  .ToDictionary(p => p.Item1, p => p.Item2);
-          } */
-
-        private Dictionary<string, List<XrmApiCall>> AnalyzeApiCalls(List<string>? pluginTypeFullNames = null)
+        private Dictionary<Guid, PluginModuleList> LoadModules(CrmServiceClient connection, IEnumerable<PluginStepInfo> pluginsStepInfos)
         {
-            var apiCalls = new Dictionary<string, List<XrmApiCall>>();
+            var packageIds = pluginsStepInfos
+                .Where(p => p.Plugin?.PackageInfo != null)
+                .Select(p => p.Plugin!.PackageInfo!.Id)
+                .Distinct()
+                .ToList();
+            var assemblyIds = pluginsStepInfos
+                .Where(p => p.Plugin?.PackageInfo == null)
+                .Select(p => p.Plugin!.PackageInfo!.Id)
+                .Distinct()
+                .ToList();
 
-            /* var assemblyList = Directory.GetFiles(PluginPath, "*.dll");
-            foreach (var assemblyFile in assemblyList)
+            var packages = packageIds.Select(p => (p, connection.DownloadFile(new EntityReference("pluginpackage", p), "package")));
+            var assemblies = assemblyIds.Select(a => (a, Convert.FromBase64String((string)connection.Retrieve("pluginassembly", a, new ColumnSet("content"))["content"])));
+            var tmpPath = Path.Combine(Path.GetTempPath(), "pluginGraphAnalyzer");
+
+            var pluginModuleLists = new Dictionary<Guid, PluginModuleList>();
+            foreach (var package in packages)
             {
-                var module = ModuleDefMD.Load(assemblyFile);
-                ModuleList.Add(module);
+                Directory.CreateDirectory(tmpPath);
+                var zipPath = Path.Combine(tmpPath, "tmp.zip");
+                File.WriteAllBytes(zipPath, package.Item2);
+                ZipFile.ExtractToDirectory(zipPath, tmpPath);
+
+                var moduleList = new PluginModuleList();
+                var assemblyList = Directory.GetFiles(tmpPath, "*.dll", SearchOption.AllDirectories);
+                foreach (var assemblyFile in assemblyList)
+                {
+                    var module = ModuleDefMD.Load(assemblyFile);
+                    moduleList.Add(module);
+                }
+
+                Directory.Delete(tmpPath, true);
+                pluginModuleLists.Add(package.p, moduleList);
             }
-            Debug.WriteLine($"Found {ModuleList.Count} assemblies...");
 
-            var pluginTypes = ModuleList.SelectMany(m => m.GetTypes().Where(t => t.Interfaces.Any(i => i.Interface.Name == "IPlugin")));
-            Debug.WriteLine($"Found {pluginTypes.Count()} plugins...");
-
-            foreach (var pluginType in pluginTypes.Where(p => pluginTypeFullNames == null || pluginTypeFullNames.Contains(p.FullName)))
+            Directory.CreateDirectory(tmpPath);
+            foreach (var assembly in assemblies)
             {
-                var executeMethod = pluginType.Methods.SingleOrDefault(m => m.Name == "Execute");
-                if (executeMethod == null) continue;
+                var assemblyPath = Path.Combine(tmpPath, "tmp.dll");
+                File.WriteAllBytes(assemblyPath, assembly.Item2);
+                var moduleList = new PluginModuleList { ModuleDefMD.Load(assemblyPath) };
 
-                var vm = new PluginGraphVM(ModuleList);
-                apiCalls.Add(pluginType.FullName, vm.Execute(executeMethod).Item1);
-            }*/
+                File.Delete(assemblyPath);
+                pluginModuleLists.Add(assembly.a, moduleList);
+            }
+            Directory.Delete(tmpPath, true);
 
-            return apiCalls;
+            return pluginModuleLists;
         }
-
     }
 }

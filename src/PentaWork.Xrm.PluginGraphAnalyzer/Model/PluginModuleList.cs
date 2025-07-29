@@ -4,6 +4,12 @@ namespace PentaWork.Xrm.PluginGraph.Model
 {
     public class PluginModuleList : List<ModuleDefMD>
     {
+        public new void Add(ModuleDefMD moduleDef)
+        {
+            if (this.SingleOrDefault(s => s.FullName == moduleDef.FullName) == null)
+                base.Add(moduleDef);
+        }
+
         public MethodDef? TryFindMethod(string declaringTypeFullName, string methodFullName)
         {
             MethodDef? methodDef = null;

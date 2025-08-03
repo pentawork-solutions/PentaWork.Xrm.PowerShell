@@ -6,7 +6,7 @@ using PentaWork.Xrm.PluginGraph.Model.XrmInfoObjects;
 namespace PentaWork.Xrm.PluginGraphTests
 {
     [TestClass]
-    public sealed class TestPluginRequestsWithProxyTests
+    public sealed class TestPluginWithBaseClassesTests
     {
         private Dictionary<Guid, PluginModuleList> _moduleList;
         private readonly PluginGraphAnalyzer _pluginGraphAnalyzer = new PluginGraphAnalyzer();
@@ -44,10 +44,10 @@ namespace PentaWork.Xrm.PluginGraphTests
         }
 
         [TestMethod]
-        public void ShouldAnalyseRequestCreateWithProxiesSuccessfully()
+        public void ShouldAnalyseServiceCreateWithBaseClassSuccessfully()
         {
             // Arrange
-            _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginRequestsWithProxyCreate";
+            _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginWithBaseClasses";
 
             // Act
             var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo]);
@@ -55,7 +55,7 @@ namespace PentaWork.Xrm.PluginGraphTests
 
             // Assert
             Assert.IsNotNull(pluginApiCalls);
-            Assert.AreEqual("Create", pluginApiCalls.FirstOrDefault()?.Message);
+            Assert.AreEqual("create", pluginApiCalls.FirstOrDefault()?.Message);
             Assert.AreEqual(2, pluginApiCalls.FirstOrDefault()?.EntityInfo.UsedFields.Count);
             Assert.AreEqual("account", pluginApiCalls.FirstOrDefault()?.EntityInfo.LogicalName);
         }

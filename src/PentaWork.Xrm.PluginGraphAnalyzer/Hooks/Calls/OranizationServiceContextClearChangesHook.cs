@@ -1,15 +1,15 @@
 ﻿using dnlib.DotNet;
-using PentaWork.Xrm.PluginGraph.Model;
 using PentaWork.Xrm.PluginGraph.Model.VMObjects;
 
 namespace PentaWork.Xrm.PluginGraph.Hooks.Calls
 {
     internal class OranizationServiceContextClearChangesHook : ICallHook
     {
-        public void ExecuteHook(PluginGraphVMData vmData, IMethod method, MethodDef? methodDef, List<object> parameters)
+        public XrmApiCall? ExecuteHook(IMethod method, MethodDef? methodDef, List<object> parameters, ref Stack<object> stack)
         {
             var serviceContext = (ServiceContextObj)parameters[0];
             serviceContext.ClearQueue();
+            return null;
         }
 
         public bool HookApplicable(IMethod method, MethodDef? methodDef, List<object> parameters) =>

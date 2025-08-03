@@ -1,15 +1,16 @@
 ﻿using dnlib.DotNet;
-using PentaWork.Xrm.PluginGraph.Model;
+using PentaWork.Xrm.PluginGraph.Model.VMObjects;
 using System.Diagnostics;
 
 namespace PentaWork.Xrm.PluginGraph.Hooks.Calls
 {
     internal class EntityGetAttributesCallHook : ICallHook
     {
-        public void ExecuteHook(PluginGraphVMData vmData, IMethod method, MethodDef? methodDef, List<object> parameters)
+        public XrmApiCall? ExecuteHook(IMethod method, MethodDef? methodDef, List<object> parameters, ref Stack<object> stack)
         {
-            vmData.Stack.Push(parameters[0]);
-            Debug.WriteLine($"[↑ {vmData.Stack.Count}] Return value from {method.FullName}");
+            stack.Push(parameters[0]);
+            Debug.WriteLine($"[↑ {stack.Count}] Return value from {method.FullName}");
+            return null;
         }
 
         public bool HookApplicable(IMethod method, MethodDef? methodDef, List<object> parameters) =>

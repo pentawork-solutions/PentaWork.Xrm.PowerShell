@@ -1,5 +1,4 @@
 ﻿using dnlib.DotNet;
-using PentaWork.Xrm.PluginGraph.Model;
 using PentaWork.Xrm.PluginGraph.Model.VMObjects;
 using System.Diagnostics;
 
@@ -7,13 +6,15 @@ namespace PentaWork.Xrm.PluginGraph.Hooks.Calls
 {
     internal class OranizationServiceExecuteCallHook : ICallHook
     {
-        public void ExecuteHook(PluginGraphVMData vmData, IMethod method, MethodDef? methodDef, List<object> parameters)
+        public XrmApiCall? ExecuteHook(IMethod method, MethodDef? methodDef, List<object> parameters, ref Stack<object> stack)
         {
             var apiCall = (XrmApiCall)parameters[1];
             apiCall.IsExecuted = true;
 
-            vmData.Stack.Push($"Dummy return value for '{method.FullName}'");
-            Debug.WriteLine($"[↑ {vmData.Stack.Count}] Return value from {method.FullName}");
+            stack.Push($"Dummy return value for '{method.FullName}'");
+            Debug.WriteLine($"[↑ {stack.Count}] Return value from {method.FullName}");
+
+            return null;
         }
 
         public bool HookApplicable(IMethod method, MethodDef? methodDef, List<object> parameters) =>

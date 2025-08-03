@@ -33,6 +33,8 @@ namespace PentaWork.Xrm.PluginGraph
 
             foreach (var pluginStepInfo in pluginStepInfos)
             {
+                if (apiCalls.ContainsKey(pluginStepInfo.Plugin.TypeName)) continue;
+
                 var moduleId = pluginStepInfo.Plugin!.PackageInfo != null
                     ? pluginStepInfo.Plugin.PackageInfo.Id
                     : pluginStepInfo.Plugin.AssemblyInfo!.Id;
@@ -45,16 +47,17 @@ namespace PentaWork.Xrm.PluginGraph
                 var method = pluginType.Methods.SingleOrDefault(m => m.Name == "Execute");
                 if (method == null)
                 {
-                    while (pluginType.BaseType != null)
+                    var baseType = pluginType.BaseType?.ResolveTypeDef();
+                    while (baseType != null)
                     {
-                        pluginType = pluginType.BaseType.ResolveTypeDef();
-                        method = pluginType.Methods.SingleOrDefault(m => m.Name == "Execute");
+                        method = baseType.Methods.SingleOrDefault(m => m.Name == "Execute");
                         if (method != null) break;
+                        else baseType = baseType.BaseType?.ResolveTypeDef();
                     }
                 }
 
                 var vm = new PluginGraphVM(moduleLists[moduleId]);
-                apiCalls.Add(pluginStepInfo.Plugin.TypeName, vm.Execute(method).Item1);
+                apiCalls.Add(pluginStepInfo.Plugin.TypeName, vm.Execute(method, [pluginType]).Item1);
             }
 
             return apiCalls;

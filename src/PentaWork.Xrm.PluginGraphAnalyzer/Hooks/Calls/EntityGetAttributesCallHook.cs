@@ -6,7 +6,7 @@ namespace PentaWork.Xrm.PluginGraph.Hooks.Calls
 {
     internal class EntityGetAttributesCallHook : ICallHook
     {
-        public XrmApiCall? ExecuteHook(IMethod method, MethodDef? methodDef, List<object> parameters, ref Stack<object> stack)
+        public XrmApiCall? ExecuteHook(IMethod method, MethodDef? methodDef, List<object> parameters, Stack<object> stack)
         {
             stack.Push(parameters[0]);
             Debug.WriteLine($"[↑ {stack.Count}] Return value from {method.FullName}");

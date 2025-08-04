@@ -6,6 +6,6 @@ namespace PentaWork.Xrm.PluginGraph.Hooks
     internal interface IHook
     {
         bool HookApplicable(IMethod method, MethodDef? methodDef, List<object> parameters);
-        XrmApiCall? ExecuteHook(IMethod method, MethodDef? methodDef, List<object> parameters, ref Stack<object> stack);
+        XrmApiCall? ExecuteHook(IMethod method, MethodDef? methodDef, List<object> parameters, Stack<object> stack);
     }
 }

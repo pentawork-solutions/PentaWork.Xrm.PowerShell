@@ -110,5 +110,23 @@ namespace PentaWork.Xrm.PluginGraphTests
             Assert.AreEqual(2, pluginApiCalls.FirstOrDefault()?.EntityInfo.UsedFields.Count);
             Assert.AreEqual("account", pluginApiCalls.FirstOrDefault()?.EntityInfo.LogicalName);
         }
+
+        [TestMethod]
+        public void ShouldAnalyseRecursionSuccessfully()
+        {
+            // Arrange
+            _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginWithRecursions";
+
+            // Act
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo]);
+            var pluginApiCalls = apiCalls.FirstOrDefault().Value;
+
+            // Assert
+            Assert.IsNotNull(pluginApiCalls);
+            Assert.IsTrue(pluginApiCalls.FirstOrDefault()?.EntityInfo.CallLoopHit);
+            Assert.AreEqual("create", pluginApiCalls.FirstOrDefault()?.Message);
+            Assert.AreEqual(2, pluginApiCalls.FirstOrDefault()?.EntityInfo.UsedFields.Count);
+            Assert.AreEqual("account", pluginApiCalls.FirstOrDefault()?.EntityInfo.LogicalName);
+        }
     }
 }

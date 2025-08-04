@@ -5,10 +5,11 @@ namespace PentaWork.Xrm.PluginGraph.Hooks.Calls
 {
     internal class SetAttributeCallHook : ICallHook
     {
-        public XrmApiCall? ExecuteHook(IMethod method, MethodDef? methodDef, List<object> parameters, ref Stack<object> stack)
+        public XrmApiCall? ExecuteHook(IMethod method, MethodDef? methodDef, List<object> parameters, Stack<object> stack)
         {
             var entity = (EntityObj)parameters[0];
-            entity.UsedFields.Add((string)parameters[1]);
+            if (!entity.UsedFields.Contains((string)parameters[1]))
+                entity.UsedFields.Add((string)parameters[1]);
 
             return null;
         }

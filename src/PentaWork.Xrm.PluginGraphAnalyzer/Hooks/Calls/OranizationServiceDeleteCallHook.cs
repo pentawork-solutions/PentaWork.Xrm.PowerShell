@@ -6,7 +6,7 @@ namespace PentaWork.Xrm.PluginGraph.Hooks.Calls
 {
     internal class OranizationServiceDeleteCallHook : ICallHook
     {
-        public XrmApiCall? ExecuteHook(IMethod method, MethodDef? methodDef, List<object> parameters, ref Stack<object> stack)
+        public XrmApiCall? ExecuteHook(IMethod method, MethodDef? methodDef, List<object> parameters, Stack<object> stack)
         {
             var apiCall = new XrmApiCall();
             apiCall.Message = "delete";

@@ -6,7 +6,7 @@ namespace PentaWork.Xrm.PluginGraph.Hooks.Calls
 {
     internal class OranizationServiceExecuteCallHook : ICallHook
     {
-        public XrmApiCall? ExecuteHook(IMethod method, MethodDef? methodDef, List<object> parameters, ref Stack<object> stack)
+        public XrmApiCall? ExecuteHook(IMethod method, MethodDef? methodDef, List<object> parameters, Stack<object> stack)
         {
             var apiCall = (XrmApiCall)parameters[1];
             apiCall.IsExecuted = true;
@@ -18,6 +18,8 @@ namespace PentaWork.Xrm.PluginGraph.Hooks.Calls
         }
 
         public bool HookApplicable(IMethod method, MethodDef? methodDef, List<object> parameters) =>
-             method.FullName == "Microsoft.Xrm.Sdk.OrganizationResponse Microsoft.Xrm.Sdk.IOrganizationService::Execute(Microsoft.Xrm.Sdk.OrganizationRequest)" && parameters[1] is XrmApiCall;
+            parameters.Count > 1
+            && parameters[1] is XrmApiCall
+            && method.FullName == "Microsoft.Xrm.Sdk.OrganizationResponse Microsoft.Xrm.Sdk.IOrganizationService::Execute(Microsoft.Xrm.Sdk.OrganizationRequest)";
     }
 }

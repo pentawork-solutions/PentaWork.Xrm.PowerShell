@@ -2,9 +2,10 @@
 {
     public class GenericObj : IVMObj
     {
-        public GenericObj(string name)
+        public GenericObj(string name, bool isRecursiveReturnValue = false)
         {
             Name = name;
+            IsRecursiveReturnValue = isRecursiveReturnValue;
         }
 
         /// <summary>
@@ -41,6 +42,7 @@
         }
 
         public string Name { get; }
+        public bool IsRecursiveReturnValue { get; } = false;
         public Dictionary<string, object> Fields { get; } = new Dictionary<string, object>();
     }
 }

@@ -59,5 +59,54 @@ namespace PentaWork.Xrm.PluginGraphTests
             Assert.AreEqual(2, pluginApiCalls.FirstOrDefault()?.EntityInfo.UsedFields.Count);
             Assert.AreEqual("account", pluginApiCalls.FirstOrDefault()?.EntityInfo.LogicalName);
         }
+
+        [TestMethod]
+        public void ShouldAnalyseRequestUpdateWithProxiesSuccessfully()
+        {
+            // Arrange
+            _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginRequestsWithProxyUpdate";
+
+            // Act
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");
+            var pluginApiCalls = apiCalls.FirstOrDefault().Value;
+
+            // Assert
+            Assert.IsNotNull(pluginApiCalls);
+            Assert.AreEqual("update", pluginApiCalls.FirstOrDefault()?.Message);
+            Assert.AreEqual(2, pluginApiCalls.FirstOrDefault()?.EntityInfo.UsedFields.Count);
+            Assert.AreEqual("account", pluginApiCalls.FirstOrDefault()?.EntityInfo.LogicalName);
+        }
+
+        [TestMethod]
+        public void ShouldAnalyseRequestDeleteWithProxiesSuccessfully()
+        {
+            // Arrange
+            _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginRequestsWithProxyDelete";
+
+            // Act
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");
+            var pluginApiCalls = apiCalls.FirstOrDefault().Value;
+
+            // Assert
+            Assert.IsNotNull(pluginApiCalls);
+            Assert.AreEqual("delete", pluginApiCalls.FirstOrDefault()?.Message);
+            Assert.AreEqual(0, pluginApiCalls.FirstOrDefault()?.EntityInfo.UsedFields.Count);
+            Assert.AreEqual("account", pluginApiCalls.FirstOrDefault()?.EntityInfo.LogicalName);
+        }
+
+        [TestMethod]
+        public void ShouldAnalyseRequestExecuteWithProxiesSuccessfully()
+        {
+            // Arrange
+            _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginRequestsWithProxyExecute";
+
+            // Act
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");
+            var pluginApiCalls = apiCalls.FirstOrDefault().Value;
+
+            // Assert
+            Assert.IsNotNull(pluginApiCalls);
+            Assert.AreEqual("pw_TestMessage", pluginApiCalls.FirstOrDefault()?.Message);
+        }
     }
 }

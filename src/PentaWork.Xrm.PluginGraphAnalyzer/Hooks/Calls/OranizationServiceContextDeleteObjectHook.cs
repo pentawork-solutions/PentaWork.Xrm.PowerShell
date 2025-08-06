@@ -3,7 +3,7 @@ using PentaWork.Xrm.PluginGraph.Model.VMObjects;
 
 namespace PentaWork.Xrm.PluginGraph.Hooks.Calls
 {
-    internal class OranizationServiceContextDeleteObjectHook : ICallHook
+    internal class OranizationServiceContextDeleteObjectHook : IHook
     {
         public XrmApiCall? ExecuteHook(IMethod method, MethodDef? methodDef, List<object> parameters, Stack<object> stack)
         {

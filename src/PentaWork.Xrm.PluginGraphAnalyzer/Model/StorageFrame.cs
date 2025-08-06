@@ -5,18 +5,33 @@ namespace PentaWork.Xrm.PluginGraph.Model
 {
     public class StorageFrame
     {
-        public StorageFrame(MethodDef methodDef, StorageFrame? parentFrame = null)
+        private readonly Stack<Stack<object>> _savedStack = new();
+
+        public StorageFrame(MethodDef methodDef, List<object>? parameters = null, StorageFrame? parentFrame = null)
         {
             MethodDef = methodDef;
+            Parameters = parameters;
 
             if (parentFrame != null)
             {
                 ParentFrame = parentFrame;
-                CallStack = new Stack<string>(parentFrame.CallStack);
+                CallStack = new Stack<string>(parentFrame.CallStack.Reverse()); // Necessary, because the ctor iterates over the items, so we have to feed them in reverse
             }
         }
 
+        public void SaveStack()
+        {
+            _savedStack.Push(new Stack<object>(Stack.Reverse()));
+        }
+
+        public void RestoreStack()
+        {
+            if (_savedStack.Count == 0) throw new Exception("No Stack Saved!");
+            Stack = _savedStack.Pop();
+        }
+
         public StorageFrame? ParentFrame { get; }
+        public List<object>? Parameters { get; }
 
         public MethodDef MethodDef { get; }
         public Stack<string> CallStack { get; } = new();

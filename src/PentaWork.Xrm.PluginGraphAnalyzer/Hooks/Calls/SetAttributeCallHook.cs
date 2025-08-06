@@ -3,7 +3,7 @@ using PentaWork.Xrm.PluginGraph.Model.VMObjects;
 
 namespace PentaWork.Xrm.PluginGraph.Hooks.Calls
 {
-    internal class SetAttributeCallHook : ICallHook
+    internal class SetAttributeCallHook : IHook
     {
         public XrmApiCall? ExecuteHook(IMethod method, MethodDef? methodDef, List<object> parameters, Stack<object> stack)
         {
@@ -17,6 +17,7 @@ namespace PentaWork.Xrm.PluginGraph.Hooks.Calls
         public bool HookApplicable(IMethod method, MethodDef? methodDef, List<object> parameters) =>
             parameters.Count > 0 && parameters[0] is EntityObj && method.FullName is
                 "System.Void Microsoft.Xrm.Sdk.Entity::SetAttributeValue(System.String,System.Object)" or
-                "System.Void Microsoft.Xrm.Sdk.DataCollection`2<System.String,System.Object>::set_Item(System.String,System.Object)";
+                "System.Void Microsoft.Xrm.Sdk.DataCollection`2<System.String,System.Object>::set_Item(System.String,System.Object)" or
+                "System.Void Microsoft.Xrm.Sdk.Entity::set_Item(System.String,System.Object)";
     }
 }

@@ -4,6 +4,7 @@ using PentaWork.Xrm.PluginGraph.Hooks;
 using PentaWork.Xrm.PluginGraph.Model;
 using PentaWork.Xrm.PluginGraph.Model.VMObjects;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace PentaWork.Xrm.PluginGraph
 {
@@ -18,12 +19,15 @@ namespace PentaWork.Xrm.PluginGraph
     {
         private readonly List<IHook> _callHooks;
         private readonly PluginModuleList _moduleList;
+        private readonly List<string> _analyzeNamespaces;
 
         private StorageFrame? _storageFrame;
 
-        public PluginGraphVM(PluginModuleList moduleList)
+        public PluginGraphVM(PluginModuleList moduleList, List<string> analyzeNamespaces)
         {
             _moduleList = moduleList;
+            _analyzeNamespaces = analyzeNamespaces;
+
             _callHooks = GetType().Assembly.GetTypes()
                 .Where(type => typeof(IHook).IsAssignableFrom(type) && type.IsClass && !type.IsAbstract)
                 .Select(t => (IHook)Activator.CreateInstance(t))
@@ -39,14 +43,14 @@ namespace PentaWork.Xrm.PluginGraph
         /// <returns></returns>
         public (List<XrmApiCall>, object?) Execute(MethodDef methodDef, List<object>? parameters = null, StorageFrame? parentFrame = null)
         {
-            _storageFrame = new StorageFrame(methodDef, parentFrame);
-            Execute(methodDef.Body.Instructions, parameters);
+            _storageFrame = new StorageFrame(methodDef, parameters, parentFrame);
+            Execute(methodDef.Body.Instructions);
             var (apiCalls, returnValue) = (_storageFrame.ApiCalls, _storageFrame.Stack.Count > 0 ? _storageFrame.Stack.Pop() : null);
             if (_storageFrame?.ParentFrame != null) _storageFrame = _storageFrame.ParentFrame;
             return (apiCalls, returnValue);
         }
 
-        private void Execute(IList<Instruction> instructions, List<object>? parameters = null)
+        private void Execute(IList<Instruction> instructions)
         {
             if (_storageFrame == null) throw new Exception("Frame is null!");
 
@@ -58,26 +62,26 @@ namespace PentaWork.Xrm.PluginGraph
                 {
                     #region Loads and Stores
                     case Code.Ldarg_0:
-                        _storageFrame.Stack.Push(parameters?.Count > 0 ? parameters[0] : $"Dummy Value for '{instr.OpCode}'");
+                        _storageFrame.Stack.Push(_storageFrame.Parameters?.Count > 0 ? _storageFrame.Parameters[0] : $"Dummy Value for '{instr.OpCode}'");
                         Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Load argument 0 onto stack");
                         break;
                     case Code.Ldarg_1:
-                        _storageFrame.Stack.Push(parameters?.Count > 1 ? parameters[1] : $"Dummy Value for '{instr.OpCode}'");
+                        _storageFrame.Stack.Push(_storageFrame.Parameters?.Count > 1 ? _storageFrame.Parameters[1] : $"Dummy Value for '{instr.OpCode}'");
                         Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Load argument 1 onto stack");
                         break;
                     case Code.Ldarg_2:
-                        _storageFrame.Stack.Push(parameters?.Count > 2 ? parameters[2] : $"Dummy Value for '{instr.OpCode}'");
+                        _storageFrame.Stack.Push(_storageFrame.Parameters?.Count > 2 ? _storageFrame.Parameters[2] : $"Dummy Value for '{instr.OpCode}'");
                         Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Load argument 2 onto stack");
                         break;
                     case Code.Ldarg_3:
-                        _storageFrame.Stack.Push(parameters?.Count > 3 ? parameters[3] : $"Dummy Value for '{instr.OpCode}'");
+                        _storageFrame.Stack.Push(_storageFrame.Parameters?.Count > 3 ? _storageFrame.Parameters[3] : $"Dummy Value for '{instr.OpCode}'");
                         Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Load argument 3 onto stack");
                         break;
                     case Code.Ldarg:
                     case Code.Ldarg_S:
                         {
                             var operand = (Parameter)instr.Operand;
-                            _storageFrame.Stack.Push(parameters?.Count > operand.Index ? parameters[operand.Index] : $"Dummy Value for '{instr.OpCode}'");
+                            _storageFrame.Stack.Push(_storageFrame.Parameters?.Count > operand.Index ? _storageFrame.Parameters[operand.Index] : $"Dummy Value for '{instr.OpCode}'");
                             Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Load argument at index onto stack");
                             break;
                         }
@@ -122,6 +126,12 @@ namespace PentaWork.Xrm.PluginGraph
                             }
                             break;
                         }
+                    case Code.Starg:
+                    case Code.Starg_S:
+                        // TODO
+                        _storageFrame.Stack.Pop();
+                        Debug.WriteLine($"[↓ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Stores value into parameter slot TODO");
+                        break;
                     case Code.Ldloc_0:
                         _storageFrame.Stack.Push(_storageFrame.LocalVars[0]);
                         Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Loads the local variable at index 0 onto the evaluation stack");
@@ -190,10 +200,12 @@ namespace PentaWork.Xrm.PluginGraph
                     case Code.Call:
                     case Code.Calli:
                     case Code.Callvirt:
-                        index = HandleCall(instr, index, false);
+                        Debug.WriteLine($"[∙ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr}");
+                        HandleCall(instr, false);
                         break;
                     case Code.Newobj:
-                        index = HandleCall(instr, index, true);
+                        Debug.WriteLine($"[∙ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr}");
+                        HandleCall(instr, true);
                         break;
                     #endregion
                     #region Branchings
@@ -219,13 +231,31 @@ namespace PentaWork.Xrm.PluginGraph
                     case Code.Beq_S:
                         _storageFrame.Stack.Pop();
                         _storageFrame.Stack.Pop();
+                        Debug.WriteLine($"[↓ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr}");
+
+                        index = HandleBranch(instructions, instr, index);
                         break;
                     case Code.Brfalse:
                     case Code.Brfalse_S:
                     case Code.Brtrue:
                     case Code.Brtrue_S:
                         _storageFrame.Stack.Pop(); // pop the test value
+                        Debug.WriteLine($"[↓ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr}");
+
+                        index = HandleBranch(instructions, instr, index);
                         break;
+                    case Code.Switch:
+                        {
+                            _storageFrame.Stack.Pop();
+                            Debug.WriteLine($"[↓ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr}");
+
+                            var operands = (Instruction[])instr.Operand;
+                            foreach (var operand in operands)
+                            {
+                                index = HandleBranch(instructions, instr, index);
+                            }
+                            break;
+                        }
                     case Code.Br:
                     case Code.Br_S:
                         Debug.WriteLine($"[∙ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr}");
@@ -291,6 +321,8 @@ namespace PentaWork.Xrm.PluginGraph
                     case Code.Ldelem_U1:
                     case Code.Ldelem_U2:
                     case Code.Ldelem_U4:
+                    case Code.Shr:
+                    case Code.Shr_Un:
                         _storageFrame.Stack.Pop();
                         _storageFrame.Stack.Pop();
                         _storageFrame.Stack.Push($"Dummy Value for '{instr.OpCode}'");
@@ -317,6 +349,7 @@ namespace PentaWork.Xrm.PluginGraph
                         break;
                     #endregion
                     #region None Stack Changes
+                    case Code.Ret:
                     case Code.Leave:
                     case Code.Leave_S:
                     case Code.Nop:
@@ -330,6 +363,11 @@ namespace PentaWork.Xrm.PluginGraph
                     case Code.Conv_I2:
                     case Code.Conv_I4:
                     case Code.Conv_I8:
+                    case Code.Conv_U:
+                    case Code.Conv_U1:
+                    case Code.Conv_U2:
+                    case Code.Conv_U4:
+                    case Code.Conv_U8:
                     case Code.Conv_Ovf_I:
                     case Code.Conv_Ovf_I_Un:
                     case Code.Conv_Ovf_I1:
@@ -350,13 +388,12 @@ namespace PentaWork.Xrm.PluginGraph
                     case Code.Conv_Ovf_U4_Un:
                     case Code.Conv_Ovf_U8:
                     case Code.Conv_Ovf_U8_Un:
+                    case Code.Ldind_Ref:
+                    case Code.Constrained:
+                    case Code.Endfinally:
                         Debug.WriteLine($"[∙ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr}");
                         break;
                     #endregion
-                    case Code.Ret:
-                        Debug.WriteLine($"[∙ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr}");
-                        index = instructions.Count; // break loop
-                        break;
                     default:
                         Debug.WriteLine($"NOT IMPLEMENTED {instr.OpCode}");
                         break;
@@ -366,7 +403,7 @@ namespace PentaWork.Xrm.PluginGraph
 
         private void HandleStoreLocal(int varIndex, Instruction? previousInstr = null)
         {
-            if (_storageFrame.Stack.Count == 0 && previousInstr?.IsLeave() == true)
+            if (_storageFrame.Stack.Count == 0 && (previousInstr?.IsLeave() == true || previousInstr?.OpCode.Code == Code.Rethrow))
                 _storageFrame.LocalVars[varIndex] = $"Propably dummy exception";
             else if (_storageFrame.Stack.Peek() is GenericObj vmObj && vmObj.IsRecursiveReturnValue)
             {
@@ -377,10 +414,42 @@ namespace PentaWork.Xrm.PluginGraph
                 _storageFrame.LocalVars[varIndex] = _storageFrame.Stack.Pop();
         }
 
-        private int HandleCall(Instruction instr, int index, bool isNewObj = false)
+        private int HandleBranch(IList<Instruction> instructions, Instruction instr, int index)
+        {
+            var newIndex = index;
+            var operands = instr.Operand is Instruction op
+                ? [op]
+                : (Instruction[])instr.Operand; // switch for example
+
+            foreach (var operand in operands)
+            {
+                if (instr.Offset > operand.Offset)
+                {
+                    Debug.WriteLine($"BRANCHING SKIPPED [JUMP BACK]");
+                    newIndex = index;
+                }
+                else
+                {
+                    var branchInstructions = instructions
+                        .Where(i => i.Offset > instr.Offset && i.Offset < operand.Offset)
+                        .ToList();
+
+                    Debug.WriteLine($"BRANCH EXECUTION");
+                    _storageFrame.SaveStack();
+                    Execute(branchInstructions);
+                    _storageFrame.RestoreStack();
+                    Debug.WriteLine($"END BRANCH EXECUTION");
+
+                    newIndex = 0;
+                    while (newIndex < instructions.Count && instructions[newIndex].Offset != operand.Offset) newIndex++;
+                }
+            }
+            return newIndex;
+        }
+
+        private void HandleCall(Instruction instr, bool isNewObj = false)
         {
             var (method, methodDef, parameters) = GetMethodInfos(instr, isNewObj);
-            Debug.WriteLine($"CALL {instr.ToString()}]");
 
             var hookExecuted = false;
             foreach (var hook in _callHooks)
@@ -391,7 +460,7 @@ namespace PentaWork.Xrm.PluginGraph
                     if (apiCall != null) _storageFrame.ApiCalls.Add(apiCall);
 
                     hookExecuted = true;
-                    Debug.WriteLine($"[∙ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] Hook executed!");
+                    Debug.WriteLine($"[∙ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] Hook executed! ({instr.ToString()})");
                     break;
                 }
             }
@@ -402,10 +471,14 @@ namespace PentaWork.Xrm.PluginGraph
                 // Interpret it to get more call information
                 // Check for possible call loops (recursions)
                 var callLoopHit = methodDef != null && IsCallLoop(methodDef.FullName);
-                if (methodDef != null && methodDef.Body != null && !callLoopHit)
+                var toRegEx = (string value) => "^" + Regex.Escape(value).Replace("\\*", ".*") + "$";
+
+                if (callLoopHit) Debug.WriteLine($"CALL LOOP HIT {methodDef.FullName}");
+                if (methodDef != null && methodDef.Body != null && !callLoopHit && _analyzeNamespaces.Any(n => Regex.IsMatch(methodDef.DeclaringType.ReflectionNamespace, toRegEx(n))))
                 {
+                    Debug.WriteLine($"CALL {instr.ToString()}]");
                     _storageFrame.CallStack.Push(methodDef.FullName);
-                    var vm = new PluginGraphVM(_moduleList);
+                    var vm = new PluginGraphVM(_moduleList, _analyzeNamespaces);
                     var (apicalls, returnValue) = vm.Execute(methodDef, parameters, _storageFrame);
                     _storageFrame.CallStack.Pop();
 
@@ -414,31 +487,31 @@ namespace PentaWork.Xrm.PluginGraph
                     if (returnValue != null)
                     {
                         _storageFrame.Stack.Push(returnValue);
-                        Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] Return value from {methodDef.FullName}");
+                        Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] Return value from {methodDef.FullName} ({_storageFrame.Stack.Peek().GetType()})");
                     }
+
+                    Debug.WriteLine($"ENDCALL {instr.ToString()}]");
                 }
                 else if (method.MethodSig.RetType.FullName != "System.Void")
                 {
                     _storageFrame.Stack.Push(new GenericObj($"Dummy return value for '{method.FullName}'", callLoopHit));
                     Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] Return value from {method.FullName}");
                 }
-
-                if (isNewObj)
-                {
-                    _storageFrame.Stack.Push(((GenericObj)parameters[0]).GetObject());
-                    if (_storageFrame.Stack.Peek() is XrmApiCall apiCall) _storageFrame.ApiCalls.Add(apiCall);
-                    Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] New object {_storageFrame.Stack.Peek().GetType()} created by {method.FullName}");
-                }
             }
-            Debug.WriteLine($"ENDCALL {instr.ToString()}]");
-            return index;
+
+            if (isNewObj)
+            {
+                _storageFrame.Stack.Push(((GenericObj)parameters[0]).GetObject());
+                if (_storageFrame.Stack.Peek() is XrmApiCall apiCall) _storageFrame.ApiCalls.Add(apiCall);
+                Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] New object {_storageFrame.Stack.Peek().GetType()} created by {method.FullName}");
+            }
         }
 
         private (IMethod, MethodDef?, List<object>) GetMethodInfos(Instruction instr, bool isNewObj)
         {
             var method = (IMethod)instr.Operand;
             var reflectionTypeName = method.DeclaringType.ScopeType.FullName;
-            var methodDef = _moduleList.TryFindMethod(reflectionTypeName, method.FullName.Replace(method.DeclaringType.FullName, reflectionTypeName));
+            var methodDef = _moduleList.TryFindMethod(reflectionTypeName, method);
 
             // Get all parameters from the current stack
             var parameters = new List<object>();
@@ -462,7 +535,7 @@ namespace PentaWork.Xrm.PluginGraph
             // If the method is abstract, we have to search the method in the
             // declaring parent type (parameter on index 0).
             methodDef = methodDef != null && methodDef.IsAbstract && parameters.Any() && parameters[0] is TypeDef typeDef
-                ? _moduleList.TryFindMethod(typeDef.FullName, method.FullName.Replace(method.DeclaringType.FullName, typeDef.FullName))
+                ? _moduleList.TryFindMethod(typeDef.FullName, method)
                 : methodDef;
 
             return (method, methodDef, parameters);
@@ -474,11 +547,20 @@ namespace PentaWork.Xrm.PluginGraph
             // Add method name temporally onto the callstack
             _storageFrame.CallStack.Push(methodFullname);
 
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < _storageFrame.CallStack.Count - 1; i++)
             {
-                if (_storageFrame.CallStack.Count % (i + 1) != 0 || _storageFrame.CallStack.Count / (i + 1) < 2) continue;
-                loopDetected = Enumerable.Range(0, _storageFrame.CallStack.Count - 1).All(j => _storageFrame.CallStack.ElementAt(j) == _storageFrame.CallStack.ElementAt(j + i + 1));
+                loopDetected = _storageFrame.CallStack.ElementAt(i) == _storageFrame.CallStack.ElementAt(i + 1);
                 if (loopDetected) break;
+            }
+
+            if (!loopDetected)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    if (_storageFrame.CallStack.Count % (i + 1) != 0 || _storageFrame.CallStack.Count / (i + 1) < 2) continue;
+                    loopDetected = Enumerable.Range(0, _storageFrame.CallStack.Count - 1).All(j => _storageFrame.CallStack.ElementAt(j) == _storageFrame.CallStack.ElementAt(j + i + 1));
+                    if (loopDetected) break;
+                }
             }
 
             // remove the method from the callstack

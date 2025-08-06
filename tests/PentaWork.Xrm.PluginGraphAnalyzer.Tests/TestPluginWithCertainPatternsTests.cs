@@ -50,7 +50,7 @@ namespace PentaWork.Xrm.PluginGraphTests
             _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginWithReturnInExecute";
 
             // Act
-            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo]);
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");
             var pluginApiCalls = apiCalls.FirstOrDefault().Value;
 
             // Assert
@@ -67,7 +67,7 @@ namespace PentaWork.Xrm.PluginGraphTests
             _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginWithTryCatchInExecute";
 
             // Act
-            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo]);
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");
             var pluginApiCalls = apiCalls.FirstOrDefault().Value;
 
             // Assert
@@ -84,7 +84,7 @@ namespace PentaWork.Xrm.PluginGraphTests
             _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginWithContextWrapper";
 
             // Act
-            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo]);
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");
             var pluginApiCalls = apiCalls.FirstOrDefault().Value;
 
             // Assert
@@ -101,7 +101,7 @@ namespace PentaWork.Xrm.PluginGraphTests
             _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginWithRecursions";
 
             // Act
-            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo]);
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");
             var pluginApiCalls = apiCalls.FirstOrDefault().Value;
 
             // Assert
@@ -118,7 +118,7 @@ namespace PentaWork.Xrm.PluginGraphTests
             _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginWithRecursions";
 
             // Act
-            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo]);
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");
             var pluginApiCalls = apiCalls.FirstOrDefault().Value;
 
             // Assert
@@ -126,6 +126,40 @@ namespace PentaWork.Xrm.PluginGraphTests
             Assert.IsTrue(pluginApiCalls.FirstOrDefault()?.EntityInfo.CallLoopHit);
             Assert.AreEqual("create", pluginApiCalls.FirstOrDefault()?.Message);
             Assert.AreEqual(2, pluginApiCalls.FirstOrDefault()?.EntityInfo.UsedFields.Count);
+            Assert.AreEqual("account", pluginApiCalls.FirstOrDefault()?.EntityInfo.LogicalName);
+        }
+
+        [TestMethod]
+        public void ShouldAnalyseLoopSuccessfully()
+        {
+            // Arrange
+            _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginWithLoop";
+
+            // Act
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");
+            var pluginApiCalls = apiCalls.FirstOrDefault().Value;
+
+            // Assert
+            Assert.IsNotNull(pluginApiCalls);
+            Assert.AreEqual("create", pluginApiCalls.FirstOrDefault()?.Message);
+            Assert.AreEqual(2, pluginApiCalls.FirstOrDefault()?.EntityInfo.UsedFields.Count);
+            Assert.AreEqual("account", pluginApiCalls.FirstOrDefault()?.EntityInfo.LogicalName);
+        }
+
+        [TestMethod]
+        public void ShouldAnalyseSwitchCaseSuccessfully()
+        {
+            // Arrange
+            _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginWithSwitchCase";
+
+            // Act
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");
+            var pluginApiCalls = apiCalls.FirstOrDefault().Value;
+
+            // Assert
+            Assert.IsNotNull(pluginApiCalls);
+            Assert.AreEqual("create", pluginApiCalls.FirstOrDefault()?.Message);
+            Assert.AreEqual(5, pluginApiCalls.FirstOrDefault()?.EntityInfo.UsedFields.Count);
             Assert.AreEqual("account", pluginApiCalls.FirstOrDefault()?.EntityInfo.LogicalName);
         }
     }

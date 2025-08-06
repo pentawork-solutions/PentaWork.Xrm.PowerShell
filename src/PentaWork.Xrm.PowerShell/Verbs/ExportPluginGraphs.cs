@@ -14,7 +14,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             if (!Directory.Exists(OutputPath.FullName)) Directory.CreateDirectory(OutputPath.FullName);
 
             var pluginGraphAnalyzer = new PluginGraphAnalyzer();
-            var entityGraphList = pluginGraphAnalyzer.AnalyzeSystem(Connection, SolutionInfo?.Id);
+            var entityGraphList = pluginGraphAnalyzer.AnalyzeSystem(Connection, SolutionInfo.Id, Namespaces);
 
             entityGraphList.ForEach(e => File.WriteAllText(Path.Combine(OutputPath.FullName, $"{e.EntityName}.md"), e.ToMarkdown()));
         }
@@ -36,7 +36,13 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             Mandatory = true,
             ValueFromPipeline = true,
             ValueFromPipelineByPropertyName = true)]
-        public SolutionInfo? SolutionInfo { get; set; }
+        public SolutionInfo SolutionInfo { get; set; }
+
+        /// <summary>
+        /// <para type="description">The namespaces which should get analyzed.</para>
+        /// </summary>
+        [Parameter(Mandatory = true)]
+        public string Namespaces { get; set; }
 
         /// <summary>
         /// <para type="description">The output path for the markdown files.</para>

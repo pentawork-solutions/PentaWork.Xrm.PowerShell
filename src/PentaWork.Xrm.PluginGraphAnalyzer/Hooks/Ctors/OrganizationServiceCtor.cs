@@ -3,19 +3,16 @@ using PentaWork.Xrm.PluginGraph.Model.VMObjects;
 
 namespace PentaWork.Xrm.PluginGraph.Hooks.Calls
 {
-    internal class RequestSetTargetCallHook : IHook
+    internal class OrganizationServiceCtor : IHook
     {
         public XrmApiCall? ExecuteHook(IMethod method, MethodDef? methodDef, List<object> parameters, Stack<object> stack)
         {
-            var apiCall = (XrmApiCall)parameters[0];
-            apiCall.EntityInfo = (EntityObj)parameters[1];
-
+            var genObj = (GenericObj)parameters[0];
+            genObj.Fields["OrganizationServiceContext.Service"] = parameters[1];
             return null;
         }
 
         public bool HookApplicable(IMethod method, MethodDef? methodDef, List<object> parameters) =>
-            parameters.Count > 1
-            && parameters[1] is EntityObj
-            && method.FullName == "System.Void Microsoft.Xrm.Sdk.Messages.CreateRequest::set_Target(Microsoft.Xrm.Sdk.Entity)";
+            method.FullName == "System.Void Microsoft.Xrm.Sdk.Client.OrganizationServiceContext::.ctor(Microsoft.Xrm.Sdk.IOrganizationService)";
     }
 }

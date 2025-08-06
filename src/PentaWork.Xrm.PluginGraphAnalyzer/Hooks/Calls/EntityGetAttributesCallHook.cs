@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace PentaWork.Xrm.PluginGraph.Hooks.Calls
 {
-    internal class EntityGetAttributesCallHook : ICallHook
+    internal class EntityGetAttributesCallHook : IHook
     {
         public XrmApiCall? ExecuteHook(IMethod method, MethodDef? methodDef, List<object> parameters, Stack<object> stack)
         {

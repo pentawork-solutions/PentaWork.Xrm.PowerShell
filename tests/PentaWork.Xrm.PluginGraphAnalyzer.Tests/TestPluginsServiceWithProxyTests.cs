@@ -50,7 +50,7 @@ namespace PentaWork.Xrm.PluginGraphTests
             _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginServiceWithProxyCreate";
 
             // Act
-            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo]);
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");
             var pluginApiCalls = apiCalls.FirstOrDefault().Value;
 
             // Assert
@@ -67,7 +67,7 @@ namespace PentaWork.Xrm.PluginGraphTests
             _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginServiceInMethodWithProxyCreate";
 
             // Act
-            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo]);
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");
             var pluginApiCalls = apiCalls.FirstOrDefault().Value;
 
             // Assert
@@ -84,7 +84,7 @@ namespace PentaWork.Xrm.PluginGraphTests
             _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginServiceInSideMethodWithProxyCreate";
 
             // Act
-            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo]);
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");
             var pluginApiCalls = apiCalls.FirstOrDefault().Value;
 
             // Assert
@@ -101,7 +101,7 @@ namespace PentaWork.Xrm.PluginGraphTests
             _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginServiceDirectWithSideProxyCreate";
 
             // Act
-            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo]);
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");
             var pluginApiCalls = apiCalls.FirstOrDefault().Value;
 
             // Assert

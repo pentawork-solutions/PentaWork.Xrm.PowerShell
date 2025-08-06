@@ -50,7 +50,7 @@ namespace PentaWork.Xrm.PluginGraphTests
             _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginServiceContextWithProxyCreate";
 
             // Act
-            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo]);
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");
             var pluginApiCalls = apiCalls.FirstOrDefault().Value;
 
             // Assert
@@ -68,7 +68,7 @@ namespace PentaWork.Xrm.PluginGraphTests
             _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginServiceContextWithProxyUpdate";
 
             // Act
-            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo]);
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");
             var pluginApiCalls = apiCalls.FirstOrDefault().Value;
 
             // Assert
@@ -86,7 +86,7 @@ namespace PentaWork.Xrm.PluginGraphTests
             _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginServiceContextWithProxyDelete";
 
             // Act
-            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo]);
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");
             var pluginApiCalls = apiCalls.FirstOrDefault().Value;
 
             // Assert
@@ -103,7 +103,7 @@ namespace PentaWork.Xrm.PluginGraphTests
             _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginServiceContextWithProxyDeleteNoSave";
 
             // Act
-            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo]);
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");
             var pluginApiCalls = apiCalls.FirstOrDefault().Value;
 
             // Assert
@@ -120,7 +120,7 @@ namespace PentaWork.Xrm.PluginGraphTests
             _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginServiceContextWithProxyNoSaveButOtherContext";
 
             // Act
-            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo]);
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");
             var pluginApiCalls = apiCalls.FirstOrDefault().Value;
 
             // Assert
@@ -136,7 +136,7 @@ namespace PentaWork.Xrm.PluginGraphTests
             _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginServiceContextWithProxyClearsChangesAndAddsSomeAgain";
 
             // Act
-            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo]);
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");
             var pluginApiCalls = apiCalls.FirstOrDefault().Value;
 
             // Assert

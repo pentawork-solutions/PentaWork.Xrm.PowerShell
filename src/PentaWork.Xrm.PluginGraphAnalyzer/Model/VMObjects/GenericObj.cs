@@ -15,28 +15,27 @@
         /// <returns></returns>
         public object GetObject()
         {
-            if (Fields.ContainsKey("System.String Microsoft.Xrm.Sdk.Entity::_logicalName"))
+            if (Fields.ContainsKey("EntityObj.LogicalName"))
             {
                 var entity = new EntityObj
                 {
-                    LogicalName = (string)Fields["System.String Microsoft.Xrm.Sdk.Entity::_logicalName"]
+                    LogicalName = (string)Fields["EntityObj.LogicalName"]
                 };
                 return entity;
             }
-            if (Fields.ContainsKey("System.String Microsoft.Xrm.Sdk.OrganizationRequest::_messageName"))
+            if (Fields.ContainsKey("OrganizationServiceContext.Service"))
+            {
+                return new ServiceContextObj();
+            }
+            if (Fields.ContainsKey("OrganizationRequest.MessageName"))
             {
                 var apiCall = new XrmApiCall
                 {
-                    Message = (string)Fields["System.String Microsoft.Xrm.Sdk.OrganizationRequest::_messageName"],
-                    EntityInfo = Fields.ContainsKey("Target") ? (EntityObj)Fields["Target"] : null,
+                    Message = (string)Fields["OrganizationRequest.MessageName"],
+                    EntityInfo = Fields.ContainsKey("OrganizationRequest.Target") ? (EntityObj)Fields["OrganizationRequest.Target"] : null,
                     IsExecuted = false
                 };
                 return apiCall;
-            }
-            if (Fields.ContainsKey("Microsoft.Xrm.Sdk.IOrganizationService Microsoft.Xrm.Sdk.Client.OrganizationServiceContext::_service")
-                || Name == "New Object (System.Void Microsoft.Xrm.Sdk.Client.OrganizationServiceContext::.ctor(Microsoft.Xrm.Sdk.IOrganizationService))")
-            {
-                return new ServiceContextObj();
             }
             return this;
         }

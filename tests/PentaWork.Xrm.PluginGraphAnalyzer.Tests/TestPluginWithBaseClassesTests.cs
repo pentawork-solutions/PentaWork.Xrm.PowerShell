@@ -50,7 +50,7 @@ namespace PentaWork.Xrm.PluginGraphTests
             _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginWithBaseClasses";
 
             // Act
-            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo]);
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");
             var pluginApiCalls = apiCalls.FirstOrDefault().Value;
 
             // Assert

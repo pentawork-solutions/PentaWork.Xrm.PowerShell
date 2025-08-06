@@ -6,7 +6,7 @@ using PentaWork.Xrm.PluginGraph.Model.XrmInfoObjects;
 namespace PentaWork.Xrm.PluginGraphTests
 {
     [TestClass]
-    public sealed class TestPluginRequestsWithProxyTests
+    public sealed class TestPluginsServiceWithGenericsTests
     {
         private Dictionary<Guid, PluginModuleList> _moduleList;
         private readonly PluginGraphAnalyzer _pluginGraphAnalyzer = new PluginGraphAnalyzer();
@@ -44,10 +44,10 @@ namespace PentaWork.Xrm.PluginGraphTests
         }
 
         [TestMethod]
-        public void ShouldAnalyseRequestCreateWithProxiesSuccessfully()
+        public void ShouldAnalyseServiceWithGenericsSuccessfully()
         {
             // Arrange
-            _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginRequestsWithProxyCreate";
+            _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginsServiceWithGenerics";
 
             // Act
             var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");

@@ -13,13 +13,13 @@ namespace PentaWork.Xrm.PluginGraph
 {
     public class PluginGraphAnalyzer
     {
-        public EntityGraphList AnalyzeSystem(CrmServiceClient connection, Guid? solutionId = null)
+        public EntityGraphList AnalyzeSystem(CrmServiceClient connection, Guid solutionId, string namespaces)
         {
             var solutionComponents = GetSolutionComponents(connection, solutionId);
             var pluginsStepInfos = connection.GetPluginSteps(solutionComponents);
 
             var moduleLists = LoadModules(connection, pluginsStepInfos);
-            AnalyzeApiCalls(moduleLists, pluginsStepInfos);
+            AnalyzeApiCalls(moduleLists, pluginsStepInfos, namespaces);
 
             var entityGraphList = new EntityGraphList();
             pluginsStepInfos.ToList().ForEach(entityGraphList.Add);
@@ -27,7 +27,7 @@ namespace PentaWork.Xrm.PluginGraph
             return entityGraphList;
         }
 
-        public Dictionary<string, List<XrmApiCall>> AnalyzeApiCalls(Dictionary<Guid, PluginModuleList> moduleLists, IEnumerable<PluginStepInfo> pluginStepInfos)
+        public Dictionary<string, List<XrmApiCall>> AnalyzeApiCalls(Dictionary<Guid, PluginModuleList> moduleLists, IEnumerable<PluginStepInfo> pluginStepInfos, string namespaces)
         {
             var apiCalls = new Dictionary<string, List<XrmApiCall>>();
 
@@ -56,7 +56,7 @@ namespace PentaWork.Xrm.PluginGraph
                     }
                 }
 
-                var vm = new PluginGraphVM(moduleLists[moduleId]);
+                var vm = new PluginGraphVM(moduleLists[moduleId], namespaces.Split(new char[','], StringSplitOptions.RemoveEmptyEntries).ToList());
                 apiCalls.Add(pluginStepInfo.Plugin.TypeName, vm.Execute(method, [pluginType]).Item1);
             }
 
@@ -103,10 +103,11 @@ namespace PentaWork.Xrm.PluginGraph
                 ZipFile.ExtractToDirectory(zipPath, tmpPath);
 
                 var moduleList = new PluginModuleList();
+                var ctx = ModuleDef.CreateModuleContext();
                 var assemblyList = Directory.GetFiles(tmpPath, "*.dll", SearchOption.AllDirectories);
                 foreach (var assemblyFile in assemblyList)
                 {
-                    var module = ModuleDefMD.Load(assemblyFile);
+                    var module = ModuleDefMD.Load(assemblyFile, ctx);
                     moduleList.Add(module);
                 }
 

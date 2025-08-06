@@ -74,13 +74,8 @@ namespace PentaWork.Xrm.Tests.Plugins
             var entity = new Account();
             entity.Address1_Line1 = "Test Street 1";
 
-            try
-            {
-                entity = Test(entity);
-                service.Create(entity);
-            }
-            catch (CustomException ex) { Debug.WriteLine(ex); }
-            finally { Debug.WriteLine("Finally"); }
+            entity = Test(entity);
+            service.Create(entity);
         }
 
         public Account Test(Account entity)
@@ -106,13 +101,8 @@ namespace PentaWork.Xrm.Tests.Plugins
             var entity = new Account();
             entity.Address1_Line1 = "Test Street 1";
 
-            try
-            {
-                entity = Test(entity);
-                service.Create(entity);
-            }
-            catch (CustomException ex) { Debug.WriteLine(ex); }
-            finally { Debug.WriteLine("Finally"); }
+            entity = Test(entity);
+            service.Create(entity);
         }
 
         public Account Test(Account entity)
@@ -126,6 +116,69 @@ namespace PentaWork.Xrm.Tests.Plugins
             else
             {
                 entity.Address1_City = "Test";
+            }
+            return entity;
+        }
+    }
+
+    public class TestPluginWithLoop : IPlugin
+    {
+        public void Execute(IServiceProvider serviceProvider)
+        {
+            var pluginExecutionContext = (IPluginExecutionContext)serviceProvider.GetService(typeof(IPluginExecutionContext));
+            var serviceFactory = (IOrganizationServiceFactory)serviceProvider.GetService(typeof(IOrganizationServiceFactory));
+            var service = serviceFactory.CreateOrganizationService(pluginExecutionContext.UserId);
+
+            var entity = new Account();
+            entity.Address1_Line1 = "Test Street 1";
+
+            entity = Test(entity);
+            service.Create(entity);
+        }
+
+        public Account Test(Account entity)
+        {
+            for (var i = 0; i < 10; i++)
+            {
+                entity.Name = "Test";
+            }
+            return entity;
+        }
+    }
+
+    public class TestPluginWithSwitchCase : IPlugin
+    {
+        public void Execute(IServiceProvider serviceProvider)
+        {
+            var pluginExecutionContext = (IPluginExecutionContext)serviceProvider.GetService(typeof(IPluginExecutionContext));
+            var serviceFactory = (IOrganizationServiceFactory)serviceProvider.GetService(typeof(IOrganizationServiceFactory));
+            var service = serviceFactory.CreateOrganizationService(pluginExecutionContext.UserId);
+
+            var entity = new Account();
+            entity.Address1_Line1 = "Test Street 1";
+
+            entity = Test(entity);
+            service.Create(entity);
+        }
+
+        public Account Test(Account entity)
+        {
+            // Forces IL Switch Code
+            int number = 2;
+            switch (number)
+            {
+                case 1:
+                    entity.Address1_City = "Test";
+                    break;
+                case 2:
+                    entity.Address1_Country = "Test";
+                    break;
+                case 3:
+                    entity.Address1_County = "Test";
+                    break;
+                default:
+                    entity.Address1_Fax = "Test";
+                    break;
             }
             return entity;
         }

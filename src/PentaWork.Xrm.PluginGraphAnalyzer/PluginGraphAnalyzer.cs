@@ -1,4 +1,5 @@
 ﻿using dnlib.DotNet;
+using LiteDB;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
@@ -19,9 +20,18 @@ namespace PentaWork.Xrm.PluginGraph
             var pluginsStepInfos = connection.GetPluginSteps(solutionComponents);
 
             var moduleLists = LoadModules(connection, pluginsStepInfos);
-            AnalyzeApiCalls(moduleLists, pluginsStepInfos, namespaces);
+            var apiCalls = AnalyzeApiCalls(moduleLists, pluginsStepInfos, namespaces);
 
-            var entityGraphList = new EntityGraphList();
+            using (var db = new LiteDatabase(@"data.db"))
+            {
+                var col = db.GetCollection<Dictionary<string, List<XrmApiCall>>>("apicalls");
+                col.Insert(apiCalls);
+
+                var col2 = db.GetCollection<IEnumerable<PluginStepInfo>>("stepinfos");
+                col2.Insert(pluginsStepInfos);
+            }
+
+            var entityGraphList = new EntityGraphList(apiCalls);
             pluginsStepInfos.ToList().ForEach(entityGraphList.Add);
 
             return entityGraphList;
@@ -44,20 +54,20 @@ namespace PentaWork.Xrm.PluginGraph
                     .GetTypes()
                     .Single(t => t.FullName == pluginStepInfo.Plugin.TypeName);
 
-                var method = pluginType.Methods.SingleOrDefault(m => m.Name == "Execute");
-                if (method == null)
+                var methodDef = pluginType.Methods.SingleOrDefault(m => m.Name == "Execute");
+                if (methodDef == null)
                 {
                     var baseType = pluginType.BaseType?.ResolveTypeDef();
                     while (baseType != null)
                     {
-                        method = baseType.Methods.SingleOrDefault(m => m.Name == "Execute");
-                        if (method != null) break;
+                        methodDef = baseType.Methods.SingleOrDefault(m => m.Name == "Execute");
+                        if (methodDef != null) break;
                         else baseType = baseType.BaseType?.ResolveTypeDef();
                     }
                 }
 
                 var vm = new PluginGraphVM(moduleLists[moduleId], namespaces.Split(new char[','], StringSplitOptions.RemoveEmptyEntries).ToList());
-                apiCalls.Add(pluginStepInfo.Plugin.TypeName, vm.Execute(method, [pluginType]).Item1);
+                apiCalls.Add(pluginStepInfo.Plugin.TypeName, vm.Execute(methodDef, null, [new GenericObj(pluginType.FullName, pluginType)]).Item1);
             }
 
             return apiCalls;
@@ -104,10 +114,16 @@ namespace PentaWork.Xrm.PluginGraph
 
                 var moduleList = new PluginModuleList();
                 var ctx = ModuleDef.CreateModuleContext();
+                var asmResolver = (AssemblyResolver)ctx.AssemblyResolver;
+                asmResolver.EnableTypeDefCache = true;
+
                 var assemblyList = Directory.GetFiles(tmpPath, "*.dll", SearchOption.AllDirectories);
                 foreach (var assemblyFile in assemblyList)
                 {
                     var module = ModuleDefMD.Load(assemblyFile, ctx);
+                    module.Context = ctx;
+                    asmResolver.AddToCache(module);
+
                     moduleList.Add(module);
                 }
 

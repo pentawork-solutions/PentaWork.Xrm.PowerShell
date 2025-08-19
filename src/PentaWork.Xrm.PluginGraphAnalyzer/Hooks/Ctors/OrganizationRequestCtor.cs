@@ -1,11 +1,12 @@
 ﻿using dnlib.DotNet;
+using PentaWork.Xrm.PluginGraph.Model;
 using PentaWork.Xrm.PluginGraph.Model.VMObjects;
 
 namespace PentaWork.Xrm.PluginGraph.Hooks.Calls
 {
     internal class OrganizationRequestCtor : IHook
     {
-        public XrmApiCall? ExecuteHook(IMethod method, MethodDef? methodDef, List<object> parameters, Stack<object> stack)
+        public void ExecuteHook(IMethod method, MethodDef? methodDef, List<object> parameters, StorageFrame storageFrame)
         {
             var genObj = (GenericObj)parameters[0];
             if (method.FullName.Contains("CreateRequest"))
@@ -16,10 +17,9 @@ namespace PentaWork.Xrm.PluginGraph.Hooks.Calls
                 genObj.Fields["OrganizationRequest.MessageName"] = "delete";
             else
                 genObj.Fields["OrganizationRequest.MessageName"] = (string)parameters[1];
-            return null;
         }
 
-        public bool HookApplicable(IMethod method, MethodDef? methodDef, List<object> parameters) =>
+        public bool HookApplicable(IMethod method, MethodDef? methodDef, List<object> parameters, StorageFrame storageFrame) =>
             method.FullName is
             "System.Void Microsoft.Xrm.Sdk.Messages.CreateRequest::.ctor()" or
             "System.Void Microsoft.Xrm.Sdk.Messages.UpdateRequest::.ctor()" or

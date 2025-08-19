@@ -4,7 +4,7 @@ using PentaWork.Xrm.Tests.PluginsTestSideAssembly.Proxy;
 
 namespace PentaWork.Xrm.Tests.Plugins
 {
-    public class TestPluginServiceWithProxyCreate : IPlugin
+    public class TestPluginsWithGenerics : IPlugin
     {
         public void Execute(IServiceProvider serviceProvider)
         {
@@ -13,6 +13,22 @@ namespace PentaWork.Xrm.Tests.Plugins
             var service = serviceFactory.CreateOrganizationService(pluginExecutionContext.UserId);
 
             var entity = new Account();
+            entity.Name = "Test";
+
+            var testGeneric = new TestGeneric<Account>();
+            testGeneric.Execute(service, entity);
+        }
+    }
+
+    public class TestPluginWithActivator : IPlugin
+    {
+        public void Execute(IServiceProvider serviceProvider)
+        {
+            var pluginExecutionContext = (IPluginExecutionContext)serviceProvider.GetService(typeof(IPluginExecutionContext));
+            var serviceFactory = (IOrganizationServiceFactory)serviceProvider.GetService(typeof(IOrganizationServiceFactory));
+            var service = serviceFactory.CreateOrganizationService(pluginExecutionContext.UserId);
+
+            var entity = Activator.CreateInstance<Account>();
             entity.Name = "Test";
             entity.Address1_Line1 = "Test Street 1";
 
@@ -20,7 +36,7 @@ namespace PentaWork.Xrm.Tests.Plugins
         }
     }
 
-    public class TestPluginServiceWithProxyUpdate : IPlugin
+    public class TestPluginWithGenericActivator : IPlugin
     {
         public void Execute(IServiceProvider serviceProvider)
         {
@@ -28,29 +44,8 @@ namespace PentaWork.Xrm.Tests.Plugins
             var serviceFactory = (IOrganizationServiceFactory)serviceProvider.GetService(typeof(IOrganizationServiceFactory));
             var service = serviceFactory.CreateOrganizationService(pluginExecutionContext.UserId);
 
-            var entity = new Account();
-            entity.Id = Guid.NewGuid();
-            entity.Name = "Test";
-            entity.Address1_Line1 = "Test Street 1";
-
-            service.Update(entity);
-        }
-    }
-
-    public class TestPluginServiceInMethodWithProxyCreate : IPlugin
-    {
-        public void Execute(IServiceProvider serviceProvider)
-        {
-            var pluginExecutionContext = (IPluginExecutionContext)serviceProvider.GetService(typeof(IPluginExecutionContext));
-            var serviceFactory = (IOrganizationServiceFactory)serviceProvider.GetService(typeof(IOrganizationServiceFactory));
-            var service = serviceFactory.CreateOrganizationService(pluginExecutionContext.UserId);
-
-            TestMethod(service);
-        }
-
-        private void TestMethod(IOrganizationService service)
-        {
-            var entity = new Account();
+            var entityCreator = new TestGenericActivator<Account>();
+            var entity = entityCreator.Execute();
             entity.Name = "Test";
             entity.Address1_Line1 = "Test Street 1";
 
@@ -58,7 +53,7 @@ namespace PentaWork.Xrm.Tests.Plugins
         }
     }
 
-    public class TestPluginServiceInSideMethodWithProxyCreate : IPlugin
+    public class TestPluginWithGenericActivatorMethod : IPlugin
     {
         public void Execute(IServiceProvider serviceProvider)
         {
@@ -66,12 +61,24 @@ namespace PentaWork.Xrm.Tests.Plugins
             var serviceFactory = (IOrganizationServiceFactory)serviceProvider.GetService(typeof(IOrganizationServiceFactory));
             var service = serviceFactory.CreateOrganizationService(pluginExecutionContext.UserId);
 
-            var sideClass = new TestSideClass();
-            sideClass.TestMethod(service);
+            var entityCreator = new TestGenericActivatorMethod();
+            var entity = entityCreator.Execute<Account>();
+            entity.Name = "Test";
+            entity.Address1_Line1 = "Test Street 1";
+
+            service.Create(entity);
         }
     }
 
-    public class TestPluginServiceDirectWithSideProxyCreate : IPlugin
+    public class TestPluginWithGenericBase : BasePlugin<Account>, IPlugin
+    {
+        public new void Execute(IServiceProvider serviceProvider)
+        {
+            base.Execute(serviceProvider);
+        }
+    }
+
+    public abstract class BasePlugin<T> : IPlugin where T : Entity
     {
         public void Execute(IServiceProvider serviceProvider)
         {
@@ -79,9 +86,9 @@ namespace PentaWork.Xrm.Tests.Plugins
             var serviceFactory = (IOrganizationServiceFactory)serviceProvider.GetService(typeof(IOrganizationServiceFactory));
             var service = serviceFactory.CreateOrganizationService(pluginExecutionContext.UserId);
 
-            var entity = new PluginsTestSideAssembly.Proxy.Account();
-            entity.Name = "Test";
-            entity.Address1_Line1 = "Test Street 1";
+            var entity = Activator.CreateInstance<T>();
+            entity["name"] = "Test";
+            entity["street1"] = "Test Street 1";
 
             service.Create(entity);
         }

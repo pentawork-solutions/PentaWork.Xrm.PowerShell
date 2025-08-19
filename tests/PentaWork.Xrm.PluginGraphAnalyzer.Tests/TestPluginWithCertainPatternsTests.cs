@@ -33,9 +33,17 @@ namespace PentaWork.Xrm.PluginGraphTests
             var assemblyList = Directory.GetFiles(pluginAssemblyPath, "*.dll", SearchOption.AllDirectories);
 
             var moduleList = new PluginModuleList();
+            var ctx = ModuleDef.CreateModuleContext();
+            var asmResolver = (AssemblyResolver)ctx.AssemblyResolver;
+            asmResolver.EnableTypeDefCache = true;
+
             foreach (var assemblyFile in assemblyList)
             {
-                moduleList.Add(ModuleDefMD.Load(assemblyFile));
+                var module = ModuleDefMD.Load(assemblyFile, ctx);
+                module.Context = ctx;
+                asmResolver.AddToCache(module);
+
+                moduleList.Add(module);
             }
             _moduleList = new Dictionary<Guid, PluginModuleList>
             {
@@ -65,6 +73,23 @@ namespace PentaWork.Xrm.PluginGraphTests
         {
             // Arrange
             _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginWithTryCatchInExecute";
+
+            // Act
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");
+            var pluginApiCalls = apiCalls.FirstOrDefault().Value;
+
+            // Assert
+            Assert.IsNotNull(pluginApiCalls);
+            Assert.AreEqual("create", pluginApiCalls.FirstOrDefault()?.Message);
+            Assert.AreEqual(2, pluginApiCalls.FirstOrDefault()?.EntityInfo.UsedFields.Count);
+            Assert.AreEqual("account", pluginApiCalls.FirstOrDefault()?.EntityInfo.LogicalName);
+        }
+
+        [TestMethod]
+        public void ShouldAnalyseServiceCreateWithThrowSuccessfully()
+        {
+            // Arrange
+            _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginWithThrow";
 
             // Act
             var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");

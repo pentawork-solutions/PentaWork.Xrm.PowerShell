@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xrm.Sdk;
-using Account = PentaWork.Xrm.Tests.Plugins.Proxy.Account;
+using PentaWork.Xrm.Tests.PluginsTestSideAssembly.Proxy;
 
 namespace PentaWork.Xrm.Tests.Plugins
 {

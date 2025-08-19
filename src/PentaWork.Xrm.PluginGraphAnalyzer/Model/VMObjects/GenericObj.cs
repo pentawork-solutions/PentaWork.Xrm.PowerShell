@@ -1,10 +1,13 @@
-﻿namespace PentaWork.Xrm.PluginGraph.Model.VMObjects
+﻿using dnlib.DotNet;
+
+namespace PentaWork.Xrm.PluginGraph.Model.VMObjects
 {
     public class GenericObj : IVMObj
     {
-        public GenericObj(string name, bool isRecursiveReturnValue = false)
+        public GenericObj(string name, ITypeDefOrRef typeDefOrRef, bool isRecursiveReturnValue = false)
         {
             Name = name;
+            TypeDefOrRef = typeDefOrRef;
             IsRecursiveReturnValue = isRecursiveReturnValue;
         }
 
@@ -41,7 +44,9 @@
         }
 
         public string Name { get; }
+        public ITypeDefOrRef TypeDefOrRef { get; }
         public bool IsRecursiveReturnValue { get; } = false;
+        public List<object> Parameters { get; set; }
         public Dictionary<string, object> Fields { get; } = new Dictionary<string, object>();
     }
 }

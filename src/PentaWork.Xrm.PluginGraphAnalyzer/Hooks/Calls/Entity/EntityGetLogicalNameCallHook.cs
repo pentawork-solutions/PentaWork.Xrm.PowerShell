@@ -2,17 +2,19 @@
 using PentaWork.Xrm.PluginGraph.Model;
 using PentaWork.Xrm.PluginGraph.Model.VMObjects;
 
-namespace PentaWork.Xrm.PluginGraph.Hooks.Calls
+namespace PentaWork.Xrm.PluginGraph.Hooks.Calls.Entity
 {
-    internal class OrganizationServiceCtor : IHook
+    internal class EntityGetLogicalNameCallHook : IHook
     {
         public void ExecuteHook(IMethod method, MethodDef? methodDef, List<object> parameters, StorageFrame storageFrame)
         {
-            var genObj = (GenericObj)parameters[0];
-            genObj.Fields["OrganizationServiceContext.Service"] = parameters[1];
+            var entity = (EntityObj)parameters[0];
+            storageFrame.Stack.Push(entity.LogicalName);
         }
 
         public bool HookApplicable(IMethod method, MethodDef? methodDef, List<object> parameters, StorageFrame storageFrame) =>
-            method.FullName == "System.Void Microsoft.Xrm.Sdk.Client.OrganizationServiceContext::.ctor(Microsoft.Xrm.Sdk.IOrganizationService)";
+            parameters.Count > 0
+            && parameters[0] is EntityObj
+            && method.FullName == "System.String Microsoft.Xrm.Sdk.Entity::get_LogicalName()";
     }
 }

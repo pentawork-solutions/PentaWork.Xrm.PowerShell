@@ -9,7 +9,6 @@ namespace PentaWork.Xrm.PluginGraph.Model.XrmInfoObjects
         public string? TypeName { get; set; }
         public AssemblyInfo? AssemblyInfo { get; set; }
         public PackageInfo? PackageInfo { get; set; }
-
         public List<XrmApiCall>? ApiCalls { get; set; }
     }
 }

@@ -10,4 +10,20 @@ namespace PentaWork.Xrm.Tests.PluginsTestSideAssembly
             service.Create(entity);
         }
     }
+
+    public class TestGenericActivator<T> where T : Entity
+    {
+        public T Execute()
+        {
+            return Activator.CreateInstance<T>();
+        }
+    }
+
+    public class TestGenericActivatorMethod
+    {
+        public T Execute<T>() where T : Entity
+        {
+            return Activator.CreateInstance<T>();
+        }
+    }
 }

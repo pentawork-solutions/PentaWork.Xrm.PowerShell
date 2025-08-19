@@ -6,7 +6,7 @@ using PentaWork.Xrm.PluginGraph.Model.XrmInfoObjects;
 namespace PentaWork.Xrm.PluginGraphTests
 {
     [TestClass]
-    public sealed class TestPluginsServiceWithGenericsTests
+    public sealed class TestPluginsWithGenericsTests
     {
         private Dictionary<Guid, PluginModuleList> _moduleList;
         private readonly PluginGraphAnalyzer _pluginGraphAnalyzer = new PluginGraphAnalyzer();
@@ -33,9 +33,17 @@ namespace PentaWork.Xrm.PluginGraphTests
             var assemblyList = Directory.GetFiles(pluginAssemblyPath, "*.dll", SearchOption.AllDirectories);
 
             var moduleList = new PluginModuleList();
+            var ctx = ModuleDef.CreateModuleContext();
+            var asmResolver = (AssemblyResolver)ctx.AssemblyResolver;
+            asmResolver.EnableTypeDefCache = true;
+
             foreach (var assemblyFile in assemblyList)
             {
-                moduleList.Add(ModuleDefMD.Load(assemblyFile));
+                var module = ModuleDefMD.Load(assemblyFile, ctx);
+                module.Context = ctx;
+                asmResolver.AddToCache(module);
+
+                moduleList.Add(module);
             }
             _moduleList = new Dictionary<Guid, PluginModuleList>
             {
@@ -47,7 +55,75 @@ namespace PentaWork.Xrm.PluginGraphTests
         public void ShouldAnalyseServiceWithGenericsSuccessfully()
         {
             // Arrange
-            _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginsServiceWithGenerics";
+            _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginsWithGenerics";
+
+            // Act
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");
+            var pluginApiCalls = apiCalls.FirstOrDefault().Value;
+
+            // Assert
+            Assert.IsNotNull(pluginApiCalls);
+            Assert.AreEqual("create", pluginApiCalls.FirstOrDefault()?.Message);
+            Assert.AreEqual(2, pluginApiCalls.FirstOrDefault()?.EntityInfo.UsedFields.Count);
+            Assert.AreEqual("account", pluginApiCalls.FirstOrDefault()?.EntityInfo.LogicalName);
+        }
+
+        [TestMethod]
+        public void ShouldAnalyseActivatorSuccessfully()
+        {
+            // Arrange
+            _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginWithActivator";
+
+            // Act
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");
+            var pluginApiCalls = apiCalls.FirstOrDefault().Value;
+
+            // Assert
+            Assert.IsNotNull(pluginApiCalls);
+            Assert.AreEqual("create", pluginApiCalls.FirstOrDefault()?.Message);
+            Assert.AreEqual(2, pluginApiCalls.FirstOrDefault()?.EntityInfo.UsedFields.Count);
+            Assert.AreEqual("account", pluginApiCalls.FirstOrDefault()?.EntityInfo.LogicalName);
+        }
+
+        [TestMethod]
+        public void ShouldAnalyseGenericActivatorSuccessfully()
+        {
+            // Arrange
+            _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginWithGenericActivator";
+
+            // Act
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");
+            var pluginApiCalls = apiCalls.FirstOrDefault().Value;
+
+            // Assert
+            Assert.IsNotNull(pluginApiCalls);
+            Assert.AreEqual("create", pluginApiCalls.FirstOrDefault()?.Message);
+            Assert.AreEqual(2, pluginApiCalls.FirstOrDefault()?.EntityInfo.UsedFields.Count);
+            Assert.AreEqual("account", pluginApiCalls.FirstOrDefault()?.EntityInfo.LogicalName);
+        }
+
+        [TestMethod]
+        public void ShouldAnalyseGenericActivatorMethodSuccessfully()
+        {
+            // Arrange
+            _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginWithGenericActivatorMethod";
+
+            // Act
+            var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");
+            var pluginApiCalls = apiCalls.FirstOrDefault().Value;
+
+            // Assert
+            Assert.IsNotNull(pluginApiCalls);
+            Assert.AreEqual("create", pluginApiCalls.FirstOrDefault()?.Message);
+            Assert.AreEqual(2, pluginApiCalls.FirstOrDefault()?.EntityInfo.UsedFields.Count);
+            Assert.AreEqual("account", pluginApiCalls.FirstOrDefault()?.EntityInfo.LogicalName);
+        }
+
+        [TestMethod]
+        public void ShouldAnalyseGenericBaseActivatorSuccessfully()
+        {
+            // Arrange
+            _pluginStepInfo.Plugin.TypeName = "PentaWork.Xrm.Tests.Plugins.TestPluginWithGenericBase";
 
             // Act
             var apiCalls = _pluginGraphAnalyzer.AnalyzeApiCalls(_moduleList, [_pluginStepInfo], "PentaWork.Xrm.Tests.*");

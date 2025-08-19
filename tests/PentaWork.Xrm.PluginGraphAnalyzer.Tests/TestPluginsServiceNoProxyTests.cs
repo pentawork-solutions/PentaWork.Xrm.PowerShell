@@ -33,9 +33,17 @@ namespace PentaWork.Xrm.PluginGraphTests
             var assemblyList = Directory.GetFiles(pluginAssemblyPath, "*.dll", SearchOption.AllDirectories);
 
             var moduleList = new PluginModuleList();
+            var ctx = ModuleDef.CreateModuleContext();
+            var asmResolver = (AssemblyResolver)ctx.AssemblyResolver;
+            asmResolver.EnableTypeDefCache = true;
+
             foreach (var assemblyFile in assemblyList)
             {
-                moduleList.Add(ModuleDefMD.Load(assemblyFile));
+                var module = ModuleDefMD.Load(assemblyFile, ctx);
+                module.Context = ctx;
+                asmResolver.AddToCache(module);
+
+                moduleList.Add(module);
             }
             _moduleList = new Dictionary<Guid, PluginModuleList>
             {

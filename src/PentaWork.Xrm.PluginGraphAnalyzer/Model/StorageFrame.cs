@@ -7,9 +7,10 @@ namespace PentaWork.Xrm.PluginGraph.Model
     {
         private readonly Stack<Stack<object>> _savedStack = new();
 
-        public StorageFrame(MethodDef methodDef, List<object>? parameters = null, StorageFrame? parentFrame = null)
+        public StorageFrame(MethodDef methodDef, IMethod? method = null, List<object>? parameters = null, StorageFrame? parentFrame = null)
         {
             MethodDef = methodDef;
+            Method = method;
             Parameters = parameters;
 
             if (parentFrame != null)
@@ -33,6 +34,7 @@ namespace PentaWork.Xrm.PluginGraph.Model
         public StorageFrame? ParentFrame { get; }
         public List<object>? Parameters { get; }
 
+        public IMethod? Method { get; }
         public MethodDef MethodDef { get; }
         public Stack<string> CallStack { get; } = new();
         public List<XrmApiCall> ApiCalls { get; } = new();

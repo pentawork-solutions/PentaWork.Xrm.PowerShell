@@ -38,7 +38,7 @@ namespace PentaWork.Xrm.PluginGraph.Extensions
             return entities;
         }
 
-        public static IEnumerable<PluginStepInfo> GetPluginSteps(this CrmServiceClient connection, IEnumerable<ComponentInfo>? componentInfos)
+        public static List<PluginStepInfo> GetPluginSteps(this CrmServiceClient connection, IEnumerable<ComponentInfo>? componentInfos)
         {
             var query = new QueryExpression("sdkmessageprocessingstep");
             query.ColumnSet = new ColumnSet(true);

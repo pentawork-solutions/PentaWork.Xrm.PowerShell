@@ -22,15 +22,6 @@ namespace PentaWork.Xrm.PluginGraph
             var moduleLists = LoadModules(connection, pluginsStepInfos);
             var apiCalls = AnalyzeApiCalls(moduleLists, pluginsStepInfos, namespaces);
 
-            using (var db = new LiteDatabase(@"data.db"))
-            {
-                var col = db.GetCollection<Dictionary<string, List<XrmApiCall>>>("apicalls");
-                col.Insert(apiCalls);
-
-                var col2 = db.GetCollection<IEnumerable<PluginStepInfo>>("stepinfos");
-                col2.Insert(pluginsStepInfos);
-            }
-
             var entityGraphList = new EntityGraphList(apiCalls);
             pluginsStepInfos.ToList().ForEach(entityGraphList.Add);
 

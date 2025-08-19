@@ -21,7 +21,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.59" />
-	<PackageReference Include="Microsoft.PowerApps.MSBuild.Plugin" Version="1.33.3">
+	<PackageReference Include="Microsoft.PowerApps.MSBuild.Plugin" Version="1.47.1">
 		<PrivateAssets>all</PrivateAssets>
 		<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	</PackageReference>

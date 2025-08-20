@@ -7,46 +7,54 @@
 
 # <#= EntityGraph.EntityName #>
 
-// Warnings
-
-<# foreach(var messageGraph in EntityGraph.Messages){ #>
+<#  foreach(var messageGraph in EntityGraph.Messages){ #>
 ## <#= messageGraph.Message #>
 
-<# foreach(var (stage, pluginStepInfos) in messageGraph.Stages.Select(d => (d.Key, d.Value))){ #>
+<#      foreach(var (stage, pluginStepInfos) in messageGraph.Stages.Select(d => (d.Key, d.Value))){ #>
 ### <#= stage.ToString() #>
 
-<# var modeGroups = pluginStepInfos.GroupBy(p => p.Async);
-   foreach(var modeGroup in modeGroups) { #>
+<#          var modeGroups = pluginStepInfos.GroupBy(p => p.Async);
+            foreach(var modeGroup in modeGroups) { #>
 #### <#= modeGroup.Key ? "Async" : "Sync" #>
 
-<# var rankedGroups = modeGroup.GroupBy(p => p.Rank);
-   foreach(var rankedGroup in rankedGroups.OrderBy(r => r.Key)) { #>
+<#              var rankedGroups = modeGroup.GroupBy(p => p.Rank);
+                foreach(var rankedGroup in rankedGroups.OrderBy(r => r.Key)) { #>
 **Order <#= rankedGroup.Key == null ? "(default)" : rankedGroup.Key #>**
 
-<# foreach(var pluginStepInfo in rankedGroup) { #>
+<#                  foreach(var pluginStepInfo in rankedGroup) { #>
 - `<#= pluginStepInfo.Name #>`
-<# if(pluginStepInfo.AsyncAutoDelete) { #>  - **Auto Delete Async Operations**
-<# } #>
-<# if(pluginStepInfo.FilteringAttributes != null) { #>  <#= $"- **Filtering Attributes**: {string.Join(", ", pluginStepInfo.FilteringAttributes)}" #>
-<# } #>
-<# } #>
-
-<# } #>
-<# } #>
-<# } #>
+<#                      if(pluginStepInfo.AsyncAutoDelete) { #>  - **Auto Delete Async Operations**
+<#                      }
+                        if(pluginStepInfo.FilteringAttributes != null) { #>  <#= $"- **Filtering Attributes**: {string.Join(", ", pluginStepInfo.FilteringAttributes)}" #>
+<#                      }
+                        if(pluginStepInfo.Plugin?.ApiCalls?.Any() == true) { #>  - **API Calls**:
+<#                          foreach(var apiCall in pluginStepInfo.Plugin.ApiCalls) { #>    <#= $"- {apiCall.Message} - {apiCall.EntityInfo?.LogicalName} {(!apiCall.IsExecuted ? "*(not executed)*" : string.Empty)}" #>
+<#                              if(apiCall.EntityInfo?.UsedFields.Any() == true) { #>      <#= $"- **Used Attributes**: {string.Join(", ", apiCall.EntityInfo.UsedFields)}" #>
+<#                              }
+                                if(apiCall.EntityInfo?.CallLoopHit == true) { #>      - <span style="color:orange">**Uncertainties, because of recursions**</span>
+<#                              }
+                                if(apiCall.EntityInfo?.IsTarget == true) { #>      - <span style="color:red">**Entity is Target**</span>
+<#                              }
+                            }
+                        }
+                    }
+                }
+            }
+        }  #>
 
 ### Diagram
 
 ```mermaid
 flowchart
-<# foreach(var (stage, pluginStepInfos) in messageGraph.Stages.Select(d => (d.Key, d.Value))){ #>
+<#      foreach(var (stage, pluginStepInfos) in messageGraph.Stages.Select(d => (d.Key, d.Value))){ #>
     subgraph <#= stage.ToString() #>
-<# foreach(var pluginStepInfo in pluginStepInfos) { #>
+<#          foreach(var pluginStepInfo in pluginStepInfos) { #>
         <#= pluginStepInfo.Id #>(<#= pluginStepInfo.Name #>)
-<# } #>
+<#          } #>
     end
-<# } #>
+<#      } #>
 ```
+
 <# } #>
 
 <#+

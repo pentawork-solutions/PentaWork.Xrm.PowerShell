@@ -1,5 +1,4 @@
 ﻿using dnlib.DotNet;
-using LiteDB;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;

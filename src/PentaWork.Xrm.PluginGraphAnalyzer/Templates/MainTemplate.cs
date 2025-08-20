@@ -36,189 +36,218 @@ namespace PentaWork.Xrm.PluginGraph.Templates
             
             #line default
             #line hidden
-            this.Write("\r\n\r\n// Warnings\r\n\r\n");
+            this.Write("\r\n\r\n");
             
-            #line 12 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
- foreach(var messageGraph in EntityGraph.Messages){ 
+            #line 10 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+  foreach(var messageGraph in EntityGraph.Messages){ 
             
             #line default
             #line hidden
             this.Write("## ");
             
-            #line 13 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+            #line 11 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(messageGraph.Message));
             
             #line default
             #line hidden
             this.Write("\r\n\r\n");
             
-            #line 15 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
- foreach(var (stage, pluginStepInfos) in messageGraph.Stages.Select(d => (d.Key, d.Value))){ 
+            #line 13 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+      foreach(var (stage, pluginStepInfos) in messageGraph.Stages.Select(d => (d.Key, d.Value))){ 
             
             #line default
             #line hidden
             this.Write("### ");
             
-            #line 16 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+            #line 14 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(stage.ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n\r\n");
             
-            #line 18 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
- var modeGroups = pluginStepInfos.GroupBy(p => p.Async);
-   foreach(var modeGroup in modeGroups) { 
+            #line 16 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+          var modeGroups = pluginStepInfos.GroupBy(p => p.Async);
+            foreach(var modeGroup in modeGroups) { 
             
             #line default
             #line hidden
             this.Write("#### ");
             
-            #line 20 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+            #line 18 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(modeGroup.Key ? "Async" : "Sync"));
             
             #line default
             #line hidden
             this.Write("\r\n\r\n");
             
-            #line 22 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
- var rankedGroups = modeGroup.GroupBy(p => p.Rank);
-   foreach(var rankedGroup in rankedGroups.OrderBy(r => r.Key)) { 
+            #line 20 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+              var rankedGroups = modeGroup.GroupBy(p => p.Rank);
+                foreach(var rankedGroup in rankedGroups.OrderBy(r => r.Key)) { 
             
             #line default
             #line hidden
             this.Write("**Order ");
             
-            #line 24 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+            #line 22 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(rankedGroup.Key == null ? "(default)" : rankedGroup.Key));
             
             #line default
             #line hidden
             this.Write("**\r\n\r\n");
             
-            #line 26 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
- foreach(var pluginStepInfo in rankedGroup) { 
+            #line 24 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+                  foreach(var pluginStepInfo in rankedGroup) { 
             
             #line default
             #line hidden
             this.Write("- `");
             
-            #line 27 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+            #line 25 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(pluginStepInfo.Name));
             
             #line default
             #line hidden
             this.Write("`\r\n");
             
-            #line 28 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
- if(pluginStepInfo.AsyncAutoDelete) { 
+            #line 26 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+                      if(pluginStepInfo.AsyncAutoDelete) { 
             
             #line default
             #line hidden
             this.Write("  - **Auto Delete Async Operations**\r\n");
             
-            #line 29 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
- } 
-            
-            #line default
-            #line hidden
-            
-            #line 30 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
- if(pluginStepInfo.FilteringAttributes != null) { 
+            #line 27 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+                      }
+                        if(pluginStepInfo.FilteringAttributes != null) { 
             
             #line default
             #line hidden
             this.Write("  ");
             
-            #line 30 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+            #line 28 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture($"- **Filtering Attributes**: {string.Join(", ", pluginStepInfo.FilteringAttributes)}"));
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 31 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
- } 
+            #line 29 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+                      }
+                        if(pluginStepInfo.Plugin?.ApiCalls?.Any() == true) { 
             
             #line default
             #line hidden
+            this.Write("  - **API Calls**:\r\n");
             
-            #line 32 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
- } 
+            #line 31 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+                          foreach(var apiCall in pluginStepInfo.Plugin.ApiCalls) { 
+            
+            #line default
+            #line hidden
+            this.Write("    ");
+            
+            #line 31 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture($"- {apiCall.Message} - {apiCall.EntityInfo?.LogicalName} {(!apiCall.IsExecuted ? "*(not executed)*" : string.Empty)}"));
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 34 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
- } 
+            #line 32 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+                              if(apiCall.EntityInfo?.UsedFields.Any() == true) { 
             
             #line default
             #line hidden
+            this.Write("      ");
+            
+            #line 32 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture($"- **Used Attributes**: {string.Join(", ", apiCall.EntityInfo.UsedFields)}"));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n");
+            
+            #line 33 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+                              }
+                                if(apiCall.EntityInfo?.CallLoopHit == true) { 
+            
+            #line default
+            #line hidden
+            this.Write("      - <span style=\"color:orange\">**Uncertainties, because of recursions**</span" +
+                    ">\r\n");
             
             #line 35 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
- } 
+                              }
+                                if(apiCall.EntityInfo?.IsTarget == true) { 
             
             #line default
             #line hidden
+            this.Write("      - <span style=\"color:red\">**Entity is Target**</span>\r\n");
             
-            #line 36 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
- } 
+            #line 37 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+                              }
+                            }
+                        }
+                    }
+                }
+            }
+        }  
             
             #line default
             #line hidden
             this.Write("\r\n### Diagram\r\n\r\n```mermaid\r\nflowchart\r\n");
             
-            #line 42 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
- foreach(var (stage, pluginStepInfos) in messageGraph.Stages.Select(d => (d.Key, d.Value))){ 
+            #line 49 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+      foreach(var (stage, pluginStepInfos) in messageGraph.Stages.Select(d => (d.Key, d.Value))){ 
             
             #line default
             #line hidden
             this.Write("    subgraph ");
             
-            #line 43 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+            #line 50 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(stage.ToString()));
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 44 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
- foreach(var pluginStepInfo in pluginStepInfos) { 
+            #line 51 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+          foreach(var pluginStepInfo in pluginStepInfos) { 
             
             #line default
             #line hidden
             this.Write("        ");
             
-            #line 45 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+            #line 52 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(pluginStepInfo.Id));
             
             #line default
             #line hidden
             this.Write("(");
             
-            #line 45 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+            #line 52 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(pluginStepInfo.Name));
             
             #line default
             #line hidden
             this.Write(")\r\n");
             
-            #line 46 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
- } 
+            #line 53 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+          } 
             
             #line default
             #line hidden
             this.Write("    end\r\n");
             
-            #line 48 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
- } 
+            #line 55 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+      } 
             
             #line default
             #line hidden
-            this.Write("```\r\n");
+            this.Write("```\r\n\r\n");
             
-            #line 50 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+            #line 58 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
  } 
             
             #line default
@@ -227,7 +256,7 @@ namespace PentaWork.Xrm.PluginGraph.Templates
             return this.GenerationEnvironment.ToString();
         }
         
-        #line 52 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+        #line 60 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
 
 public EntityGraph EntityGraph { get; set; }
 

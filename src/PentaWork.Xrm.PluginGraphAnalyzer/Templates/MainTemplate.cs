@@ -64,30 +64,30 @@ namespace PentaWork.Xrm.PluginGraph.Templates
             
             #line default
             #line hidden
-            this.Write("\r\n\r\n");
+            this.Write("\r\n");
             
-            #line 16 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+            #line 15 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
           var modeGroups = pluginStepInfos.GroupBy(p => p.Async);
             foreach(var modeGroup in modeGroups) { 
             
             #line default
             #line hidden
-            this.Write("#### ");
+            this.Write("\r\n#### ");
             
             #line 18 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(modeGroup.Key ? "Async" : "Sync"));
             
             #line default
             #line hidden
-            this.Write("\r\n\r\n");
+            this.Write("\r\n");
             
-            #line 20 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
+            #line 19 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
               var rankedGroups = modeGroup.GroupBy(p => p.Rank);
                 foreach(var rankedGroup in rankedGroups.OrderBy(r => r.Key)) { 
             
             #line default
             #line hidden
-            this.Write("**Order ");
+            this.Write("\r\n**Order ");
             
             #line 22 "C:\Users\GerritGazic\Github\PentaWork.Xrm.PowerShell\src\PentaWork.Xrm.PluginGraphAnalyzer\Templates\MainTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(rankedGroup.Key == null ? "(default)" : rankedGroup.Key));

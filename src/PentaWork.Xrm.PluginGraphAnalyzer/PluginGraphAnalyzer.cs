@@ -13,6 +13,9 @@ namespace PentaWork.Xrm.PluginGraph
 {
     public class PluginGraphAnalyzer
     {
+        public event ProgressHandler? Progress;
+        public delegate void ProgressHandler(int progress, int total, string pluginName);
+
         public EntityGraphList AnalyzeSystem(CrmServiceClient connection, Guid solutionId, string namespaces, bool log = false)
         {
             var solutionComponents = GetSolutionComponents(connection, solutionId);
@@ -31,18 +34,18 @@ namespace PentaWork.Xrm.PluginGraph
         {
             var apiCalls = new Dictionary<string, List<XrmApiCall>>();
 
-            foreach (var pluginStepInfo in pluginStepInfos)
+            foreach (var pluginStepInfo in pluginStepInfos.Select((v, i) => new { Value = v, Index = i }))
             {
-                if (apiCalls.ContainsKey(pluginStepInfo.Plugin.TypeName)) continue;
+                if (apiCalls.ContainsKey(pluginStepInfo.Value.Plugin.TypeName)) continue;
 
-                var moduleId = pluginStepInfo.Plugin!.PackageInfo != null
-                    ? pluginStepInfo.Plugin.PackageInfo.Id
-                    : pluginStepInfo.Plugin.AssemblyInfo!.Id;
+                var moduleId = pluginStepInfo.Value.Plugin!.PackageInfo != null
+                    ? pluginStepInfo.Value.Plugin.PackageInfo.Id
+                    : pluginStepInfo.Value.Plugin.AssemblyInfo!.Id;
                 var moduleList = moduleLists[moduleId];
                 var pluginType = moduleList
-                    .Single(m => m.Assembly.Name == pluginStepInfo.Plugin.AssemblyInfo.Name)
+                    .Single(m => m.Assembly.Name == pluginStepInfo.Value.Plugin.AssemblyInfo.Name)
                     .GetTypes()
-                    .Single(t => t.FullName == pluginStepInfo.Plugin.TypeName);
+                    .Single(t => t.FullName == pluginStepInfo.Value.Plugin.TypeName);
 
                 var methodDef = pluginType.Methods.SingleOrDefault(m => m.Name == "Execute");
                 if (methodDef == null)
@@ -56,8 +59,9 @@ namespace PentaWork.Xrm.PluginGraph
                     }
                 }
 
+                if (Progress != null) Progress(pluginStepInfo.Index, pluginStepInfos.Count(), pluginStepInfo.Value.Name);
                 var vm = new PluginGraphVM(moduleLists[moduleId], namespaces.Split(new char[','], StringSplitOptions.RemoveEmptyEntries).ToList(), log);
-                apiCalls.Add(pluginStepInfo.Plugin.TypeName, vm.Execute(methodDef, null, [new GenericObj(pluginType.FullName, pluginType)]).Item1);
+                apiCalls.Add(pluginStepInfo.Value.Plugin.TypeName, vm.Execute(methodDef, null, [new GenericObj(pluginType.FullName, pluginType)]).Item1);
             }
 
             return apiCalls;

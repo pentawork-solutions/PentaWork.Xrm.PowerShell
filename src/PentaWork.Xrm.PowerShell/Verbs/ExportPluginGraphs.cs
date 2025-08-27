@@ -14,8 +14,16 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             if (!Directory.Exists(OutputPath.FullName)) Directory.CreateDirectory(OutputPath.FullName);
 
             var pluginGraphAnalyzer = new PluginGraphAnalyzer();
+            pluginGraphAnalyzer.Progress += (s, t, n) =>
+            {
+                if (s == t) WriteProgress(new ProgressRecord(0, "Analyzing", "Done!") { RecordType = ProgressRecordType.Completed });
+                else WriteProgress(new ProgressRecord(0, "Analyzing", $"Analyzing plugin step '{n}' ...") { PercentComplete = s * 100 / t });
+            };
+
+            WriteVerbose("Loading plugin steps and analyzing...");
             var entityGraphList = pluginGraphAnalyzer.AnalyzeSystem(Connection, SolutionInfo.Id, Namespaces.ToString(), Log);
 
+            WriteVerbose("Writing markdown files....");
             entityGraphList.ForEach(e => File.WriteAllText(Path.Combine(OutputPath.FullName, $"{e.EntityName}.md"), e.ToMarkdown()));
         }
 

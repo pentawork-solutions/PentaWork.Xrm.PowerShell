@@ -1,7 +1,6 @@
 ﻿using dnlib.DotNet;
 using PentaWork.Xrm.PluginGraph.Model;
 using PentaWork.Xrm.PluginGraph.Model.VMObjects;
-using System.Diagnostics;
 
 namespace PentaWork.Xrm.PluginGraph.Hooks.Calls.ServiceContact
 {
@@ -13,7 +12,6 @@ namespace PentaWork.Xrm.PluginGraph.Hooks.Calls.ServiceContact
             serviceContext.MarkCallsExecuted();
 
             storageFrame.Stack.Push($"Dummy return value for '{method.FullName}'");
-            Debug.WriteLine($"[↑ {storageFrame.Stack.Count}] Return value from {method.FullName}");
         }
 
         public bool HookApplicable(IMethod method, MethodDef? methodDef, List<object> parameters, StorageFrame storageFrame) =>

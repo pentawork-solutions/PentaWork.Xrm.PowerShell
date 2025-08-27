@@ -4,7 +4,7 @@ using PentaWork.Xrm.PluginGraph.Extensions;
 using PentaWork.Xrm.PluginGraph.Hooks;
 using PentaWork.Xrm.PluginGraph.Model;
 using PentaWork.Xrm.PluginGraph.Model.VMObjects;
-using System.Diagnostics;
+using Serilog;
 using System.Text.RegularExpressions;
 
 namespace PentaWork.Xrm.PluginGraph
@@ -24,10 +24,15 @@ namespace PentaWork.Xrm.PluginGraph
 
         private StorageFrame? _storageFrame;
 
-        public PluginGraphVM(PluginModuleList moduleList, List<string> analyzeNamespaces)
+        public PluginGraphVM(PluginModuleList moduleList, List<string> analyzeNamespaces, bool log = false)
         {
             _moduleList = moduleList;
             _analyzeNamespaces = analyzeNamespaces;
+
+            if (log) Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.File("VMLog.txt")
+                .CreateLogger();
 
             _callHooks = GetType().Assembly.GetTypes()
                 .Where(type => typeof(IHook).IsAssignableFrom(type) && type.IsClass && !type.IsAbstract)
@@ -65,50 +70,50 @@ namespace PentaWork.Xrm.PluginGraph
                     #region Loads and Stores
                     case Code.Ldarg_0:
                         _storageFrame.Stack.Push(_storageFrame.Parameters?.Count > 0 ? _storageFrame.Parameters[0] : $"Dummy Value for '{instr.ToString()}'");
-                        Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Load argument 0 onto stack");
+                        Log.Debug("[↑ {0}][{1}] {2} // Load argument 0 onto stack", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                         break;
                     case Code.Ldarg_1:
                         _storageFrame.Stack.Push(_storageFrame.Parameters?.Count > 1 ? _storageFrame.Parameters[1] : $"Dummy Value for '{instr.ToString()}'");
-                        Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Load argument 1 onto stack");
+                        Log.Debug("[↑ {0}][{1}] {2} // Load argument 1 onto stack", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                         break;
                     case Code.Ldarg_2:
                         _storageFrame.Stack.Push(_storageFrame.Parameters?.Count > 2 ? _storageFrame.Parameters[2] : $"Dummy Value for '{instr.ToString()}'");
-                        Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Load argument 2 onto stack");
+                        Log.Debug("[↑ {0}][{1}] {2} // Load argument 2 onto stack", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                         break;
                     case Code.Ldarg_3:
                         _storageFrame.Stack.Push(_storageFrame.Parameters?.Count > 3 ? _storageFrame.Parameters[3] : $"Dummy Value for '{instr.ToString()}'");
-                        Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Load argument 3 onto stack");
+                        Log.Debug("[↑ {0}][{1}] {2} // Load argument 3 onto stack", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                         break;
                     case Code.Ldarg:
                     case Code.Ldarg_S:
                         {
                             var operand = (Parameter)instr.Operand;
                             _storageFrame.Stack.Push(_storageFrame.Parameters?.Count > operand.Index ? _storageFrame.Parameters[operand.Index] : $"Dummy Value for '{instr.ToString()}'");
-                            Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Load argument at index onto stack");
+                            Log.Debug("[↑ {0}][{1}] {2} // Load argument at index onto stack", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                             break;
                         }
                     case Code.Stloc_0:
                         HandleStoreLocal(0, prevInstr);
-                        Debug.WriteLine($"[↓ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Pops a value from the stack into local variable 0");
+                        Log.Debug("[↓ {0}][{1}] {2} // Pops a value from the stack into local variable 0", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                         break;
                     case Code.Stloc_1:
                         HandleStoreLocal(1, prevInstr);
-                        Debug.WriteLine($"[↓ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Pops a value from the stack into local variable 1");
+                        Log.Debug("[↓ {0}][{1}] {2} // Pops a value from the stack into local variable 1", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                         break;
                     case Code.Stloc_2:
                         HandleStoreLocal(2, prevInstr);
-                        Debug.WriteLine($"[↓ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Pops a value from the stack into local variable 2");
+                        Log.Debug("[↓ {0}][{1}] {2} // Pops a value from the stack into local variable 2", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                         break;
                     case Code.Stloc_3:
                         HandleStoreLocal(3, prevInstr);
-                        Debug.WriteLine($"[↓ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Pops a value from the stack into local variable 3");
+                        Log.Debug("[↓ {0}][{1}] {2} // Pops a value from the stack into local variable 3", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                         break;
                     case Code.Stloc:
                     case Code.Stloc_S:
                         {
                             var operand = (Local)instr.Operand;
                             HandleStoreLocal(operand.Index, prevInstr);
-                            Debug.WriteLine($"[↓ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Pops a value from the stack and stores it in local variable index");
+                            Log.Debug("[↓ {0}][{1}] {2} // Pops a value from the stack and stores it in local variable index", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                             break;
                         }
                     case Code.Stfld:
@@ -120,11 +125,11 @@ namespace PentaWork.Xrm.PluginGraph
                             if (obj is GenericObj genericObj)
                             {
                                 genericObj.Fields[operand.FullName] = value;
-                                Debug.WriteLine($"[↓ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Stores value into field of {genericObj.GetType()}");
+                                Log.Debug("[↓ {0}][{1}] {2} // Stores value into field of {3}", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr, genericObj.GetType());
                             }
                             else
                             {
-                                Debug.WriteLine($"[↓ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Stores value into field of Dummy");
+                                Log.Debug("[↓ {0}][{1}] {2} // Stores value into field of Dummy", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                             }
                             break;
                         }
@@ -132,30 +137,30 @@ namespace PentaWork.Xrm.PluginGraph
                     case Code.Starg_S:
                         // TODO
                         _storageFrame.Stack.Pop();
-                        Debug.WriteLine($"[↓ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Stores value into parameter slot TODO");
+                        Log.Debug("[↓ {0}][{1}] {2} // Stores value into parameter slot TODO", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                         break;
                     case Code.Ldloc_0:
                         _storageFrame.Stack.Push(_storageFrame.LocalVars[0]);
-                        Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Loads the local variable at index 0 onto the evaluation stack");
+                        Log.Debug("[↑ {0}][{1}] {2} // Loads the local variable at index 0 onto the evaluation stack", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                         break;
                     case Code.Ldloc_1:
                         _storageFrame.Stack.Push(_storageFrame.LocalVars[1]);
-                        Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Loads the local variable at index 1 onto the evaluation stack");
+                        Log.Debug("[↑ {0}][{1}] {2} // Loads the local variable at index 1 onto the evaluation stack", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                         break;
                     case Code.Ldloc_2:
                         _storageFrame.Stack.Push(_storageFrame.LocalVars[2]);
-                        Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Loads the local variable at index 2 onto the evaluation stack");
+                        Log.Debug("[↑ {0}][{1}] {2} // Loads the local variable at index 2 onto the evaluation stack", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                         break;
                     case Code.Ldloc_3:
                         _storageFrame.Stack.Push(_storageFrame.LocalVars[3]);
-                        Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Loads the local variable at index 3 onto the evaluation stack");
+                        Log.Debug("[↑ {0}][{1}] {2} // Loads the local variable at index 3 onto the evaluation stack", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                         break;
                     case Code.Ldloc:
                     case Code.Ldloc_S:
                         {
                             var operand = (Local)instr.Operand;
                             _storageFrame.Stack.Push(_storageFrame.LocalVars[operand.Index]);
-                            Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Loads the local variable at index index onto stack");
+                            Log.Debug("[↑ {0}][{1}] {2} // Loads the local variable at index index onto stack", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                             break;
                         }
                     case Code.Ldarga:
@@ -168,14 +173,14 @@ namespace PentaWork.Xrm.PluginGraph
                             var operand = (IVariable)instr.Operand;
                             _storageFrame.LocalVars[operand.Index] = $"Dummy Value for '{instr.ToString()}'";
                             _storageFrame.Stack.Push(_storageFrame.LocalVars[operand.Index]);
-                            Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Loads the address of the local variable/paramater at index onto the evaluation stack");
+                            Log.Debug("[↑ {0}][{1}] {2} // Loads the address of the local variable/paramater at index onto the evaluation stack", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                             break;
                         }
                     case Code.Ldstr:
                         {
                             var operand = (string)instr.Operand;
                             _storageFrame.Stack.Push(operand);
-                            Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} {operand} // Pushes a string object for the metadata string token mdToken");
+                            Log.Debug("[↑ {0}][{1}] {2} {3} // Pushes a string object for the metadata string token mdToken", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr, operand);
                             break;
                         }
                     case Code.Ldfld:
@@ -188,12 +193,12 @@ namespace PentaWork.Xrm.PluginGraph
                             if (obj is GenericObj genericObj && genericObj.Fields.ContainsKey(operand.FullName))
                             {
                                 _storageFrame.Stack.Push(genericObj.Fields[operand.FullName]);
-                                Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} (Generic Object) // Pushes field value onto stack");
+                                Log.Debug("[↑ {0}][{1}] {2} (Generic Object) // Pushes field value onto stack", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                             }
                             else
                             {
                                 _storageFrame.Stack.Push($"Dummy Value for '{instr.ToString()}'");
-                                Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} (Dummy) // Pushes field value onto stack");
+                                Log.Debug("[↑ {0}][{1}] {2} (Dummy) // Pushes field value onto stack", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                             }
                             break;
                         }
@@ -202,11 +207,11 @@ namespace PentaWork.Xrm.PluginGraph
                     case Code.Call:
                     case Code.Calli:
                     case Code.Callvirt:
-                        Debug.WriteLine($"[∙ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr}");
+                        Log.Debug("[∙ {0}][{1}] {2}", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                         HandleCall(instr, false);
                         break;
                     case Code.Newobj:
-                        Debug.WriteLine($"[∙ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr}");
+                        Log.Debug("[∙ {0}][{1}] {2}", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                         HandleCall(instr, true);
                         break;
                     #endregion
@@ -233,7 +238,7 @@ namespace PentaWork.Xrm.PluginGraph
                     case Code.Beq_S:
                         _storageFrame.Stack.Pop();
                         _storageFrame.Stack.Pop();
-                        Debug.WriteLine($"[↓ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr}");
+                        Log.Debug("[↓ {0}][{1}] {2}", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
 
                         index = HandleBranch(instructions, instr, index);
                         break;
@@ -242,14 +247,14 @@ namespace PentaWork.Xrm.PluginGraph
                     case Code.Brtrue:
                     case Code.Brtrue_S:
                         _storageFrame.Stack.Pop(); // pop the test value
-                        Debug.WriteLine($"[↓ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr}");
+                        Log.Debug("[↓ {0}][{1}] {2}", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
 
                         index = HandleBranch(instructions, instr, index);
                         break;
                     case Code.Switch:
                         {
                             _storageFrame.Stack.Pop();
-                            Debug.WriteLine($"[↓ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr}");
+                            Log.Debug("[↓ {0}][{1}] {2}", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
 
                             var operands = (Instruction[])instr.Operand;
                             foreach (var operand in operands)
@@ -260,7 +265,7 @@ namespace PentaWork.Xrm.PluginGraph
                         }
                     case Code.Br:
                     case Code.Br_S:
-                        Debug.WriteLine($"[∙ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr}");
+                        Log.Debug("[∙ {0}][{1}] {2}", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                         break;
                     #endregion
                     #region Stack Manipulations
@@ -269,7 +274,7 @@ namespace PentaWork.Xrm.PluginGraph
                             var obj = _storageFrame.Stack.Peek();
                             if (obj is IVMObj) _storageFrame.Stack.Push(obj);
                             else _storageFrame.Stack.Push($"Dummy Value for '{instr.ToString()}'");
-                            Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Duplicates the value on the top of the stack.");
+                            Log.Debug("[↑ {0}][{1}] {2} // Duplicates the value on the top of the stack.", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                             break;
                         }
                     case Code.Ldc_I4:   // Pushes the value num onto the stack.
@@ -294,7 +299,7 @@ namespace PentaWork.Xrm.PluginGraph
                     case Code.Ldsfld:   // Push the value of static field on the stack.
                     case Code.Ldsflda:  // Push the adress of static field on the stack.
                         _storageFrame.Stack.Push($"Dummy Value for '{instr.ToString()}'");
-                        Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Push a value on the stack");
+                        Log.Debug("[↑ {0}][{1}] {2} // Push a value on the stack", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                         break;
                     case Code.Ceq:
                     case Code.Cgt:
@@ -328,20 +333,20 @@ namespace PentaWork.Xrm.PluginGraph
                         _storageFrame.Stack.Pop();
                         _storageFrame.Stack.Pop();
                         _storageFrame.Stack.Push($"Dummy Value for '{instr.ToString()}'");
-                        Debug.WriteLine($"[↓ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Uses two values and pushes result");
+                        Log.Debug("[↓ {0}][{1}] {2} // Uses two values and pushes result", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                         break;
                     case Code.Pop:
                     case Code.Stsfld:   // Stores value into static field
                         if (_storageFrame.Stack.Count == 0 && (prevInstr?.IsLeave() == true)) // Pop after exception maybe
                             break;
                         _storageFrame.Stack.Pop();
-                        Debug.WriteLine($"[↓ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr} // Pops a value for its operation");
+                        Log.Debug("[↓ {0}][{1}] {2} // Pops a value for its operation", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                         break;
                     case Code.Throw:    // Throws an exception.
                         if (instr.Operand != null)
                         {
                             _storageFrame.Stack.Pop();
-                            Debug.WriteLine($"[↓ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr}");
+                            Log.Debug("[↓ {0}][{1}] {2}", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                         }
                         break;
                     case Code.Stelem:       // Replaces the array element at the supplied index with a value of type typeTok on the stack.
@@ -355,7 +360,7 @@ namespace PentaWork.Xrm.PluginGraph
                         _storageFrame.Stack.Pop();
                         _storageFrame.Stack.Pop();
                         _storageFrame.Stack.Pop();
-                        Debug.WriteLine($"[↓ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr}");
+                        Log.Debug("[↓ {0}][{1}] {2}", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                         break;
                     #endregion
                     #region None Stack Changes
@@ -401,11 +406,11 @@ namespace PentaWork.Xrm.PluginGraph
                     case Code.Ldind_Ref:
                     case Code.Constrained:
                     case Code.Endfinally:
-                        Debug.WriteLine($"[∙ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] {instr}");
+                        Log.Debug("[∙ {0}][{1}] {2}", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                         break;
                     #endregion
                     default:
-                        Debug.WriteLine($"NOT IMPLEMENTED {instr.OpCode}");
+                        Log.Debug("NOT IMPLEMENTED {0}", instr.OpCode);
                         break;
                 }
             }
@@ -435,7 +440,7 @@ namespace PentaWork.Xrm.PluginGraph
             {
                 if (instr.Offset > operand.Offset)
                 {
-                    Debug.WriteLine($"BRANCHING SKIPPED [JUMP BACK]");
+                    Log.Debug("BRANCHING SKIPPED [JUMP BACK]");
                     newIndex = index;
                 }
                 else
@@ -444,11 +449,11 @@ namespace PentaWork.Xrm.PluginGraph
                         .Where(i => i.Offset > instr.Offset && i.Offset < operand.Offset)
                         .ToList();
 
-                    Debug.WriteLine($"BRANCH EXECUTION");
+                    Log.Debug("BRANCH EXECUTION");
                     _storageFrame.SaveStack();
                     Execute(branchInstructions);
                     _storageFrame.RestoreStack();
-                    Debug.WriteLine($"END BRANCH EXECUTION");
+                    Log.Debug("END BRANCH EXECUTION");
 
                     newIndex = 0;
                     while (newIndex < instructions.Count && instructions[newIndex].Offset != operand.Offset) newIndex++;
@@ -469,7 +474,7 @@ namespace PentaWork.Xrm.PluginGraph
                 {
                     hook.ExecuteHook(method, methodDef, parameters, _storageFrame);
                     hookExecuted = true;
-                    Debug.WriteLine($"[∙ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] Hook executed! ({instr.ToString()})");
+                    Log.Debug("[∙ {0}][{1}] Hook executed! ({2})", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr.ToString());
                     break;
                 }
             }
@@ -482,10 +487,10 @@ namespace PentaWork.Xrm.PluginGraph
                 var callLoopHit = methodDef != null && IsCallLoop(methodDef.FullName);
                 var toRegEx = (string value) => "^" + Regex.Escape(value).Replace("\\*", ".*") + "$";
 
-                if (callLoopHit) Debug.WriteLine($"CALL LOOP HIT {methodDef.FullName}");
+                if (callLoopHit) Log.Debug("CALL LOOP HIT {0}", methodDef.FullName);
                 if (methodDef != null && methodDef.Body != null && !callLoopHit && _analyzeNamespaces.Any(n => Regex.IsMatch(methodDef.DeclaringType.ReflectionNamespace, toRegEx(n))))
                 {
-                    Debug.WriteLine($"CALL {instr.ToString()}]");
+                    Log.Debug("CALL {0}]", instr.ToString());
                     _storageFrame.CallStack.Push(methodDef.FullName);
                     var vm = new PluginGraphVM(_moduleList, _analyzeNamespaces);
                     var (apicalls, returnValue) = vm.Execute(methodDef, method, parameters, _storageFrame);
@@ -496,10 +501,10 @@ namespace PentaWork.Xrm.PluginGraph
                     if (returnValue != null)
                     {
                         _storageFrame.Stack.Push(returnValue);
-                        Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] Return value from {methodDef.FullName} ({_storageFrame.Stack.Peek().GetType()})");
+                        Log.Debug("[↑ {0}][{1}] Return value from {2} ({3})", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, methodDef.FullName, _storageFrame.Stack.Peek().GetType());
                     }
 
-                    Debug.WriteLine($"ENDCALL {instr.ToString()}]");
+                    Log.Debug("ENDCALL {0}]", instr.ToString());
                 }
                 else if (method.MethodSig.RetType.FullName != "System.Void")
                 {
@@ -508,7 +513,7 @@ namespace PentaWork.Xrm.PluginGraph
                     if (typeDef != null && typeDef.FullName == "Microsoft.Xrm.Sdk.Entity" && !callLoopHit)
                     {
                         _storageFrame.Stack.Push(new EntityObj());
-                        Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] Return value from {method.FullName} (EntityObj)");
+                        Log.Debug("[↑ {0}][{1}] Return value from {2} (EntityObj)", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, method.FullName);
                     }
                     else if (typeDef?.BaseType?.FullName == "Microsoft.Xrm.Sdk.Entity" && !callLoopHit)
                     {
@@ -518,12 +523,12 @@ namespace PentaWork.Xrm.PluginGraph
                         vm.Execute(ctorMethod, null, new List<object> { genericObj });
 
                         _storageFrame.Stack.Push(genericObj.GetObject());
-                        Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] Return value from {method.FullName} (EntityObj - Proxy)");
+                        Log.Debug("[↑ {0}][{1}] Return value from {2} (EntityObj - Proxy)", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, method.FullName);
                     }
                     else
                     {
                         _storageFrame.Stack.Push(new GenericObj($"Dummy return value for '{method.FullName}'", method.DeclaringType, callLoopHit) { Parameters = parameters });
-                        Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] Return value from {method.FullName} (Generic)");
+                        Log.Debug("[↑ {0}][{1}] Return value from {2} (Generic)", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, method.FullName);
                     }
                 }
             }
@@ -532,7 +537,7 @@ namespace PentaWork.Xrm.PluginGraph
             {
                 _storageFrame.Stack.Push(((GenericObj)parameters[0]).GetObject());
                 if (_storageFrame.Stack.Peek() is XrmApiCall apiCall) _storageFrame.ApiCalls.Add(apiCall);
-                Debug.WriteLine($"[↑ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] New object {_storageFrame.Stack.Peek().GetType()} created by {method.FullName}");
+                Log.Debug("[↑ {0}][{1}] New object {2} created by {3}", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, _storageFrame.Stack.Peek().GetType(), method.FullName);
             }
         }
 
@@ -558,7 +563,7 @@ namespace PentaWork.Xrm.PluginGraph
 
             // Reverse List to have the parameters in order: this, param1, param2 ....
             parameters.Reverse();
-            if (parameters.Any()) Debug.WriteLine($"[↓ {_storageFrame.Stack.Count}][{_storageFrame.CallStack.Count}] Popped method arguments");
+            if (parameters.Any()) Log.Debug("[↓ {0}][{1}] Popped method arguments", _storageFrame.Stack.Count, _storageFrame.CallStack.Count);
 
 
             // If the method is abstract, we have to search the method in the

@@ -14,7 +14,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             if (!Directory.Exists(OutputPath.FullName)) Directory.CreateDirectory(OutputPath.FullName);
 
             var pluginGraphAnalyzer = new PluginGraphAnalyzer();
-            var entityGraphList = pluginGraphAnalyzer.AnalyzeSystem(Connection, SolutionInfo.Id, Namespaces);
+            var entityGraphList = pluginGraphAnalyzer.AnalyzeSystem(Connection, SolutionInfo.Id, Namespaces.ToString(), Log);
 
             entityGraphList.ForEach(e => File.WriteAllText(Path.Combine(OutputPath.FullName, $"{e.EntityName}.md"), e.ToMarkdown()));
         }
@@ -55,5 +55,11 @@ namespace PentaWork.Xrm.PowerShell.Verbs
         /// </summary>
         [Parameter]
         public SwitchParameter Clear { get; set; }
+
+        /// <summary>
+        /// <para type="description">Log the VM execution for each Plugin.</para>
+        /// </summary>
+        [Parameter]
+        public SwitchParameter Log { get; set; }
     }
 }

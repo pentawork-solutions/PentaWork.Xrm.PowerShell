@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="dnlib" Version="4.5.0" />
     <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.1.65" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="System.ValueTuple" Version="4.6.1" />
   </ItemGroup>
 

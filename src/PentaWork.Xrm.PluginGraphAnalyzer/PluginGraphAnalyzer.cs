@@ -13,13 +13,13 @@ namespace PentaWork.Xrm.PluginGraph
 {
     public class PluginGraphAnalyzer
     {
-        public EntityGraphList AnalyzeSystem(CrmServiceClient connection, Guid solutionId, string namespaces)
+        public EntityGraphList AnalyzeSystem(CrmServiceClient connection, Guid solutionId, string namespaces, bool log = false)
         {
             var solutionComponents = GetSolutionComponents(connection, solutionId);
             var pluginsStepInfos = connection.GetPluginSteps(solutionComponents);
 
             var moduleLists = LoadModules(connection, pluginsStepInfos);
-            var apiCalls = AnalyzeApiCalls(moduleLists, pluginsStepInfos, namespaces);
+            var apiCalls = AnalyzeApiCalls(moduleLists, pluginsStepInfos, namespaces, log);
 
             var entityGraphList = new EntityGraphList(apiCalls);
             pluginsStepInfos.ToList().ForEach(entityGraphList.Add);
@@ -27,7 +27,7 @@ namespace PentaWork.Xrm.PluginGraph
             return entityGraphList;
         }
 
-        public Dictionary<string, List<XrmApiCall>> AnalyzeApiCalls(Dictionary<Guid, PluginModuleList> moduleLists, IEnumerable<PluginStepInfo> pluginStepInfos, string namespaces)
+        public Dictionary<string, List<XrmApiCall>> AnalyzeApiCalls(Dictionary<Guid, PluginModuleList> moduleLists, IEnumerable<PluginStepInfo> pluginStepInfos, string namespaces, bool log = false)
         {
             var apiCalls = new Dictionary<string, List<XrmApiCall>>();
 
@@ -56,7 +56,7 @@ namespace PentaWork.Xrm.PluginGraph
                     }
                 }
 
-                var vm = new PluginGraphVM(moduleLists[moduleId], namespaces.Split(new char[','], StringSplitOptions.RemoveEmptyEntries).ToList());
+                var vm = new PluginGraphVM(moduleLists[moduleId], namespaces.Split(new char[','], StringSplitOptions.RemoveEmptyEntries).ToList(), log);
                 apiCalls.Add(pluginStepInfo.Plugin.TypeName, vm.Execute(methodDef, null, [new GenericObj(pluginType.FullName, pluginType)]).Item1);
             }
 

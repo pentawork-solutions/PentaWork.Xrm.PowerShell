@@ -1,7 +1,6 @@
 ﻿using dnlib.DotNet;
 using PentaWork.Xrm.PluginGraph.Model;
 using PentaWork.Xrm.PluginGraph.Model.VMObjects;
-using System.Diagnostics;
 
 namespace PentaWork.Xrm.PluginGraph.Hooks.Calls.IOrganizationContext
 {
@@ -14,7 +13,6 @@ namespace PentaWork.Xrm.PluginGraph.Hooks.Calls.IOrganizationContext
             apiCall.EntityInfo = (EntityObj)parameters[1];
 
             storageFrame.Stack.Push($"Dummy return value for '{method.FullName}'");
-            Debug.WriteLine($"[↑ {storageFrame.Stack.Count}] Return value from {method.FullName}");
 
             storageFrame.ApiCalls.Add(apiCall);
         }

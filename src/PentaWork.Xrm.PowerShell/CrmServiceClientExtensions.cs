@@ -6,6 +6,7 @@ using Microsoft.Xrm.Tooling.Connector;
 using System;
 using System.Collections.Generic;
 using System.ServiceModel;
+using Microsoft.Crm.Sdk.Messages;
 
 namespace PentaWork.Xrm.PowerShell.Common
 {
@@ -90,6 +91,17 @@ namespace PentaWork.Xrm.PowerShell.Common
                     : new List<Entity>();
             }
             return entities;
+        }
+        
+        public static void AddToSolution(this CrmServiceClient client, SolutionComponentType componentType, Guid componentId, string solutionUniqueName)
+        {
+            var addSolutionComponentRequest = new AddSolutionComponentRequest
+            {
+                ComponentType = (int)componentType,
+                ComponentId = componentId,
+                SolutionUniqueName = solutionUniqueName
+            };
+            client.Execute(addSolutionComponentRequest);
         }
     }
 }

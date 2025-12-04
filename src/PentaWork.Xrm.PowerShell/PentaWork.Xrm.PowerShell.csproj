@@ -69,6 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CrmServiceClientExtensions.cs" />
+    <Compile Include="SolutionComponentTypes.cs" />
     <Compile Include="Verbs\GetXrmUserViews.cs" />
     <Compile Include="Verbs\ImportXrmRelations.cs" />
     <Compile Include="Verbs\ImportXrmSharings.cs" />

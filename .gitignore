@@ -24,6 +24,7 @@ x64/
 [Bb]in/
 [Oo]bj/
 .vs/
+.idea/
 
 build/
 nuget/

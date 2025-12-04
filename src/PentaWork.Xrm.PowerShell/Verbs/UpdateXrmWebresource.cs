@@ -2,6 +2,7 @@
 using System.IO;
 using System.Management.Automation;
 using Microsoft.Crm.Sdk.Messages;
+using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
 using PentaWork.Xrm.PowerShell.Common;
@@ -35,14 +36,33 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             var response = Connection.Query(webresourceQuery, true);
             if (response != null)
             {
-                if (response.Count > 1) { WriteWarning($"More than one webresource with name '{Name}' found! Skipping!"); }
+                if (response.Count > 1) WriteWarning($"More than one webresource with name '{Name}' found! Skipping!");
+                if (response.Count == 0 && !Create) WriteWarning($"No webressource with name '{Name}' found! Use 'Create' parameter, if necessary");
                 else
                 {
-                    var crmWebresource = response[0];
+                    var crmWebresource = response.Count == 1 ? response[0] : new Entity("webresource");
                     crmWebresource["content"] = Convert.ToBase64String(File.ReadAllBytes(WebresourceFile.FullName));
+                    
+                    if (response.Count == 0)
+                    {
+                        crmWebresource["name"] = Name;
+                        crmWebresource["displayname"] = Name;
+                        crmWebresource["webresourcetype"] = new OptionSetValue(3);
+                        
+                        WriteVerbose($"Creating webresource '{Name}' to XRM ...");
+                        var newRessourceId = Connection.Create(crmWebresource);
 
-                    WriteVerbose($"Updating webresource '{Name}' to XRM ...");
-                    Connection.Update(crmWebresource);
+                        if (!string.IsNullOrEmpty(Solution))
+                        {
+                            WriteVerbose($"Adding new webresource '{Name}' to {Solution} ...");
+                            Connection.AddToSolution(SolutionComponentType.WebResource, newRessourceId, Solution);
+                        }
+                    }
+                    else
+                    {
+                        WriteVerbose($"Updating webresource '{Name}' to XRM ...");
+                        Connection.Update(crmWebresource);
+                    }
 
                     if(Publish)
                     {
@@ -90,5 +110,17 @@ namespace PentaWork.Xrm.PowerShell.Verbs
         /// </summary>
         [Parameter]
         public SwitchParameter Publish { get; set; }
+        
+        /// <summary>
+        /// <para type="description">Create the web resource, if not existing.</para>
+        /// </summary>
+        [Parameter]
+        public SwitchParameter Create { get; set; }
+        
+        /// <summary>
+        /// <para type="description">If a new web resource gets created, it will be added to this solution.</para>
+        /// </summary>
+        [Parameter]
+        public string Solution { get; set; }
     }
 }

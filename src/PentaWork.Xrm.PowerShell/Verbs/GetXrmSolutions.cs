@@ -1,4 +1,6 @@
-﻿using Microsoft.Xrm.Sdk;
+﻿using System;
+using System.Linq;
+using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
 using PentaWork.Xrm.PowerShell.Common;

@@ -1,0 +1,10 @@
+{
+  "FileVersion": 2,
+  "Id": "55827452-7f5a-49e7-838d-3ca1187d089a",
+  "Items": [
+    {
+      "Id": "ab80b941-ddd1-436e-926d-a0066489fa6e",
+      "Command": "-NoExit -Command \"Import-Module '.\\PentaWork.Xrm.PowerShell.dll'\""
+    }
+  ]
+}

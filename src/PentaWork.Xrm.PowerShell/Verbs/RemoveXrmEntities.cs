@@ -1,18 +1,18 @@
-﻿using Microsoft.Xrm.Sdk.Query;
+﻿using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Messages;
+using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
-using System.Management.Automation;
+using PentaWork.Xrm.PowerShell.Common;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Xrm.Sdk;
-using PentaWork.Xrm.PowerShell.Common;
-using Microsoft.Xrm.Sdk.Messages;
+using System.Management.Automation;
 
 namespace PentaWork.Xrm.PowerShell.Verbs
 {
     /// <summary>
     /// <para type="synopsis">Removes ALL entities matching the given parameters.</para>
     /// <para type="description">
-    /// This function remoces all entities matching the given entity name and conditions.
+    /// This function removes all entities matching the given entity name and conditions.
     /// </para>
     /// </summary>
     /// <example>
@@ -35,7 +35,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
             var entities = Connection.Query(query, true);
 
             WriteVerbose($"Deleting {entities.Count} entities ...");
-            
+
             var deleteRequests = new ExecuteMultipleRequest
             {
                 Settings = new ExecuteMultipleSettings()
@@ -48,7 +48,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
 
             entities.ForEach(e => deleteRequests.Requests.Add(new DeleteRequest { Target = e.ToEntityReference() }));
             var response = (ExecuteMultipleResponse)Connection.Execute(deleteRequests);
-            
+
             var hasErrors = response.Responses.Any(r => r.Fault != null);
             if (hasErrors)
             {
@@ -61,7 +61,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                     }
                 }
             }
-        }            
+        }
 
         /// <summary>
         /// <para type="description">The connection to the XRM Organization (Get-CrmConnection).</para>

@@ -102,8 +102,6 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Model
                     break;
                 case AttributeTypeCode.Customer:
                 case AttributeTypeCode.Owner:
-                    returnType = "Xrm.LookupValue";
-                    break;
                 case AttributeTypeCode.Lookup:
                     returnType = "Array<Xrm.LookupValue>";
                     break;

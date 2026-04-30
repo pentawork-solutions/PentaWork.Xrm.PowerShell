@@ -16,47 +16,35 @@ export interface AttributeName {
     name: string;
 }
 
-export class AttributeProxy<T, S extends Xrm.Attributes.Attribute, U extends Xrm.Controls.Control> {
+export class AttributeProxy<T extends Xrm.Attributes.AttributeValues, S extends Xrm.Attributes.Attribute, U extends Xrm.Controls.Control> {
     constructor(private _formContext: Xrm.FormContext, private _attributeName: AttributeName) { }
 
     get LogicalName() {
         return this._attributeName.name;
     }
 
-    get Attribute(): S {
-        let attribute: S | undefined = this._formContext.getAttribute<S>(this._attributeName.name);
-        if(attribute === undefined) {
+    get Attribute(): S | null {
+        let attribute: S | null = this._formContext.getAttribute<S>(this._attributeName.name);
+        if(attribute === null) {
             console.log(`GetAttribute: No attribute with name '${this._attributeName.name}' available on current form!`);
         }
         return attribute;
     }
 
-    get Control(): U {
-        let control: U | undefined = this._formContext.getControl<U>(this._attributeName.name);
-        if(control === undefined) {
+    get Control(): U | null {
+        let control: U | null = this._formContext.getControl<U>(this._attributeName.name);
+        if(control === null) {
             console.log(`GetControl: No attribute control with name '${this._attributeName.name}' available on current form!`);
         }
         return control;
     }
 
-    get Value(): T | undefined {
-        let value: T | undefined;
-        if(this._formContext.getAttribute(this._attributeName.name) !== undefined) {
-            value = <T | undefined>this._formContext.getAttribute(this._attributeName.name).getValue();
-        }
-        else {
-            console.log(`Get: No attribute with name '${this._attributeName.name}' available on current form!`);
-        }
-        return value;
+    get Value(): T | null {
+        return <T | null>this.Attribute?.getValue();
     }
 
-    set Value(value: T | undefined) {
-        if(this._formContext.getAttribute(this._attributeName.name) !== undefined) {
-            this._formContext.getAttribute(this._attributeName.name).setValue(value);
-        }
-        else {
-            console.log(`Set: No attribute with name '${this._attributeName.name}' available on current form!`);
-        }
+    set Value(value: T | null) {
+        this.Attribute?.setValue(value);
     }
 }
 

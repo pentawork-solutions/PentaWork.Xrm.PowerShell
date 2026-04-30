@@ -70,6 +70,9 @@
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>ProxyTypes.cs</LastGenOutput>
     </None>
+    <None Update="PentaWork.Xrm.PowerShell.psd1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

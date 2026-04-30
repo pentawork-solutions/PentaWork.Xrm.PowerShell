@@ -34,16 +34,19 @@ Task("Restore")
 Task("Build")
     .IsDependentOn("Restore")
     .Does(() => {
-        MSBuild(solution, settings => settings.SetConfiguration(configuration));
+        DotNetBuild(solution, new DotNetBuildSettings
+        {
+            Configuration = configuration,
+        });
     });
 
 Task("Dist")
     .IsDependentOn("Build")
     .Does(() => {
         CreateDirectory(distDir);
-        CopyFiles(buildDir + "/*.dll", distDir);
-        CopyFiles(buildDir + "/*.psd1", distDir);
-        CopyFiles(buildDir + "/*-Help.xml", distDir);        
+        CopyFiles(buildDir + "/net462/*.dll", distDir);
+        CopyFiles(buildDir + "/net462/*.psd1", distDir);
+        CopyFiles(buildDir + "/net462/*-Help.xml", distDir);        
     });
 
 //////////////////////////////////////////////////////////////////////

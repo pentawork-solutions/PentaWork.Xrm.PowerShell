@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xrm.Tooling.Connector;
 using PentaWork.Xrm.PluginGraph;
+using PentaWork.Xrm.PluginGraph.Model.GraphObjects;
 using System.Management.Automation;
 
 namespace PentaWork.Xrm.PowerShell.Verbs
@@ -19,12 +20,14 @@ namespace PentaWork.Xrm.PowerShell.Verbs
                 if (s == t) WriteProgress(new ProgressRecord(0, "Analyzing", "Done!") { RecordType = ProgressRecordType.Completed });
                 else WriteProgress(new ProgressRecord(0, "Analyzing", $"Analyzing plugin step '{n}' ...") { PercentComplete = s * 100 / t });
             };
+            pluginGraphAnalyzer.Warning += WriteWarning;
 
             WriteVerbose("Loading plugin steps and analyzing...");
             var entityGraphList = pluginGraphAnalyzer.AnalyzeSystem(Connection, SolutionInfo.Id, Namespaces.ToString(), Log);
 
             WriteVerbose("Writing markdown files....");
             entityGraphList.ForEach(e => File.WriteAllText(Path.Combine(OutputPath.FullName, $"{e.EntityName}.md"), e.ToMarkdown()));
+            File.WriteAllText(Path.Combine(OutputPath.FullName, "0_TOC.md"), new SystemOverview(entityGraphList).ToMarkdown());
         }
 
         /// <summary>

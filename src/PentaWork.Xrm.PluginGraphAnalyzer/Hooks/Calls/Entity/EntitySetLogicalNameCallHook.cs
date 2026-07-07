@@ -13,6 +13,8 @@ namespace PentaWork.Xrm.PluginGraph.Hooks.Calls.Entity
         }
 
         public bool HookApplicable(IMethod method, MethodDef? methodDef, List<object> parameters, StorageFrame storageFrame) =>
-            method.FullName == "System.String Microsoft.Xrm.Sdk.Entity::set_LogicalName()";
+            parameters.Count > 1
+            && parameters[0] is EntityObj
+            && method.FullName == "System.Void Microsoft.Xrm.Sdk.Entity::set_LogicalName(System.String)";
     }
 }

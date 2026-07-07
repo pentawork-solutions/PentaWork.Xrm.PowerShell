@@ -20,7 +20,7 @@ namespace PentaWork.Xrm.PluginGraph.Model.GraphObjects
             var entity = this.SingleOrDefault(e => e.EntityName == pluginStepInfo.PrimaryEntityName);
             if (entity == null)
             {
-                entity = new EntityGraph(pluginStepInfo.PrimaryEntityName);
+                entity = new EntityGraph(pluginStepInfo.PrimaryEntityName) { Owner = this };
                 Add(entity);
             }
             entity.Add(pluginStepInfo);

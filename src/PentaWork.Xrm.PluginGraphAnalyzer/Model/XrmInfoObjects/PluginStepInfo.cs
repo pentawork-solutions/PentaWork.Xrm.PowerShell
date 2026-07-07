@@ -37,7 +37,6 @@ namespace PentaWork.Xrm.PluginGraph.Model.XrmInfoObjects
 
         /// <summary>Markdown anchor id used to deep-link into this step from other entities' reports.</summary>
         public string AnchorId => $"step-{Id}";
-        public string MermaidId => $"n{Id:N}";
         public string EntityFileName => $"{PrimaryEntityName}.md";
         public string ModeLabel => Async ? "Async" : "Sync";
         public string StageName => Stage.ToString();
@@ -49,12 +48,6 @@ namespace PentaWork.Xrm.PluginGraph.Model.XrmInfoObjects
         public bool HasTriggeredOtherSteps => TriggeredOtherSteps.Count > 0;
         public bool HasTriggeredBy => TriggeredBy.Count > 0;
 
-        /// <summary>
-        /// A "hot" shared entity/message (e.g. a generic activity or note entity) can legitimately
-        /// be triggered by or trigger hundreds of steps system-wide - dumping all of them into one
-        /// bullet list isn't "quickly graspable" for a human reader, so the report only lists the
-        /// first few and calls out how many more exist.
-        /// </summary>
         private const int MaxTriggerLinksShown = 50;
 
         public List<TriggerLink> TriggeredOtherStepsShown => TriggeredOtherSteps.Take(MaxTriggerLinksShown).ToList();

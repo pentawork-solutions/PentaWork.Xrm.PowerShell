@@ -18,7 +18,15 @@ namespace PentaWork.Xrm.PluginGraph
     /// </summary>
     public class PluginGraphVM
     {
-        private readonly List<IHook> _callHooks;
+        // Hooks are stateless (all context is passed in via method parameters) and analysis runs
+        // single-threaded, so the reflection-discovered hook list can safely be built once per
+        // process instead of once per PluginGraphVM instance (which happens for every recursively
+        // interpreted call).
+        private static readonly List<IHook> _callHooks = typeof(PluginGraphVM).Assembly.GetTypes()
+            .Where(type => typeof(IHook).IsAssignableFrom(type) && type.IsClass && !type.IsAbstract)
+            .Select(t => (IHook)Activator.CreateInstance(t))
+            .ToList();
+
         private readonly PluginModuleList _moduleList;
         private readonly List<string> _analyzeNamespaces;
 
@@ -33,11 +41,6 @@ namespace PentaWork.Xrm.PluginGraph
                 .MinimumLevel.Debug()
                 .WriteTo.File("VMLog.txt")
                 .CreateLogger();
-
-            _callHooks = GetType().Assembly.GetTypes()
-                .Where(type => typeof(IHook).IsAssignableFrom(type) && type.IsClass && !type.IsAbstract)
-                .Select(t => (IHook)Activator.CreateInstance(t))
-                .ToList();
         }
 
         /// <summary>
@@ -256,11 +259,10 @@ namespace PentaWork.Xrm.PluginGraph
                             _storageFrame.Stack.Pop();
                             Log.Debug("[↓ {0}][{1}] {2}", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
 
-                            var operands = (Instruction[])instr.Operand;
-                            foreach (var operand in operands)
-                            {
-                                index = HandleBranch(instructions, instr, index);
-                            }
+                            // HandleBranch already iterates every target in the jump table internally
+                            // (instr.Operand is the full Instruction[] for a switch) - calling it once
+                            // per target here as well used to interpret the whole table N times over.
+                            index = HandleBranch(instructions, instr, index);
                             break;
                         }
                     case Code.Br:
@@ -296,11 +298,17 @@ namespace PentaWork.Xrm.PluginGraph
                     case Code.Ldtoken:  // Converts a metadata token to its runtime representation.
                     case Code.Ldftn:    // Pushes a pointer to a method referenced by method on the stack.
                     case Code.Newarr:   // Creates a new array with elements of type etype.
-                    case Code.Ldsfld:   // Push the value of static field on the stack.
-                    case Code.Ldsflda:  // Push the adress of static field on the stack.
                         _storageFrame.Stack.Push($"Dummy Value for '{instr.ToString()}'");
                         Log.Debug("[↑ {0}][{1}] {2} // Push a value on the stack", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
                         break;
+                    case Code.Ldsfld:   // Push the value of static field on the stack.
+                    case Code.Ldsflda:  // Push the adress of static field on the stack.
+                        {
+                            var field = (IField)instr.Operand;
+                            _storageFrame.Stack.Push($"<{field.DeclaringType?.Name ?? "?"}.{field.Name}>");
+                            Log.Debug("[↑ {0}][{1}] {2} // Push the (resolved, if possible) value of a static field on the stack", _storageFrame.Stack.Count, _storageFrame.CallStack.Count, instr);
+                            break;
+                        }
                     case Code.Ceq:
                     case Code.Cgt:
                     case Code.Cgt_Un:
@@ -315,6 +323,12 @@ namespace PentaWork.Xrm.PluginGraph
                     case Code.Add:
                     case Code.Add_Ovf:
                     case Code.Add_Ovf_Un:
+                    case Code.Mul:
+                    case Code.Mul_Ovf:
+                    case Code.Mul_Ovf_Un:
+                    case Code.Rem:
+                    case Code.Rem_Un:
+                    case Code.Shl:
                     case Code.Ldelem:   // Loads the element at index onto the top of the stack as type typeTok.
                     case Code.Ldelema:
                     case Code.Ldelem_I:
@@ -469,7 +483,6 @@ namespace PentaWork.Xrm.PluginGraph
             var hookExecuted = false;
             foreach (var hook in _callHooks)
             {
-                var instance = _storageFrame.Parameters.FirstOrDefault() as IVMObj;
                 if (hook.HookApplicable(method, methodDef, parameters, _storageFrame))
                 {
                     hook.ExecuteHook(method, methodDef, parameters, _storageFrame);
@@ -582,17 +595,20 @@ namespace PentaWork.Xrm.PluginGraph
             return (method, methodDef, parameters);
         }
 
+        // A few levels of direct self-recursion (e.g. building up an entity hierarchy one level at a
+        // time) are normal, harmless plugin code - flagging it as a "loop" on the second occurrence
+        // stops interpretation of the method body entirely, which silently drops any Create/Update
+        // call made with its result. Bounded conservatively: real infinite/deep recursion is still
+        // caught quickly, but a couple of genuine recursive calls now actually get interpreted.
+        private const int MaxSelfRecursionDepth = 3;
+
         private bool IsCallLoop(string methodFullname)
         {
             var loopDetected = false;
             // Add method name temporally onto the callstack
             _storageFrame.CallStack.Push(methodFullname);
 
-            for (int i = 0; i < _storageFrame.CallStack.Count - 1; i++)
-            {
-                loopDetected = _storageFrame.CallStack.ElementAt(i) == _storageFrame.CallStack.ElementAt(i + 1);
-                if (loopDetected) break;
-            }
+            loopDetected = CountTrailingRepeats(methodFullname) > MaxSelfRecursionDepth;
 
             if (!loopDetected)
             {
@@ -607,6 +623,18 @@ namespace PentaWork.Xrm.PluginGraph
             // remove the method from the callstack
             _storageFrame.CallStack.Pop();
             return loopDetected;
+        }
+
+        /// <summary>Counts how many frames from the top of the call stack (most recently pushed first) match methodFullname consecutively.</summary>
+        private int CountTrailingRepeats(string methodFullname)
+        {
+            var count = 0;
+            foreach (var frame in _storageFrame.CallStack)
+            {
+                if (frame != methodFullname) break;
+                count++;
+            }
+            return count;
         }
     }
 }

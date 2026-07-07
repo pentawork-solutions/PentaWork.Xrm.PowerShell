@@ -30,6 +30,7 @@ namespace PentaWork.Xrm.PluginGraph.Model.GraphObjects
         public List<MessageGraph> Messages { get; } = new();
         public EntityGraphSummary Summary => new(this);
         public List<PluginStepInfo> AllSteps => Messages.SelectMany(m => m.Stages.Values).SelectMany(steps => steps).ToList();
+        public EntityGraphList? Owner { get; internal set; }
     }
 
     /// <summary>
@@ -39,9 +40,19 @@ namespace PentaWork.Xrm.PluginGraph.Model.GraphObjects
     /// </summary>
     public class EntityGraphSummary
     {
+        private readonly HashSet<string> _entitiesWithOwnPage;
+
         public EntityGraphSummary(EntityGraph entityGraph)
         {
             var allSteps = entityGraph.AllSteps;
+
+            // Only entities that themselves have at least one registered plugin step get a
+            // Markdown page generated (see ExportPluginGraphs) - an API call can just as easily
+            // target some other entity that has none, so linking to it unconditionally produced
+            // dead links in the "Reaches into" summary line.
+            _entitiesWithOwnPage = new HashSet<string>(
+                entityGraph.Owner?.Select(e => e.EntityName) ?? Enumerable.Empty<string>(),
+                StringComparer.OrdinalIgnoreCase);
 
             TotalSteps = allSteps.Count;
             SyncSteps = allSteps.Count(s => !s.Async);
@@ -71,7 +82,8 @@ namespace PentaWork.Xrm.PluginGraph.Model.GraphObjects
         public List<string> AffectedEntities { get; }
         public bool HasSelfRecursionWarnings => SelfRecursionWarnings.Count > 0;
         public bool HasAffectedEntities => AffectedEntities.Count > 0;
-        public string AffectedEntitiesMarkdown => string.Join(", ", AffectedEntities.Select(name => $"[{name}]({name}.md)"));
+        public string AffectedEntitiesMarkdown => string.Join(", ", AffectedEntities.Select(name =>
+            _entitiesWithOwnPage.Contains(name) ? $"[{name}]({name}.md)" : name));
         public string MessageCountsMarkdown => string.Join(", ", MessageCounts.Select(m => $"{m.Message} ({m.Count})"));
     }
 

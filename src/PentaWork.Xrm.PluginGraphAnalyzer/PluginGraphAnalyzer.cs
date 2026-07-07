@@ -15,6 +15,9 @@ namespace PentaWork.Xrm.PluginGraph
     {
         public event ProgressHandler? Progress;
         public delegate void ProgressHandler(int progress, int total, string pluginName);
+        
+        public event WarningHandler? Warning;
+        public delegate void WarningHandler(string message);
 
         public EntityGraphList AnalyzeSystem(CrmServiceClient connection, Guid solutionId, string namespaces, bool log = false)
         {
@@ -39,30 +42,49 @@ namespace PentaWork.Xrm.PluginGraph
             {
                 if (apiCalls.ContainsKey(pluginStepInfo.Value.Plugin.TypeName)) continue;
 
-                var moduleId = pluginStepInfo.Value.Plugin!.PackageInfo != null
-                    ? pluginStepInfo.Value.Plugin.PackageInfo.Id
-                    : pluginStepInfo.Value.Plugin.AssemblyInfo!.Id;
-                var moduleList = moduleLists[moduleId];
-                var pluginType = moduleList
-                    .Single(m => m.Assembly.Name == pluginStepInfo.Value.Plugin.AssemblyInfo.Name)
-                    .GetTypes()
-                    .Single(t => t.FullName == pluginStepInfo.Value.Plugin.TypeName);
-
-                var methodDef = pluginType.Methods.SingleOrDefault(m => m.Name == "Execute");
-                if (methodDef == null)
-                {
-                    var baseType = pluginType.BaseType?.ResolveTypeDef();
-                    while (baseType != null)
-                    {
-                        methodDef = baseType.Methods.SingleOrDefault(m => m.Name == "Execute");
-                        if (methodDef != null) break;
-                        else baseType = baseType.BaseType?.ResolveTypeDef();
-                    }
-                }
-
                 if (Progress != null) Progress(pluginStepInfo.Index, pluginStepInfos.Count(), pluginStepInfo.Value.Name);
-                var vm = new PluginGraphVM(moduleLists[moduleId], namespaces.Split(new char[','], StringSplitOptions.RemoveEmptyEntries).ToList(), log);
-                apiCalls.Add(pluginStepInfo.Value.Plugin.TypeName, vm.Execute(methodDef, null, [new GenericObj(pluginType.FullName, pluginType)]).Item1);
+
+                // An unusual/unanalyzable plugin (missing Execute method, unresolvable type,
+                // or a bug in the IL interpreter itself) must not abort analysis for every other
+                // plugin in the batch - it's recorded as "no known API calls" and we move on.
+                try
+                {
+                    var moduleId = pluginStepInfo.Value.Plugin!.PackageInfo != null
+                        ? pluginStepInfo.Value.Plugin.PackageInfo.Id
+                        : pluginStepInfo.Value.Plugin.AssemblyInfo!.Id;
+                    var moduleList = moduleLists[moduleId];
+                    var pluginType = moduleList
+                        .Single(m => m.Assembly.Name == pluginStepInfo.Value.Plugin.AssemblyInfo.Name)
+                        .GetTypes()
+                        .Single(t => t.FullName == pluginStepInfo.Value.Plugin.TypeName);
+
+                    var methodDef = pluginType.Methods.SingleOrDefault(m => m.Name == "Execute");
+                    if (methodDef == null)
+                    {
+                        var baseType = pluginType.BaseType?.ResolveTypeDef();
+                        while (baseType != null)
+                        {
+                            methodDef = baseType.Methods.SingleOrDefault(m => m.Name == "Execute");
+                            if (methodDef != null) break;
+                            else baseType = baseType.BaseType?.ResolveTypeDef();
+                        }
+                    }
+
+                    if (methodDef == null)
+                    {
+                        Warning?.Invoke($"Could not find an Execute method for plugin '{pluginStepInfo.Value.Plugin.TypeName}' - skipping API call analysis for it.");
+                        apiCalls.Add(pluginStepInfo.Value.Plugin.TypeName, new List<XrmApiCall>());
+                        continue;
+                    }
+
+                    var vm = new PluginGraphVM(moduleList, namespaces.Split(new char[','], StringSplitOptions.RemoveEmptyEntries).ToList(), log);
+                    apiCalls.Add(pluginStepInfo.Value.Plugin.TypeName, vm.Execute(methodDef, null, [new GenericObj(pluginType.FullName, pluginType)]).Item1);
+                }
+                catch (Exception ex)
+                {
+                    Warning?.Invoke($"Failed to analyze API calls for plugin '{pluginStepInfo.Value.Plugin.TypeName}' - skipping it. {ex.Message}");
+                    apiCalls.Add(pluginStepInfo.Value.Plugin.TypeName, new List<XrmApiCall>());
+                }
             }
 
             return apiCalls;

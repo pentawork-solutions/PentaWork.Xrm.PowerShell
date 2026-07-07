@@ -35,7 +35,6 @@ namespace PentaWork.Xrm.PluginGraph.Model.GraphObjects
         public StageGraph(Stage stage, List<PluginStepInfo> steps)
         {
             StageName = stage.ToString();
-            Steps = steps;
             ModeGroups = steps
                 .GroupBy(s => s.Async)
                 .Select(modeGroup => new ModeGroup(
@@ -49,7 +48,6 @@ namespace PentaWork.Xrm.PluginGraph.Model.GraphObjects
         }
 
         public string StageName { get; }
-        public List<PluginStepInfo> Steps { get; }
         public List<ModeGroup> ModeGroups { get; }
     }
 

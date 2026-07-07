@@ -52,6 +52,37 @@ namespace PentaWork.Xrm.PowerShell.Tests
         }
 
         [TestMethod]
+        public void Summary_DoesNotLinkToAnEntityWithoutItsOwnGeneratedPage()
+        {
+            // "contact" has no registered plugin steps of its own, so no contact.md page will ever
+            // be generated for it - the "Reaches into" summary must not link to a page that doesn't exist.
+            var step = new PluginStepInfo
+            {
+                Id = Guid.NewGuid(),
+                Name = "AccountCreatesContact",
+                SdkMessage = "Create",
+                PrimaryEntityName = "account",
+                Stage = Stage.PostOperation,
+                Plugin = new PluginInfo { TypeName = "AccountCreatesContact" }
+            };
+            var apiCalls = new Dictionary<string, List<XrmApiCall>>
+            {
+                ["AccountCreatesContact"] = new List<XrmApiCall> { new XrmApiCall { Message = "create", EntityInfo = new EntityObj { LogicalName = "contact" } } }
+            };
+
+            var entityGraphList = new EntityGraphList(apiCalls);
+            entityGraphList.Add(step);
+            entityGraphList.LinkTriggers();
+
+            var accountGraph = entityGraphList.Single(g => g.EntityName == "account");
+
+            CollectionAssert.Contains(accountGraph.Summary.AffectedEntities, "contact");
+            StringAssert.Contains(accountGraph.Summary.AffectedEntitiesMarkdown, "contact");
+            StringAssert.DoesNotMatch(accountGraph.Summary.AffectedEntitiesMarkdown, new System.Text.RegularExpressions.Regex(@"\[contact\]"));
+            StringAssert.DoesNotMatch(accountGraph.ToMarkdown(), new System.Text.RegularExpressions.Regex(@"\[contact\]\(contact\.md\)"));
+        }
+
+        [TestMethod]
         public void ToMarkdown_AccountReport_ContainsSelfRecursionWarningAndLinkedCrossReference()
         {
             var entityGraphList = PluginGraphFixture.BuildEntityGraphList();
@@ -227,20 +258,6 @@ namespace PentaWork.Xrm.PowerShell.Tests
 
             StringAssert.Contains(markdown, "...and");
             StringAssert.Contains(markdown, "more_");
-        }
-
-        [TestMethod]
-        public void ToMarkdown_Diagram_StylesAsyncAndSelfRecursionAndDrawsTriggerEdge()
-        {
-            var entityGraphList = PluginGraphFixture.BuildEntityGraphList();
-            var accountMarkdown = entityGraphList.Single(g => g.EntityName == "account").ToMarkdown();
-
-            StringAssert.Contains(accountMarkdown, "```mermaid");
-            StringAssert.Contains(accountMarkdown, "classDef selfRecursion");
-            StringAssert.Contains(accountMarkdown, "classDef asyncStep");
-            StringAssert.Contains(accountMarkdown, "class n22222222222222222222222222222222 asyncStep");
-            StringAssert.Contains(accountMarkdown, "class n11111111111111111111111111111111 selfRecursion");
-            StringAssert.Contains(accountMarkdown, "-.->|\"possible recursion\"|");
         }
     }
 }

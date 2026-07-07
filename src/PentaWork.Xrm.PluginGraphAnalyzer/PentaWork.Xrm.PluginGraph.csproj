@@ -28,6 +28,8 @@
   <ItemGroup>
     <None Remove="Templates\MainTemplate.sbn" />
     <EmbeddedResource Include="Templates\MainTemplate.sbn" />
+    <None Remove="Templates\OverviewTemplate.sbn" />
+    <EmbeddedResource Include="Templates\OverviewTemplate.sbn" />
   </ItemGroup>
 
 

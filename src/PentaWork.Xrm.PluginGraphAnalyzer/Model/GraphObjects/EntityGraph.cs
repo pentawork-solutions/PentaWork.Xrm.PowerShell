@@ -23,8 +23,7 @@ namespace PentaWork.Xrm.PluginGraph.Model.GraphObjects
 
         public string ToMarkdown()
         {
-            var mainTemplate = new MainTemplate { EntityGraph = this };
-            return mainTemplate.TransformText();
+            return ScribanTemplateRenderer.Render("MainTemplate", new { EntityGraph = this });
         }
 
         public string EntityName { get; }

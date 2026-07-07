@@ -1,0 +1,6 @@
+export enum {{ OptionSetInfo.UniqueDisplayName }}
+{
+{{ for option in OptionSetInfo.Options }}
+	{{ option.UniqueValueName }} = {{ option.Value }},
+{{ end }}
+}

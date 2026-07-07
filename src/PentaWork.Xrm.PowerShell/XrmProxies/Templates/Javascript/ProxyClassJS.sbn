@@ -1,0 +1,33 @@
+import { FormProxy, AttributeProxy } from '../ProxyTypes';
+import * as Attributes from '../Attributes/{{ EntityInfo.UniqueDisplayName }}';
+
+export let LogicalName = "{{ EntityInfo.LogicalName }}";
+
+export class Form extends FormProxy {
+{{ for attribute in EntityInfo.AttributeList }}
+	private _{{ attribute.UniqueDisplayName }} = new AttributeProxy<{{ attribute.JavascriptReturnType }}, {{ attribute.XrmTypingsAttributeType }}, {{ attribute.XrmTypingsControlType }}>(this.FormContext, Attributes.{{ attribute.UniqueDisplayName }});
+	/** {{ attribute.LogicalName }} */
+	get {{ attribute.UniqueDisplayName }}(): AttributeProxy<{{ attribute.JavascriptReturnType }}, {{ attribute.XrmTypingsAttributeType }}, {{ attribute.XrmTypingsControlType }}> {
+		return this._{{ attribute.UniqueDisplayName }};
+	}
+{{ end }}
+}
+
+export class Entity {
+{{ for attribute in EntityInfo.AttributeList }}
+	{{ attribute.LogicalName }}!: {{ attribute.JavascriptReturnType }};
+{{ end }}
+
+{{ for attribute in EntityInfo.AttributeList }}
+	/** {{ attribute.LogicalName }} */
+    get {{ attribute.UniqueDisplayName }}(): {{ attribute.JavascriptReturnType }} {
+        return this.{{ attribute.LogicalName }};
+    }
+	set {{ attribute.UniqueDisplayName }}(value: {{ attribute.JavascriptReturnType }}) {
+		this.{{ attribute.LogicalName }} = value;
+	}
+
+{{ end }}
+}
+
+{{ OptionSetEnumsJs }}

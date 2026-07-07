@@ -11,6 +11,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.1.65" />
     <PackageReference Include="Microsoft.PowerShell.5.ReferenceAssemblies" Version="1.1.0" />
+    <PackageReference Include="Scriban" Version="7.2.5" />
   </ItemGroup>
 
   <ItemGroup>
@@ -18,58 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="XrmProxies\Templates\CSharp\AssemblyInfoAddition.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>AssemblyInfoAddition.cs</LastGenOutput>
-    </None>
-    <None Update="XrmProxies\Templates\CSharp\Attributes.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>Attributes.cs</LastGenOutput>
-    </None>
-    <None Update="XrmProxies\Templates\CSharp\BaseProxy.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>BaseProxy.cs</LastGenOutput>
-    </None>
-    <None Update="XrmProxies\Templates\CSharp\EnumExtensions.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>EnumExtensions.cs</LastGenOutput>
-    </None>
-    <None Update="XrmProxies\Templates\CSharp\Fake.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>Fake.cs</LastGenOutput>
-    </None>
-    <None Update="XrmProxies\Templates\CSharp\OptionSet.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>OptionSet.cs</LastGenOutput>
-    </None>
-    <None Update="XrmProxies\Templates\CSharp\ProxyClass.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>ProxyClass.cs</LastGenOutput>
-    </None>
-    <None Update="XrmProxies\Templates\CSharp\RelationProxyClass.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>RelationProxyClass.cs</LastGenOutput>
-    </None>
-    <None Update="XrmProxies\Templates\Javascript\AttributeJS.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>AttributeJS.cs</LastGenOutput>
-    </None>
-    <None Update="XrmProxies\Templates\Javascript\FormInfosJS.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>FormInfosJS.cs</LastGenOutput>
-    </None>
-    <None Update="XrmProxies\Templates\Javascript\OptionSetJS.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>OptionSetJS.cs</LastGenOutput>
-    </None>
-    <None Update="XrmProxies\Templates\Javascript\ProxyClassJS.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>ProxyClassJS.cs</LastGenOutput>
-    </None>
-    <None Update="XrmProxies\Templates\Javascript\ProxyTypes.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>ProxyTypes.cs</LastGenOutput>
-    </None>
     <None Update="PentaWork.Xrm.PowerShell.psd1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -80,71 +29,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="XrmProxies\Templates\CSharp\AssemblyInfoAddition.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>AssemblyInfoAddition.tt</DependentUpon>
-    </Compile>
-    <Compile Update="XrmProxies\Templates\CSharp\Attributes.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Attributes.tt</DependentUpon>
-    </Compile>
-    <Compile Update="XrmProxies\Templates\CSharp\BaseProxy.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>BaseProxy.tt</DependentUpon>
-    </Compile>
-    <Compile Update="XrmProxies\Templates\CSharp\EnumExtensions.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>EnumExtensions.tt</DependentUpon>
-    </Compile>
-    <Compile Update="XrmProxies\Templates\CSharp\Fake.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Fake.tt</DependentUpon>
-    </Compile>
-    <Compile Update="XrmProxies\Templates\CSharp\OptionSet.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>OptionSet.tt</DependentUpon>
-    </Compile>
-    <Compile Update="XrmProxies\Templates\CSharp\ProxyClass.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ProxyClass.tt</DependentUpon>
-    </Compile>
-    <Compile Update="XrmProxies\Templates\CSharp\RelationProxyClass.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>RelationProxyClass.tt</DependentUpon>
-    </Compile>
-    <Compile Update="XrmProxies\Templates\Javascript\AttributeJS.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>AttributeJS.tt</DependentUpon>
-    </Compile>
-    <Compile Update="XrmProxies\Templates\Javascript\FormInfosJS.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>FormInfosJS.tt</DependentUpon>
-    </Compile>
-    <Compile Update="XrmProxies\Templates\Javascript\OptionSetJS.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>OptionSetJS.tt</DependentUpon>
-    </Compile>
-    <Compile Update="XrmProxies\Templates\Javascript\ProxyClassJS.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ProxyClassJS.tt</DependentUpon>
-    </Compile>
-    <Compile Update="XrmProxies\Templates\Javascript\ProxyTypes.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ProxyTypes.tt</DependentUpon>
-    </Compile>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>PentaWork.Xrm.PowerShell.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="XrmProxies\Templates\CSharp\*.sbn" />
+    <EmbeddedResource Include="XrmProxies\Templates\CSharp\*.sbn" />
+    <None Remove="XrmProxies\Templates\Javascript\*.sbn" />
+    <EmbeddedResource Include="XrmProxies\Templates\Javascript\*.sbn" />
   </ItemGroup>
 
 </Project>

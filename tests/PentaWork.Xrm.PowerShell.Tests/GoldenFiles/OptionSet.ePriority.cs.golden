@@ -1,0 +1,16 @@
+		public enum ePriority
+		{	
+		
+			[Label("Low")]
+			[Description(@"")]
+			Low = 1, 
+		
+			[Label("Medium")]
+			[Description(@"")]
+			Medium = 2, 
+		
+			[Label("High")]
+			[Description(@"")]
+			High = 3, 
+		}
+		

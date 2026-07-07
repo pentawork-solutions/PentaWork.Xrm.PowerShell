@@ -1,0 +1,17 @@
+import { AttributeName } from '../ProxyTypes';
+
+/** categories */
+export let Categories: AttributeName = { name: "categories" };
+/** name */
+export let Name: AttributeName = { name: "name" };
+/** parentid */
+export let Parent: AttributeName = { name: "parentid" };
+/** prioritycode */
+export let Priority: AttributeName = { name: "prioritycode" };
+/** rating */
+export let Rating: AttributeName = { name: "rating" };
+/** revenue */
+export let Revenue: AttributeName = { name: "revenue" };
+/** test_entityid */
+export let TestEntityId: AttributeName = { name: "test_entityid" };
+

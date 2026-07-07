@@ -1,0 +1,12 @@
+import { FormName, TabName } from '../ProxyTypes';
+
+{{ for form in EntityInfo.FormList }}
+export namespace {{ form.UniqueName }} {
+	export let Name: FormName = { name: "{{ form.Name }}" };
+	export namespace Tabs {
+{{ for tab in form.TabList }}
+	export let {{ tab.UniqueName }}: TabName = { name: "{{ tab.Name }}" };
+{{ end }}
+	}
+}
+{{ end }}

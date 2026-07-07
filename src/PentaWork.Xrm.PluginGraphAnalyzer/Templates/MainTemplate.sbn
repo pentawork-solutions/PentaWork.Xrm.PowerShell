@@ -1,0 +1,49 @@
+# {{ EntityGraph.EntityName }}
+
+{{ for messageGraph in EntityGraph.Messages }}
+## {{ messageGraph.Message }}
+
+{{ for stageGraph in messageGraph.StageGraphs }}
+### {{ stageGraph.StageName }}
+{{ for modeGroup in stageGraph.ModeGroups }}
+
+#### {{ modeGroup.ModeLabel }}
+{{ for rankGroup in modeGroup.RankGroups }}
+
+**Order {{ rankGroup.RankLabel }}**
+
+{{ for pluginStepInfo in rankGroup.Steps }}
+- `{{ pluginStepInfo.Name }}`
+{{ if pluginStepInfo.AsyncAutoDelete }}  - **Auto Delete Async Operations**
+{{ end }}
+{{ if pluginStepInfo.FilteringAttributes }}  {{ pluginStepInfo.FilteringAttributesLine }}
+{{ end }}
+{{ if pluginStepInfo.ApiCalls.Count > 0 }}  - **API Calls**:
+{{ for apiCall in pluginStepInfo.ApiCalls }}    {{ apiCall.DisplayLine }}
+{{ if apiCall.HasUsedFields }}      {{ apiCall.UsedFieldsLine }}
+{{ end }}
+{{ if apiCall.HasCallLoopHit }}      - <span style="color:orange">**Uncertainties, because of recursions**</span>
+{{ end }}
+{{ if apiCall.HasIsTarget }}      - <span style="color:red">**Entity is Target**</span>
+{{ end }}
+{{ end }}
+{{ end }}
+{{ end }}
+{{ end }}
+{{ end }}
+{{ end }}
+
+### Diagram
+
+```mermaid
+flowchart
+{{ for stageGraph in messageGraph.StageGraphs }}
+    subgraph {{ stageGraph.StageName }}
+{{ for pluginStepInfo in stageGraph.Steps }}
+        {{ pluginStepInfo.Id }}({{ pluginStepInfo.Name }})
+{{ end }}
+    end
+{{ end }}
+```
+
+{{ end }}

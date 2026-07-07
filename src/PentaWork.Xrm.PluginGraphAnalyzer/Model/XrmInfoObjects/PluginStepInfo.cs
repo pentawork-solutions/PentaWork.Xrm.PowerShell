@@ -15,5 +15,10 @@
         public string? PrimaryEntityName { get; set; }
         public string? SecondaryEntityName { get; set; }
         public PluginInfo? Plugin { get; set; }
+
+        public string FilteringAttributesLine => FilteringAttributes != null
+            ? $"- **Filtering Attributes**: {string.Join(", ", FilteringAttributes)}"
+            : string.Empty;
+        public List<Model.VMObjects.XrmApiCall> ApiCalls => Plugin?.ApiCalls ?? new();
     }
 }

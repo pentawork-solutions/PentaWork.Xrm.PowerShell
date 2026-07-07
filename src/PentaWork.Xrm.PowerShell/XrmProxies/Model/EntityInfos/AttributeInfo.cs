@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Xrm.Sdk.Metadata;
+using PentaWork.Xrm.PowerShell.XrmProxies;
 
 namespace PentaWork.Xrm.PowerShell.XrmProxies.Model
 {
@@ -14,6 +15,9 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Model
             ReturnType = GetReturnType(attrMetadata);
             JavascriptReturnType = GetJavascriptReturnType(attrMetadata);
             SetXrmTypingValues(attrMetadata);
+            SetNumericConstraints(attrMetadata);
+            IsMultiSelectOptionSet = attrMetadata is MultiSelectPicklistAttributeMetadata;
+            DisplayLabel = attrMetadata.DisplayName.GetLabel(attrMetadata.LogicalName);
         }
 
         public AttributeInfo(AttributeMetadata attrMetadata, string uniqueDisplayName, string returnType)
@@ -25,6 +29,31 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Model
             ReturnType = returnType;
             JavascriptReturnType = returnType;
             SetXrmTypingValues(attrMetadata);
+            SetNumericConstraints(attrMetadata);
+            IsMultiSelectOptionSet = attrMetadata is MultiSelectPicklistAttributeMetadata;
+            DisplayLabel = attrMetadata.DisplayName.GetLabel(attrMetadata.LogicalName);
+        }
+
+        private void SetNumericConstraints(AttributeMetadata attrMetadata)
+        {
+            switch (attrMetadata)
+            {
+                case MoneyAttributeMetadata money:
+                    NumericPrecision = money.Precision;
+                    NumericMaxValue = money.MaxValue;
+                    NumericMinValue = money.MinValue;
+                    break;
+                case DecimalAttributeMetadata dec:
+                    NumericPrecision = dec.Precision;
+                    NumericMaxValue = (double?)dec.MaxValue;
+                    NumericMinValue = (double?)dec.MinValue;
+                    break;
+                case DoubleAttributeMetadata dbl:
+                    NumericPrecision = dbl.Precision;
+                    NumericMaxValue = dbl.MaxValue;
+                    NumericMinValue = dbl.MinValue;
+                    break;
+            }
         }
 
         private string GetReturnType(AttributeMetadata attrMetadata)
@@ -166,6 +195,13 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Model
         public string JavascriptReturnType { get; private set; }
 
         public AttributeTypeCode? AttributeType { get; }
+        public string AttributeTypeName => AttributeType?.ToString() ?? string.Empty;
         public AttributeMetadata AttributeMetadata { get; }
+
+        public bool IsMultiSelectOptionSet { get; }
+        public string DisplayLabel { get; }
+        public int? NumericPrecision { get; private set; }
+        public double? NumericMaxValue { get; private set; }
+        public double? NumericMinValue { get; private set; }
     }
 }

@@ -485,7 +485,14 @@ namespace PentaWork.Xrm.PluginGraph
                 // Interpret it to get more call information
                 // Check for possible call loops (recursions)
                 var callLoopHit = methodDef != null && IsCallLoop(methodDef.FullName);
-                var toRegEx = (string value) => "^" + Regex.Escape(value).Replace("\\*", ".*") + "$";
+                // A plain namespace (no '*') is treated as a prefix match against itself and any
+                // sub-namespace (e.g. "EnBW" also matches "EnBW.Plugins.Common") - almost every
+                // caller passes a root/company namespace and expects nested plugin code to be
+                // included, not just types declared directly in that exact namespace. Explicit
+                // wildcards keep their original exact-pattern behavior.
+                var toRegEx = (string value) => value.Contains('*')
+                    ? "^" + Regex.Escape(value).Replace("\\*", ".*") + "$"
+                    : "^" + Regex.Escape(value) + "(\\..*)?$";
 
                 if (callLoopHit) Log.Debug("CALL LOOP HIT {0}", methodDef.FullName);
                 if (methodDef != null && methodDef.Body != null && !callLoopHit && _analyzeNamespaces.Any(n => Regex.IsMatch(methodDef.DeclaringType.ReflectionNamespace, toRegEx(n))))

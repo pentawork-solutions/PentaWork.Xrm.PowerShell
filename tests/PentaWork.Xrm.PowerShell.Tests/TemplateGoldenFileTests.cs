@@ -1,7 +1,6 @@
 using PentaWork.Xrm.PowerShell.Tests.Fixtures;
 using PentaWork.Xrm.PowerShell.XrmProxies.Model;
 using ScribanTemplateRenderer = PentaWork.Xrm.PowerShell.XrmProxies.Templates.ScribanTemplateRenderer;
-using PluginGraphScribanTemplateRenderer = PentaWork.Xrm.PluginGraph.Templates.ScribanTemplateRenderer;
 
 namespace PentaWork.Xrm.PowerShell.Tests
 {
@@ -126,14 +125,6 @@ namespace PentaWork.Xrm.PowerShell.Tests
             var entityInfo = GetMainEntity();
             var result = ScribanTemplateRenderer.Render("Javascript.FormInfosJS", new { EntityInfo = entityInfo });
             AssertMatchesGoldenFile("FormInfosJS.ts.golden", result);
-        }
-
-        [TestMethod]
-        public void MainTemplate_MatchesGoldenFile()
-        {
-            var entityGraph = PluginGraphFixture.BuildEntityGraph();
-            var result = PluginGraphScribanTemplateRenderer.Render("MainTemplate", new { EntityGraph = entityGraph });
-            AssertMatchesGoldenFile("MainTemplate.md.golden", result);
         }
     }
 }

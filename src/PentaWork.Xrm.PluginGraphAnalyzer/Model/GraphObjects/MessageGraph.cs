@@ -75,5 +75,14 @@ namespace PentaWork.Xrm.PluginGraph.Model.GraphObjects
 
         public string RankLabel { get; }
         public List<PluginStepInfo> Steps { get; }
+
+        /// <summary>
+        /// Scriban's reflection binding doesn't resolve List&lt;T&gt;.Count (it silently reads as
+        /// null/empty), so precompute the count here rather than writing "Steps.Count" in a template.
+        /// </summary>
+        public int StepCount => Steps.Count;
+
+        /// <summary>True when more than one step shares this order - Dataverse doesn't guarantee execution order between them.</summary>
+        public bool HasOrderCollision => StepCount > 1;
     }
 }

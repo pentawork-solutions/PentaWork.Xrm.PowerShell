@@ -47,7 +47,7 @@ namespace PentaWork.Xrm.PowerShell.Verbs
         public SolutionInfo SolutionInfo { get; set; }
 
         /// <summary>
-        /// <para type="description">The namespaces which should get analyzed.</para>
+        /// <para type="description">The namespaces which should get analyzed. Wildcards possible (ParentNs.*)</para>
         /// </summary>
         [Parameter(Mandatory = true)]
         public string Namespaces { get; set; }

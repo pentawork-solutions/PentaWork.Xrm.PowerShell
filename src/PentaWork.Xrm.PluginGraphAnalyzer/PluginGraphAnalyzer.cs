@@ -26,6 +26,7 @@ namespace PentaWork.Xrm.PluginGraph
 
             var entityGraphList = new EntityGraphList(apiCalls);
             pluginsStepInfos.ToList().ForEach(entityGraphList.Add);
+            entityGraphList.LinkTriggers();
 
             return entityGraphList;
         }

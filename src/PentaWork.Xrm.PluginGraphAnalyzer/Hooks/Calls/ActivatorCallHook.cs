@@ -9,7 +9,17 @@ namespace PentaWork.Xrm.PluginGraph.Hooks.Calls
         public void ExecuteHook(IMethod method, MethodDef? methodDef, List<object> parameters, StorageFrame storageFrame)
         {
             var typeDef = GetDirectGeneric(method) ?? (GetMethodGeneric(method, storageFrame) ?? GetClassGeneric(method, storageFrame));
-            var ctorMethod = typeDef.Methods.Single(m => m.FullName.EndsWith(".ctor()"));
+            // Activator.CreateInstance<T>() requires T to have a public parameterless constructor,
+            // but dnlib may resolve typeDef to a type outside the loaded modules (no Methods info)
+            // or the generic-argument resolution above may pick the wrong type - don't let that crash
+            // the whole plugin's analysis, just treat the result as unresolvable.
+            var ctorMethod = typeDef?.Methods.SingleOrDefault(m => m.FullName.EndsWith(".ctor()"));
+            if (ctorMethod == null)
+            {
+                storageFrame.Stack.Push(new GenericObj($"Unresolvable Activator.CreateInstance<{typeDef?.FullName}>() result", method.DeclaringType));
+                return;
+            }
+
             var genericObj = new GenericObj("Generic Activator Object", method.DeclaringType);
             var vm = new PluginGraphVM(new PluginModuleList(), new List<string>()); // Just analyze the ctor to get the entity name - we dont need any modules or sub namespaces we want to analyze
             vm.Execute(ctorMethod, null, new List<object> { genericObj });

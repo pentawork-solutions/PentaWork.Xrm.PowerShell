@@ -19,7 +19,16 @@ namespace PentaWork.Xrm.PowerShell.XrmProxies.Templates
             var scriptObject = new ScriptObject();
             scriptObject.Import(model, renamer: member => member.Name);
 
-            var context = new TemplateContext { MemberRenamer = member => member.Name };
+            var context = new TemplateContext
+            {
+                MemberRenamer = member => member.Name,
+                // Scriban's default LoopLimit (1000) is a script-injection safety guard, and it
+                // counts cumulatively per loop *statement* across all re-entries (e.g. once per
+                // entity when generating proxies for a whole solution), so a large solution can
+                // exceed it easily. This is our own trusted, fixed template (not user-supplied
+                // script) over inherently finite data, so disable the guard (0).
+                LoopLimit = 0
+            };
             context.PushGlobal(scriptObject);
             return template.Render(context);
         }

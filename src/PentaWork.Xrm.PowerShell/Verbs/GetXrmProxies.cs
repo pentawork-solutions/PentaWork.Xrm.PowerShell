@@ -196,7 +196,10 @@ namespace PentaWork.Xrm.PowerShell
                 var optionSetEnumsCs = string.Join(Environment.NewLine,
                     entityInfo.OptionSetList.Select(os => ScribanTemplateRenderer.Render("CSharp.OptionSet", new { OptionSetInfo = os })));
                 File.WriteAllText(Path.Combine(CSOutputPath, "Entities", $"{entityInfo.UniqueDisplayName}.cs"),
-                    ScribanTemplateRenderer.Render("CSharp.ProxyClass", new { EntityInfo = entityInfo, ProxyNamespace, UseBaseProxy, OptionSetEnumsCs = optionSetEnumsCs }));
+                    // SwitchParameter has an implicit bool conversion that only the C# compiler applies -
+                    // Scriban sees any non-null object as truthy, so the switch must be unwrapped to a
+                    // real bool before it reaches the template, or {{ if UseBaseProxy }} is always true.
+                    ScribanTemplateRenderer.Render("CSharp.ProxyClass", new { EntityInfo = entityInfo, ProxyNamespace, UseBaseProxy = (bool)UseBaseProxy, OptionSetEnumsCs = optionSetEnumsCs }));
 
                 File.WriteAllText(Path.Combine(OutputPath.FullName, "Fake", $"{entityInfo.UniqueDisplayName}.cs"),
                     ScribanTemplateRenderer.Render("CSharp.Fake", new { EntityInfo = entityInfo, ProxyNamespace, FakeNamespace }));
@@ -209,7 +212,7 @@ namespace PentaWork.Xrm.PowerShell
             {
                 var relationInfo = relationInfoGroup.First();
                 File.WriteAllText(Path.Combine(CSOutputPath, "Relations", $"{relationInfo.UniqueIntersectDisplayName}.cs"),
-                    ScribanTemplateRenderer.Render("CSharp.RelationProxyClass", new { RelationClassInfo = relationInfo, ProxyNamespace, UseBaseProxy }));
+                    ScribanTemplateRenderer.Render("CSharp.RelationProxyClass", new { RelationClassInfo = relationInfo, ProxyNamespace, UseBaseProxy = (bool)UseBaseProxy }));
             }
         }
 

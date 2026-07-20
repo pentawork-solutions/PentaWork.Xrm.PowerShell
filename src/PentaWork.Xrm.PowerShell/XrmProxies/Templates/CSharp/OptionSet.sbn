@@ -1,0 +1,8 @@
+		public enum {{ OptionSetInfo.UniqueDisplayName }}
+		{
+{{~ for option in OptionSetInfo.Options ~}}
+			[Label("{{ option.DisplayName }}")]
+			[Description(@"{{ option.Description | string.replace '"' "'" }}")]
+			{{ option.UniqueValueName }} = {{ option.Value }},
+{{~ end ~}}
+		}

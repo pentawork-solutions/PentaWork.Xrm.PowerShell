@@ -1,0 +1,7 @@
+export enum eCategories
+{	
+	
+	Alpha = 1, 
+	
+	Beta = 2, 
+}

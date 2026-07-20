@@ -1,0 +1,92 @@
+using Bogus;
+using System;
+using FakeXrmEasy;
+using System.Collections.Generic;
+using {{ ProxyNamespace }}.Entities;
+using {{ ProxyNamespace }}.Extensions;
+
+namespace {{ FakeNamespace }}
+{
+	public static class Fake{{ EntityInfo.UniqueDisplayName }}
+	{
+		#region FakeRelationships
+		public static class Relationships
+		{
+{{~ for relation in EntityInfo.OneToManyRelationList ~}}
+			/// <summary>1:N {{ relation.SchemaName }}</summary>
+			public static readonly XrmFakedRelationship {{ relation.UniqueDisplayName }} =
+				new XrmFakedRelationship
+				{
+					Entity1Attribute = "{{ EntityInfo.PrimaryIdAttribute.LogicalName }}",
+					Entity2Attribute = "{{ relation.RelatedEntityAttributeName }}",
+					Entity1LogicalName = "{{ EntityInfo.LogicalName }}",
+					Entity2LogicalName = "{{ relation.RelatedEntityInfo.LogicalName }}",
+					RelationshipType = XrmFakedRelationship.enmFakeRelationshipType.OneToMany
+				};
+
+{{~ end ~}}
+{{~ for relation in EntityInfo.ManyToManyRelationList ~}}
+			/// <summary>N:N {{ relation.SchemaName }}</summary>
+			public static readonly XrmFakedRelationship {{ relation.UniqueDisplayName }} =
+				new XrmFakedRelationship
+				{
+					IntersectEntity = "{{ relation.SchemaName }}",
+					Entity1Attribute = "{{ relation.Entity1Attribute }}",
+					Entity2Attribute = "{{ relation.Entity2Attribute }}",
+					Entity1LogicalName = "{{ relation.Entity1LogicalName }}",
+					Entity2LogicalName = "{{ relation.Entity2LogicalName }}",
+					RelationshipType = XrmFakedRelationship.enmFakeRelationshipType.ManyToMany
+				};
+
+{{~ end ~}}
+		}
+		#endregion
+
+		#region Fake
+		public static {{ EntityInfo.UniqueDisplayName }} Create()
+		{
+{{ capture rules ~}}
+{{~ for attribute in EntityInfo.AttributeList ~}}
+{{~ case attribute.AttributeTypeName ~}}
+{{~ when "Double" ~}}
+			.RuleFor(e => e.{{ attribute.UniqueDisplayName }}, fake => fake.Random.Double())
+{{~ when "Decimal", "Money" ~}}
+			.RuleFor(e => e.{{ attribute.UniqueDisplayName }}, fake => fake.Finance.Amount())
+{{~ when "Picklist", "Status", "State" ~}}
+			.RuleFor(e => e.{{ attribute.UniqueDisplayName }}, fake => fake.PickRandom<{{ EntityInfo.UniqueDisplayName }}.{{ attribute.ReturnType }}>())
+{{~ when "Virtual" ~}}
+{{~ if attribute.IsMultiSelectOptionSet ~}}
+			.RuleFor(e => e.{{ attribute.UniqueDisplayName }}, fake => new List<{{ EntityInfo.UniqueDisplayName }}.{{ attribute.ReturnType }}> { fake.PickRandom<{{ EntityInfo.UniqueDisplayName }}.{{ attribute.ReturnType }}>() })
+{{~ end ~}}
+{{~ when "Integer", "BigInt" ~}}
+			.RuleFor(e => e.{{ attribute.UniqueDisplayName }}, fake => fake.Random.Int())
+{{~ when "Uniqueidentifier" ~}}
+{{~ if attribute.LogicalName == EntityInfo.PrimaryIdAttribute.LogicalName ~}}
+			.RuleFor(e => e.Id, fake => Guid.NewGuid())
+{{~ else ~}}
+			.RuleFor(e => e.{{ attribute.UniqueDisplayName }}, fake => Guid.NewGuid())
+{{~ end ~}}
+{{~ when "Memo", "String", "EntityName" ~}}
+			.RuleFor(e => e.{{ attribute.UniqueDisplayName }}, fake => fake.Lorem.Word())
+{{~ when "Boolean" ~}}
+			.RuleFor(e => e.{{ attribute.UniqueDisplayName }}, fake => fake.Random.Bool())
+{{~ when "DateTime" ~}}
+			.RuleFor(e => e.{{ attribute.UniqueDisplayName }}, fake => fake.Date.Soon())
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
+			var faker = new Faker<{{ EntityInfo.UniqueDisplayName }}>()
+{{ rules | string.rstrip }};
+
+			var fakeEntity = faker.Generate();
+{{~ for attribute in EntityInfo.AttributeList ~}}
+{{~ if attribute.AttributeTypeName == "Picklist" || attribute.AttributeTypeName == "Status" || attribute.AttributeTypeName == "State" ~}}
+				fakeEntity.FormattedValues.Add("{{ attribute.LogicalName }}", fakeEntity.{{ attribute.UniqueDisplayName }}.GetEnumLabel());
+{{~ end ~}}
+{{~ end ~}}
+
+			return fakeEntity;
+		}
+		#endregion
+	}
+}

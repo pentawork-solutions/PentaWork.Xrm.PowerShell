@@ -1,0 +1,6 @@
+import { AttributeName } from '../ProxyTypes';
+
+{{~ for attribute in EntityInfo.AttributeList ~}}
+/** {{ attribute.LogicalName }} */
+export let {{ attribute.UniqueDisplayName }}: AttributeName = { name: "{{ attribute.LogicalName }}" };
+{{~ end ~}}

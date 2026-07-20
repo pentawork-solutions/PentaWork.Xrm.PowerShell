@@ -1,0 +1,80 @@
+# {{ EntityGraph.EntityName }}
+
+## Summary
+
+- **Steps**: {{ EntityGraph.Summary.TotalSteps }} total ({{ EntityGraph.Summary.SyncSteps }} sync, {{ EntityGraph.Summary.AsyncSteps }} async)
+- **Handles**: {{ EntityGraph.Summary.MessageCountsMarkdown }}
+- **API Calls**: {{ EntityGraph.Summary.TotalApiCalls }} across all steps
+{{~ if EntityGraph.Summary.HasAffectedEntities ~}}
+- **Reaches into**: {{ EntityGraph.Summary.AffectedEntitiesMarkdown }}
+{{~ end ~}}
+{{~ if EntityGraph.Summary.HasSelfRecursionWarnings ~}}
+
+> ⚠️ **Possible self-recursion** — the step(s) below perform an API call matching their own trigger message + entity. If the call ends up targeting the same record without a depth/context guard, this can cause infinite recursion:
+{{~ for step in EntityGraph.Summary.SelfRecursionWarnings ~}}
+> - [`{{ step.Name }}`](#{{ step.AnchorId }}) ({{ step.SdkMessage }} · {{ step.StageName }})
+{{~ end ~}}
+{{~ else ~}}
+- ✅ No self-recursion detected.
+{{~ end ~}}
+
+{{~ for messageGraph in EntityGraph.Messages ~}}
+## {{ messageGraph.Message }}
+
+{{~ for stageGraph in messageGraph.StageGraphs ~}}
+### {{ stageGraph.StageName }}
+{{~ for modeGroup in stageGraph.ModeGroups ~}}
+
+#### {{ modeGroup.ModeLabel }}
+{{~ for rankGroup in modeGroup.RankGroups ~}}
+
+**Order {{ rankGroup.RankLabel }}**{{ if rankGroup.HasOrderCollision }} — ⚠ shared by {{ rankGroup.StepCount }} steps, execution order between them is not guaranteed{{ end }}
+{{~ for pluginStepInfo in rankGroup.Steps ~}}
+- <a id="{{ pluginStepInfo.AnchorId }}"></a>**`{{ pluginStepInfo.Name }}`**{{ if pluginStepInfo.HasSelfTrigger }} 🔁{{ end }}
+{{~ if pluginStepInfo.AsyncAutoDelete ~}}
+  - Auto Delete Async Operations
+{{~ end ~}}
+{{~ if pluginStepInfo.FilteringAttributes ~}}
+  {{ pluginStepInfo.FilteringAttributesLine }}
+{{~ end ~}}
+{{~ if pluginStepInfo.HasSelfTrigger ~}}
+  - <span style="color:red">🔁 **Possible self-recursion**</span>: performs `{{ pluginStepInfo.SelfTrigger.Message }}` on `{{ pluginStepInfo.SelfTrigger.EntityName }}`, matching its own trigger
+{{~ end ~}}
+{{~ if pluginStepInfo.HasApiCalls ~}}
+  - **API Calls**:
+{{~ for apiCall in pluginStepInfo.ApiCalls ~}}
+    {{ apiCall.DisplayLine }}
+{{~ if apiCall.HasUsedFields ~}}
+      {{ apiCall.UsedFieldsLine }}
+{{~ end ~}}
+{{~ if apiCall.HasCallLoopHit ~}}
+      - <span style="color:orange">**Uncertainties, because of recursions**</span>
+{{~ end ~}}
+{{~ if apiCall.HasIsTarget ~}}
+      - <span style="color:red">**Entity is Target**</span>
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ if pluginStepInfo.HasTriggeredOtherSteps ~}}
+  - **Triggers**:
+{{~ for link in pluginStepInfo.TriggeredOtherStepsShown ~}}
+    - [`{{ link.OtherStep.Name }}`]({{ link.OtherStep.EntityFileName }}#{{ link.OtherStep.AnchorId }}) via `{{ link.Message }}` on `{{ link.EntityName }}`
+{{~ end ~}}
+{{~ if pluginStepInfo.HasTriggeredOtherStepsOverflow ~}}
+    - _...and {{ pluginStepInfo.TriggeredOtherStepsOverflowCount }} more_
+{{~ end ~}}
+{{~ end ~}}
+{{~ if pluginStepInfo.HasTriggeredBy ~}}
+  - **Triggered by**:
+{{~ for link in pluginStepInfo.TriggeredByShown ~}}
+    - [`{{ link.OtherStep.Name }}`]({{ link.OtherStep.EntityFileName }}#{{ link.OtherStep.AnchorId }}) via `{{ link.Message }}` on `{{ link.EntityName }}`
+{{~ end ~}}
+{{~ if pluginStepInfo.HasTriggeredByOverflow ~}}
+    - _...and {{ pluginStepInfo.TriggeredByOverflowCount }} more_
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}

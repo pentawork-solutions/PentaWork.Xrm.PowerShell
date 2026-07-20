@@ -1,0 +1,40 @@
+# Plugin Graph Overview
+
+## Summary
+
+- **Entities**: {{ Overview.TotalEntities }}
+- **Steps**: {{ Overview.TotalSteps }} total ({{ Overview.TotalSyncSteps }} sync, {{ Overview.TotalAsyncSteps }} async)
+- **API Calls**: {{ Overview.TotalApiCalls }} across all steps
+- **Cross-Entity Triggers**: {{ Overview.TriggerRelationshipCount }} relationship(s)
+
+## Table of Contents
+
+| Entity | Steps | Sync / Async |
+| --- | --- | --- |
+{{~ for entity in Overview.Entities ~}}
+| [{{ entity.EntityName }}]({{ entity.FileName }}){{ if entity.HasSelfRecursionWarnings }} ⚠{{ end }} | {{ entity.TotalSteps }} | {{ entity.SyncSteps }} / {{ entity.AsyncSteps }} |
+{{~ end ~}}
+
+## Entity Relationship Diagram
+
+{{~ if Overview.HasTriggerRelationships ~}}
+Only entities involved in at least one cross-entity trigger are shown - see the table above for the complete list of generated files. A self-loop marks an entity where one step's API call triggers another step on the same entity.
+
+```mermaid
+flowchart LR
+    classDef selfLoop stroke:#e53935,stroke-width:2px
+{{~ for node in Overview.DiagramNodes ~}}
+    {{ node.MermaidId }}["{{ node.EntityName }}"]
+{{~ end ~}}
+{{~ for edge in Overview.Edges ~}}
+{{~ if edge.IsSelfLoop ~}}
+    {{ edge.FromMermaidId }} -.->|"{{ edge.MessagesLabel }}"| {{ edge.FromMermaidId }}
+    class {{ edge.FromMermaidId }} selfLoop
+{{~ else ~}}
+    {{ edge.FromMermaidId }} -->|"{{ edge.MessagesLabel }}"| {{ edge.ToMermaidId }}
+{{~ end ~}}
+{{~ end ~}}
+```
+{{~ else ~}}
+No cross-entity trigger relationships detected.
+{{~ end ~}}

@@ -1,0 +1,36 @@
+using System;
+using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Client;
+
+namespace {{ ProxyNamespace }}.Relations
+{
+	/// <summary>
+	/// {{ RelationClassInfo.SchemaName }}
+	/// </summary>
+	[Relation]
+	[EntityLogicalName("{{ RelationClassInfo.IntersectEntityName }}")]
+	public sealed class {{ RelationClassInfo.UniqueIntersectDisplayName }} : {{ UseBaseProxy ? "BaseProxy" : "Entity" }}
+	{
+{{~ if UseBaseProxy ~}}
+		public {{ RelationClassInfo.UniqueIntersectDisplayName }}() : base(new Entity("{{ RelationClassInfo.IntersectEntityName }}")) { }
+
+		public {{ RelationClassInfo.UniqueIntersectDisplayName }}(Entity entity) : base(entity) { }
+{{~ else ~}}
+		public {{ RelationClassInfo.UniqueIntersectDisplayName }}() : base("{{ RelationClassInfo.IntersectEntityName }}") { }
+{{~ end ~}}
+
+		[AttributeLogicalName("{{ RelationClassInfo.Entity1Attribute }}")]
+		public Guid {{ RelationClassInfo.UniqueEntity1AttributeName }}
+		{
+			get { return GetAttributeValue<Guid>("{{ RelationClassInfo.Entity1Attribute }}"); }
+			set { {{ UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue" }}("{{ RelationClassInfo.Entity1Attribute }}", value); }
+		}
+
+		[AttributeLogicalName("{{ RelationClassInfo.Entity2Attribute }}")]
+		public Guid {{ RelationClassInfo.UniqueEntity2AttributeName }}
+		{
+			get { return GetAttributeValue<Guid>("{{ RelationClassInfo.Entity2Attribute }}"); }
+			set { {{ UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue" }}("{{ RelationClassInfo.Entity2Attribute }}", value); }
+		}
+	}
+}

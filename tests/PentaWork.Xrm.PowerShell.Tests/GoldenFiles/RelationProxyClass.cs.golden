@@ -1,0 +1,33 @@
+using System;
+using Microsoft.Xrm.Sdk; 
+using Microsoft.Xrm.Sdk.Client;
+
+namespace Test.Proxies.Relations
+{
+	/// <summary> 
+	/// test_entity_related_entity_assoc 
+	/// </summary>
+	[Relation]
+	[EntityLogicalName("test_entity_related_entity_assoc")]
+	public sealed class TestEntityRelatedEntityAssoc : BaseProxy
+	{		
+		public TestEntityRelatedEntityAssoc() : base(new Entity("test_entity_related_entity_assoc")) { }
+
+		public TestEntityRelatedEntityAssoc(Entity entity) : base(entity) { }
+
+		[AttributeLogicalName("test_entityid")]
+		public Guid TestEntityId
+		{	
+			get { return GetAttributeValue<Guid>("test_entityid"); }
+			set { SetAttributeValueTracked("test_entityid", value); }
+		}
+
+		[AttributeLogicalName("related_entityid")]
+		public Guid RelatedEntityId
+		{	
+			get { return GetAttributeValue<Guid>("related_entityid"); }
+			set { SetAttributeValueTracked("related_entityid", value); }
+		}
+	}
+}
+

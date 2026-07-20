@@ -1,0 +1,12 @@
+		public enum eCategories
+		{	
+		
+			[Label("Alpha")]
+			[Description(@"")]
+			Alpha = 1, 
+		
+			[Label("Beta")]
+			[Description(@"")]
+			Beta = 2, 
+		}
+		

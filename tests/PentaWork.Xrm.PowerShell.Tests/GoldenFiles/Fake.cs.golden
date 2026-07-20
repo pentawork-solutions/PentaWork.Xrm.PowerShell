@@ -1,0 +1,60 @@
+using Bogus;
+using System;
+using FakeXrmEasy;
+using System.Collections.Generic;
+using Test.Proxies.Entities;
+using Test.Proxies.Extensions;
+
+namespace Test.Fakes
+{
+	public static class FakeTestEntity
+	{	
+		#region FakeRelationships
+		public static class Relationships 
+		{
+			/// <summary>1:N test_entity_related_entity</summary>
+			public static readonly XrmFakedRelationship TestEntityRelatedEntity = 
+				new XrmFakedRelationship
+				{
+					Entity1Attribute = "test_entityid",
+					Entity2Attribute = "test_entityid_parent",
+					Entity1LogicalName = "test_entity",
+					Entity2LogicalName = "related_entity",
+					RelationshipType = XrmFakedRelationship.enmFakeRelationshipType.OneToMany
+				};
+
+			/// <summary>N:N test_entity_related_entity_assoc</summary>
+			public static readonly XrmFakedRelationship TestEntityRelatedEntityAssoc = 
+				new XrmFakedRelationship
+				{
+					IntersectEntity = "test_entity_related_entity_assoc",
+					Entity1Attribute = "test_entityid",
+					Entity2Attribute = "related_entityid",
+					Entity1LogicalName = "test_entity",
+					Entity2LogicalName = "related_entity",
+					RelationshipType = XrmFakedRelationship.enmFakeRelationshipType.ManyToMany
+				};
+
+		}
+		#endregion
+
+		#region Fake
+		public static TestEntity Create()
+		{
+			var faker = new Faker<TestEntity>()
+			.RuleFor(e => e.Categories, fake => new List<TestEntity.eCategories> { fake.PickRandom<TestEntity.eCategories>() })
+			.RuleFor(e => e.Name, fake => fake.Lorem.Word())
+			.RuleFor(e => e.Priority, fake => fake.PickRandom<TestEntity.ePriority>())
+			.RuleFor(e => e.Rating, fake => fake.Finance.Amount())
+			.RuleFor(e => e.Revenue, fake => fake.Finance.Amount())
+			.RuleFor(e => e.Id, fake => Guid.NewGuid());
+
+			var fakeEntity = faker.Generate();
+				fakeEntity.FormattedValues.Add("prioritycode", fakeEntity.Priority.GetEnumLabel());
+
+			return fakeEntity;
+		}
+		#endregion
+	}
+}
+

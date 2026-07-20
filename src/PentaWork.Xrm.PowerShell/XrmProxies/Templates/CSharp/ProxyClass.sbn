@@ -1,0 +1,254 @@
+using System;
+using System.Linq;
+using System.Diagnostics;
+using System.ComponentModel;
+using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Client;
+using System.Collections.Generic;
+
+namespace {{ ProxyNamespace }}.Entities
+{
+{{~ if EntityInfo.PrimaryNameAttribute ~}}
+	[DebuggerDisplay("{{ "{" }}{{ EntityInfo.PrimaryNameAttribute.UniqueDisplayName }}{{ "}" }}")]
+{{~ end ~}}
+	[EntityLogicalName("{{ EntityInfo.LogicalName }}")]
+	public sealed class {{ EntityInfo.UniqueDisplayName }} : {{ UseBaseProxy ? "BaseProxy" : "Entity" }}
+	{
+		public static readonly int? EntityTypeCode = {{ EntityInfo.TypeCode }};
+		public new const string LogicalName = "{{ EntityInfo.LogicalName }}";
+		public {{ UseBaseProxy ? "new " : "" }}const string PrimaryIdAttribute = "{{ EntityInfo.PrimaryIdAttribute.LogicalName }}";
+		public {{ UseBaseProxy ? "new " : "" }}const string PrimaryNameAttribute = "{{ if EntityInfo.PrimaryNameAttribute }}{{ EntityInfo.PrimaryNameAttribute.LogicalName }}{{ end }}";
+
+{{~ if UseBaseProxy ~}}
+		public {{ EntityInfo.UniqueDisplayName }}() : base(new Entity("{{ EntityInfo.LogicalName }}")) { }
+
+		public {{ EntityInfo.UniqueDisplayName }}(Entity entity) : base(entity) { }
+{{~ else ~}}
+		public {{ EntityInfo.UniqueDisplayName }}() : base("{{ EntityInfo.LogicalName }}") { }
+{{~ end ~}}
+
+		#region Attributes
+{{~ for attribute in EntityInfo.AttributeList ~}}
+{{~ case attribute.AttributeTypeName ~}}
+{{~ when "Money" ~}}
+		/// <summary>
+        /// {{ attribute.LogicalName }}
+		///
+		/// Precision: {{ attribute.NumericPrecision }}
+		/// MaxValue: {{ attribute.NumericMaxValue }}
+		/// MinValue: {{ attribute.NumericMinValue }}
+        /// </summary>
+		[DisplayName("{{ attribute.DisplayLabel }}")]
+		[AttributeLogicalName("{{ attribute.LogicalName }}")]
+		public decimal? {{ attribute.UniqueDisplayName }}
+		{
+			get { return GetAttributeValue<Money>("{{ attribute.LogicalName }}")?.Value; }
+			set
+			{
+				Money moneyValue = null;
+				if(value != null)
+				{
+					var roundedValue = Decimal.Round(value.Value, {{ attribute.NumericPrecision }});
+					moneyValue = new Money(roundedValue);
+				}
+
+				if(Attributes.ContainsKey("{{ attribute.LogicalName }}") && moneyValue?.Value == {{ attribute.UniqueDisplayName }}) return;
+				{{ UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue" }}("{{ attribute.LogicalName }}", moneyValue);
+			}
+		}
+
+{{~ when "Decimal" ~}}
+		/// <summary>
+        /// {{ attribute.LogicalName }}
+		///
+		/// Precision: {{ attribute.NumericPrecision }}
+		/// MaxValue: {{ attribute.NumericMaxValue }}
+		/// MinValue: {{ attribute.NumericMinValue }}
+        /// </summary>
+		[DisplayName("{{ attribute.DisplayLabel }}")]
+		[AttributeLogicalName("{{ attribute.LogicalName }}")]
+		public decimal? {{ attribute.UniqueDisplayName }}
+		{
+			get { return GetAttributeValue<decimal?>("{{ attribute.LogicalName }}"); }
+			set
+			{
+				decimal? decimalValue = null;
+				if(value != null) decimalValue = Decimal.Round(value.Value, {{ attribute.NumericPrecision }});
+				if(Attributes.ContainsKey("{{ attribute.LogicalName }}") && decimalValue == {{ attribute.UniqueDisplayName }}) return;
+				{{ UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue" }}("{{ attribute.LogicalName }}", decimalValue);
+			}
+		}
+
+{{~ when "Double" ~}}
+		/// <summary>
+        /// {{ attribute.LogicalName }}
+		///
+		/// Precision: {{ attribute.NumericPrecision }}
+		/// MaxValue: {{ attribute.NumericMaxValue }}
+		/// MinValue: {{ attribute.NumericMinValue }}
+        /// </summary>
+		[DisplayName("{{ attribute.DisplayLabel }}")]
+		[AttributeLogicalName("{{ attribute.LogicalName }}")]
+		public double? {{ attribute.UniqueDisplayName }}
+		{
+			get { return GetAttributeValue<double?>("{{ attribute.LogicalName }}"); }
+			set
+			{
+				double? doubleValue = null;
+				if(value != null) doubleValue = Math.Round(value.Value, {{ attribute.NumericPrecision }});
+				if(Attributes.ContainsKey("{{ attribute.LogicalName }}") && doubleValue == {{ attribute.UniqueDisplayName }}) return;
+				{{ UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue" }}("{{ attribute.LogicalName }}", doubleValue);
+			}
+		}
+
+{{~ when "Picklist", "Status", "State" ~}}
+		/// <summary>
+        /// {{ attribute.LogicalName }}
+        /// </summary>
+		[DisplayName("{{ attribute.DisplayLabel }}")]
+		[AttributeLogicalName("{{ attribute.LogicalName }}")]
+		public {{ attribute.ReturnType }}? {{ attribute.UniqueDisplayName }}
+		{
+			get
+			{
+				var optionSetValue = GetAttributeValue<OptionSetValue>("{{ attribute.LogicalName }}");
+				if (optionSetValue != null) return ({{ attribute.ReturnType }})optionSetValue.Value;
+				else return null;
+			}
+			set
+			{
+				if(Attributes.ContainsKey("{{ attribute.LogicalName }}") && value == {{ attribute.UniqueDisplayName }}) return;
+
+				OptionSetValue optionSetValue = null;
+				if(value != null) optionSetValue = new OptionSetValue((int)value);
+				{{ UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue" }}("{{ attribute.LogicalName }}", optionSetValue);
+			}
+		}
+
+{{~ when "Virtual" ~}}
+{{~ if attribute.IsMultiSelectOptionSet ~}}
+		/// <summary>
+        /// {{ attribute.LogicalName }}
+        /// </summary>
+		[DisplayName("{{ attribute.DisplayLabel }}")]
+		[AttributeLogicalName("{{ attribute.LogicalName }}")]
+		public List<{{ attribute.ReturnType }}> {{ attribute.UniqueDisplayName }}
+		{
+			get
+			{
+				var optionSetCollection = GetAttributeValue<OptionSetValueCollection>("{{ attribute.LogicalName }}");
+				if (optionSetCollection != null) return optionSetCollection.Select(o => ({{ attribute.ReturnType }})o.Value).ToList();
+				else return new List<{{ attribute.ReturnType }}>();
+			}
+			set
+			{
+				var firstNotSecond = value.Except({{ attribute.UniqueDisplayName }}).ToList();
+				var secondNotFirst = {{ attribute.UniqueDisplayName }}.Except(value).ToList();
+				if (!firstNotSecond.Any() && !secondNotFirst.Any()) return;
+
+				{{ UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue" }}("{{ attribute.LogicalName }}", new OptionSetValueCollection(value.Select(v => new OptionSetValue((int)v)).ToList()));
+			}
+		}
+{{~ end ~}}
+{{~ else ~}}
+{{~ if attribute.LogicalName == EntityInfo.PrimaryIdAttribute.LogicalName ~}}
+		/// <summary>
+        /// {{ attribute.LogicalName }}
+        /// </summary>
+		[DisplayName("{{ attribute.DisplayLabel }}")]
+		[AttributeLogicalName("{{ attribute.LogicalName }}")]
+		public override Guid Id
+		{
+			get => base.Id;
+			set { base.Id = value; SetAttributeValue("{{ attribute.LogicalName }}", value); }
+		}
+
+{{~ else ~}}
+		/// <summary>
+        /// {{ attribute.LogicalName }}
+        /// </summary>
+		[DisplayName("{{ attribute.DisplayLabel }}")]
+		[AttributeLogicalName("{{ attribute.LogicalName }}")]
+		public {{ attribute.ReturnType }} {{ attribute.UniqueDisplayName }}
+		{
+			get { return GetAttributeValue<{{ attribute.ReturnType }}>("{{ attribute.LogicalName }}"); }
+			set
+			{
+				if(Attributes.ContainsKey("{{ attribute.LogicalName }}") && value == {{ attribute.UniqueDisplayName }}) return;
+				{{ UseBaseProxy ? "SetAttributeValueTracked" : "SetAttributeValue" }}("{{ attribute.LogicalName }}", value);
+			}
+		}
+
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
+		#endregion
+
+		#region Relations
+{{~ for relation in EntityInfo.OneToManyRelationList ~}}
+		/// <summary>
+        /// 1:N Get entities for '{{ relation.SchemaName }}'
+        /// </summary>
+		[RelationshipSchemaName("{{ relation.SchemaName }}")]
+		public IEnumerable<{{ relation.RelatedEntityInfo.UniqueDisplayName }}> {{ relation.UniqueDisplayName }}
+		{
+			get { return GetRelatedEntities<{{ relation.RelatedEntityInfo.UniqueDisplayName }}>("{{ relation.SchemaName }}", null); }
+			set { SetRelatedEntities("{{ relation.SchemaName }}", null, value); }
+		}
+{{~ end ~}}
+{{~ for relation in EntityInfo.ManyToManyRelationList ~}}
+		/// <summary>
+        /// N:N Get entities for '{{ relation.RelatedEntityInfo.UniqueDisplayName }}'
+        /// </summary>
+		[RelationshipSchemaName("{{ relation.SchemaName }}")]
+		public IEnumerable<{{ relation.RelatedEntityInfo.UniqueDisplayName }}> {{ relation.UniqueDisplayName }}
+		{
+			get { return GetRelatedEntities<{{ relation.RelatedEntityInfo.UniqueDisplayName }}>("{{ relation.SchemaName }}", null); }
+			set { SetRelatedEntities("{{ relation.SchemaName }}", null, value); }
+		}
+{{~ end ~}}
+		#endregion
+
+		#region Actions
+{{~ for action in EntityInfo.ActionList ~}}
+		public OrganizationResponse Execute{{ action.UniqueDisplayName }}(OrganizationServiceContext serviceContext)
+		{
+			var orgRequest = new OrganizationRequest("{{ action.SdkMessageName }}");
+			orgRequest["Target"] = ToEntityReference();
+            return serviceContext.Execute(orgRequest);
+		}
+{{~ end ~}}
+		#endregion
+
+		#region OptionSetEnums
+{{ OptionSetEnumsCs }}
+		#endregion
+
+		#region Properties
+		public static class Properties
+		{
+{{~ for attribute in EntityInfo.AttributeList ~}}
+			/// <summary>{{ attribute.LogicalName }}</summary>
+			public const string {{ attribute.UniqueDisplayName }} = "{{ attribute.LogicalName }}";
+
+{{~ end ~}}
+		}
+		#endregion
+
+		#region Schemas
+		public static class Schemas
+		{
+{{~ for relation in EntityInfo.OneToManyRelationList ~}}
+			/// <summary>1:N {{ relation.SchemaName }}</summary>
+			public const string {{ relation.UniqueDisplayName }} = "{{ relation.SchemaName }}";
+
+{{~ end ~}}
+{{~ for relation in EntityInfo.ManyToManyRelationList ~}}
+			/// <summary>N:N {{ relation.SchemaName }}</summary>
+			public const string {{ relation.UniqueDisplayName }} = "{{ relation.SchemaName }}";
+
+{{~ end ~}}
+		}
+		#endregion
+	}
+}

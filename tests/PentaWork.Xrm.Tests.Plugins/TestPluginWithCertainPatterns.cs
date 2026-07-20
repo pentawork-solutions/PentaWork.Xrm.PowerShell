@@ -206,5 +206,182 @@ namespace PentaWork.Xrm.Tests.Plugins
         }
     }
 
+    public class TestPluginWithArithmeticOperators : IPlugin
+    {
+        public void Execute(IServiceProvider serviceProvider)
+        {
+            var pluginExecutionContext = (IPluginExecutionContext)serviceProvider.GetService(typeof(IPluginExecutionContext));
+            var serviceFactory = (IOrganizationServiceFactory)serviceProvider.GetService(typeof(IOrganizationServiceFactory));
+            var service = serviceFactory.CreateOrganizationService(pluginExecutionContext.UserId);
+
+            var entity = new Account();
+            entity.Address1_Line1 = "Test Street 1";
+
+            // Forces IL Mul/Rem/Shl opcodes
+            int a = 6;
+            int b = 4;
+            int calculated = (a * b) % 5 << 1;
+            entity.NumberOfEmployees = calculated;
+
+            service.Update(entity);
+        }
+    }
+
+    public class TestPluginWithBoundedSelfRecursion : IPlugin
+    {
+        public void Execute(IServiceProvider serviceProvider)
+        {
+            var pluginExecutionContext = (IPluginExecutionContext)serviceProvider.GetService(typeof(IPluginExecutionContext));
+            var serviceFactory = (IOrganizationServiceFactory)serviceProvider.GetService(typeof(IOrganizationServiceFactory));
+            var service = serviceFactory.CreateOrganizationService(pluginExecutionContext.UserId);
+
+            var entity = new Account();
+            entity.Address1_Line1 = "Test Street 1";
+
+            entity = BuildHierarchy(entity, 0);
+            service.Create(entity);
+        }
+
+        // Recurses exactly once (harmless, bounded self-recursion) before returning - the
+        // subsequent Create call must still see a real entity, not a generic loop-detection dummy.
+        public Account BuildHierarchy(Account entity, int depth)
+        {
+            if (depth >= 1) return entity;
+            entity.Name = "Child";
+            return BuildHierarchy(entity, depth + 1);
+        }
+    }
+
+    public class TestPluginWithSwitchCaseMultipleApiCalls : IPlugin
+    {
+        public void Execute(IServiceProvider serviceProvider)
+        {
+            var pluginExecutionContext = (IPluginExecutionContext)serviceProvider.GetService(typeof(IPluginExecutionContext));
+            var serviceFactory = (IOrganizationServiceFactory)serviceProvider.GetService(typeof(IOrganizationServiceFactory));
+            var service = serviceFactory.CreateOrganizationService(pluginExecutionContext.UserId);
+
+            var entity = new Account();
+            entity.Address1_Line1 = "Test Street 1";
+
+            // Forces IL Switch Code - each case makes its own distinct API call so a
+            // double-interpretation bug in the Switch handling would show up as extra XrmApiCalls.
+            int number = 2;
+            switch (number)
+            {
+                case 1:
+                    service.Create(entity);
+                    break;
+                case 2:
+                    service.Update(entity);
+                    break;
+                case 3:
+                    service.Delete("account", entity.Id);
+                    break;
+            }
+        }
+    }
+
+    public class TestPluginWithLogicalNameReassignment : IPlugin
+    {
+        public void Execute(IServiceProvider serviceProvider)
+        {
+            var pluginExecutionContext = (IPluginExecutionContext)serviceProvider.GetService(typeof(IPluginExecutionContext));
+            var serviceFactory = (IOrganizationServiceFactory)serviceProvider.GetService(typeof(IOrganizationServiceFactory));
+            var service = serviceFactory.CreateOrganizationService(pluginExecutionContext.UserId);
+
+            var entity = new Account();
+            entity.LogicalName = "contact"; // Forces Entity.set_LogicalName IL call
+            entity.Address1_Line1 = "Test Street 1";
+
+            service.Create(entity);
+        }
+    }
+
+    public class TestPluginWithAssociate : IPlugin
+    {
+        public void Execute(IServiceProvider serviceProvider)
+        {
+            var pluginExecutionContext = (IPluginExecutionContext)serviceProvider.GetService(typeof(IPluginExecutionContext));
+            var serviceFactory = (IOrganizationServiceFactory)serviceProvider.GetService(typeof(IOrganizationServiceFactory));
+            var service = serviceFactory.CreateOrganizationService(pluginExecutionContext.UserId);
+
+            var relationship = new Relationship("new_account_contact");
+            var relatedEntities = new EntityReferenceCollection
+            {
+                new EntityReference("contact", Guid.NewGuid())
+            };
+
+            service.Associate("account", Guid.NewGuid(), relationship, relatedEntities);
+        }
+    }
+
+    public class TestPluginWithDisassociate : IPlugin
+    {
+        public void Execute(IServiceProvider serviceProvider)
+        {
+            var pluginExecutionContext = (IPluginExecutionContext)serviceProvider.GetService(typeof(IPluginExecutionContext));
+            var serviceFactory = (IOrganizationServiceFactory)serviceProvider.GetService(typeof(IOrganizationServiceFactory));
+            var service = serviceFactory.CreateOrganizationService(pluginExecutionContext.UserId);
+
+            var relationship = new Relationship("new_account_contact");
+            var relatedEntities = new EntityReferenceCollection
+            {
+                new EntityReference("contact", Guid.NewGuid())
+            };
+
+            service.Disassociate("account", Guid.NewGuid(), relationship, relatedEntities);
+        }
+    }
+
+    public static class TestConstants
+    {
+        public static readonly string MyCustomApiName = "new_MyCustomApi";
+        // Aliases another static readonly field instead of a literal - resolving this needs to
+        // follow the Ldsfld chain, not just look for an adjacent Ldstr/Stsfld pair.
+        public static readonly string AliasedApiName = MyCustomApiName;
+        // Assembled via a method call the resolver intentionally doesn't try to follow - this must
+        // fall back to a clean placeholder instead of a raw IL instruction dump.
+        public static readonly string ComputedApiName = string.Concat("new_", "ComputedApi");
+    }
+
+    public class TestPluginWithCustomApiConstant : IPlugin
+    {
+        public void Execute(IServiceProvider serviceProvider)
+        {
+            var pluginExecutionContext = (IPluginExecutionContext)serviceProvider.GetService(typeof(IPluginExecutionContext));
+            var serviceFactory = (IOrganizationServiceFactory)serviceProvider.GetService(typeof(IOrganizationServiceFactory));
+            var service = serviceFactory.CreateOrganizationService(pluginExecutionContext.UserId);
+
+            var request = new OrganizationRequest(TestConstants.MyCustomApiName);
+            service.Execute(request);
+        }
+    }
+
+    public class TestPluginWithAliasedApiConstant : IPlugin
+    {
+        public void Execute(IServiceProvider serviceProvider)
+        {
+            var pluginExecutionContext = (IPluginExecutionContext)serviceProvider.GetService(typeof(IPluginExecutionContext));
+            var serviceFactory = (IOrganizationServiceFactory)serviceProvider.GetService(typeof(IOrganizationServiceFactory));
+            var service = serviceFactory.CreateOrganizationService(pluginExecutionContext.UserId);
+
+            var request = new OrganizationRequest(TestConstants.AliasedApiName);
+            service.Execute(request);
+        }
+    }
+
+    public class TestPluginWithComputedApiConstant : IPlugin
+    {
+        public void Execute(IServiceProvider serviceProvider)
+        {
+            var pluginExecutionContext = (IPluginExecutionContext)serviceProvider.GetService(typeof(IPluginExecutionContext));
+            var serviceFactory = (IOrganizationServiceFactory)serviceProvider.GetService(typeof(IOrganizationServiceFactory));
+            var service = serviceFactory.CreateOrganizationService(pluginExecutionContext.UserId);
+
+            var request = new OrganizationRequest(TestConstants.ComputedApiName);
+            service.Execute(request);
+        }
+    }
+
     public class CustomException : Exception { }
 }

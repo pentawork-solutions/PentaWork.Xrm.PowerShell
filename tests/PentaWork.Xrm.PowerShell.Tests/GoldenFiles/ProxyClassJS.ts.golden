@@ -1,0 +1,129 @@
+import { FormProxy, AttributeProxy } from '../ProxyTypes';
+import * as Attributes from '../Attributes/TestEntity';
+
+export let LogicalName = "test_entity";
+
+export class Form extends FormProxy {
+	private _Categories = new AttributeProxy<eCategories, Xrm.Attributes.EnumAttribute<eCategories>, Xrm.Controls.OptionSetControl>(this.FormContext, Attributes.Categories);
+	/** categories */
+	get Categories(): AttributeProxy<eCategories, Xrm.Attributes.EnumAttribute<eCategories>, Xrm.Controls.OptionSetControl> {
+		return this._Categories;
+	}
+	private _Name = new AttributeProxy<string, Xrm.Attributes.StringAttribute, Xrm.Controls.StringControl>(this.FormContext, Attributes.Name);
+	/** name */
+	get Name(): AttributeProxy<string, Xrm.Attributes.StringAttribute, Xrm.Controls.StringControl> {
+		return this._Name;
+	}
+	private _Parent = new AttributeProxy<Array<Xrm.LookupValue>, Xrm.Attributes.LookupAttribute, Xrm.Controls.LookupControl>(this.FormContext, Attributes.Parent);
+	/** parentid */
+	get Parent(): AttributeProxy<Array<Xrm.LookupValue>, Xrm.Attributes.LookupAttribute, Xrm.Controls.LookupControl> {
+		return this._Parent;
+	}
+	private _Priority = new AttributeProxy<ePriority, Xrm.Attributes.OptionSetAttribute, Xrm.Controls.OptionSetControl>(this.FormContext, Attributes.Priority);
+	/** prioritycode */
+	get Priority(): AttributeProxy<ePriority, Xrm.Attributes.OptionSetAttribute, Xrm.Controls.OptionSetControl> {
+		return this._Priority;
+	}
+	private _Rating = new AttributeProxy<number, Xrm.Attributes.NumberAttribute, Xrm.Controls.NumberControl>(this.FormContext, Attributes.Rating);
+	/** rating */
+	get Rating(): AttributeProxy<number, Xrm.Attributes.NumberAttribute, Xrm.Controls.NumberControl> {
+		return this._Rating;
+	}
+	private _Revenue = new AttributeProxy<number, Xrm.Attributes.NumberAttribute, Xrm.Controls.NumberControl>(this.FormContext, Attributes.Revenue);
+	/** revenue */
+	get Revenue(): AttributeProxy<number, Xrm.Attributes.NumberAttribute, Xrm.Controls.NumberControl> {
+		return this._Revenue;
+	}
+	private _TestEntityId = new AttributeProxy<string, Xrm.Attributes.StringAttribute, Xrm.Controls.StringControl>(this.FormContext, Attributes.TestEntityId);
+	/** test_entityid */
+	get TestEntityId(): AttributeProxy<string, Xrm.Attributes.StringAttribute, Xrm.Controls.StringControl> {
+		return this._TestEntityId;
+	}
+}
+
+export class Entity {
+	categories!: eCategories;
+	name!: string;
+	parentid!: Array<Xrm.LookupValue>;
+	prioritycode!: ePriority;
+	rating!: number;
+	revenue!: number;
+	test_entityid!: string;
+
+	/** categories */
+    get Categories(): eCategories {
+        return this.categories;
+    }
+	set Categories(value: eCategories) {
+		this.categories = value;
+	}
+
+	/** name */
+    get Name(): string {
+        return this.name;
+    }
+	set Name(value: string) {
+		this.name = value;
+	}
+
+	/** parentid */
+    get Parent(): Array<Xrm.LookupValue> {
+        return this.parentid;
+    }
+	set Parent(value: Array<Xrm.LookupValue>) {
+		this.parentid = value;
+	}
+
+	/** prioritycode */
+    get Priority(): ePriority {
+        return this.prioritycode;
+    }
+	set Priority(value: ePriority) {
+		this.prioritycode = value;
+	}
+
+	/** rating */
+    get Rating(): number {
+        return this.rating;
+    }
+	set Rating(value: number) {
+		this.rating = value;
+	}
+
+	/** revenue */
+    get Revenue(): number {
+        return this.revenue;
+    }
+	set Revenue(value: number) {
+		this.revenue = value;
+	}
+
+	/** test_entityid */
+    get TestEntityId(): string {
+        return this.test_entityid;
+    }
+	set TestEntityId(value: string) {
+		this.test_entityid = value;
+	}
+
+}
+
+export enum eCategories
+{	
+	
+	Alpha = 1, 
+	
+	Beta = 2, 
+}
+
+export enum ePriority
+{	
+	
+	Low = 1, 
+	
+	Medium = 2, 
+	
+	High = 3, 
+}
+
+

@@ -10,8 +10,9 @@
   <ItemGroup>
     <PackageReference Include="dnlib" Version="4.5.0" />
     <PackageReference Include="Microsoft.CrmSdk.XrmTooling.CoreAssembly" Version="9.1.1.65" />
+    <PackageReference Include="Scriban" Version="7.2.5" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
-    <PackageReference Include="System.ValueTuple" Version="4.6.1" />
+    <PackageReference Include="System.ValueTuple" Version="4.6.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,18 +20,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Templates\MainTemplate.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>MainTemplate.tt</DependentUpon>
-    </Compile>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>PentaWork.Xrm.PowerShell.Tests</_Parameter1>
+    </AssemblyAttribute>
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Templates\MainTemplate.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>MainTemplate.cs</LastGenOutput>
-    </None>
+    <None Remove="Templates\MainTemplate.sbn" />
+    <EmbeddedResource Include="Templates\MainTemplate.sbn" />
+    <None Remove="Templates\OverviewTemplate.sbn" />
+    <EmbeddedResource Include="Templates\OverviewTemplate.sbn" />
   </ItemGroup>
+
 
 </Project>

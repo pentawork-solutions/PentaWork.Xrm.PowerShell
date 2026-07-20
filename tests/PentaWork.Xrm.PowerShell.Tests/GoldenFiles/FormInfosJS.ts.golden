@@ -1,0 +1,10 @@
+import { FormName, TabName } from '../ProxyTypes';
+
+export namespace Information {
+	export let Name: FormName = { name: "Information" };
+	export namespace Tabs {
+		export let General: TabName = { name: "General" };
+		export let Details: TabName = { name: "Details" };
+		}
+}
+

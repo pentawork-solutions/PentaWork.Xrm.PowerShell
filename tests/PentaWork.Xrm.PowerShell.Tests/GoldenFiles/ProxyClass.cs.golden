@@ -1,0 +1,261 @@
+using System;
+using System.Linq;
+using System.Diagnostics;
+using System.ComponentModel;
+using Microsoft.Xrm.Sdk; 
+using Microsoft.Xrm.Sdk.Client;
+using System.Collections.Generic;
+
+namespace Test.Proxies.Entities
+{
+	[DebuggerDisplay("{Name}")] 	
+	[EntityLogicalName("test_entity")]
+	public sealed class TestEntity : BaseProxy
+	{	
+		public static readonly int? EntityTypeCode = 10001;
+		public new const string LogicalName = "test_entity";
+		public new const string PrimaryIdAttribute = "test_entityid";
+		public new const string PrimaryNameAttribute = "name";
+	
+		public TestEntity() : base(new Entity("test_entity")) { }
+
+		public TestEntity(Entity entity) : base(entity) { }
+
+		#region Attributes
+		/// <summary>
+        /// categories
+        /// </summary>
+		[DisplayName("Categories")]
+		[AttributeLogicalName("categories")]
+		public List<eCategories> Categories
+		{	
+			get 
+			{ 
+				var optionSetCollection = GetAttributeValue<OptionSetValueCollection>("categories");
+				if (optionSetCollection != null) return optionSetCollection.Select(o => (eCategories)o.Value).ToList();
+				else return new List<eCategories>();
+			}
+			set 
+			{ 
+				var firstNotSecond = value.Except(Categories).ToList();
+				var secondNotFirst = Categories.Except(value).ToList();
+				if (!firstNotSecond.Any() && !secondNotFirst.Any()) return;
+
+				SetAttributeValueTracked("categories", new OptionSetValueCollection(value.Select(v => new OptionSetValue((int)v)).ToList()));
+			}
+		}
+		/// <summary>
+        /// name
+        /// </summary>
+		[DisplayName("Name")]
+		[AttributeLogicalName("name")]
+		public string Name
+		{	
+			get { return GetAttributeValue<string>("name"); }
+			set
+			{ 
+				if(Attributes.ContainsKey("name") && value == Name) return;
+				SetAttributeValueTracked("name", value);
+			}
+		}	
+			
+		/// <summary>
+        /// parentid
+        /// </summary>
+		[DisplayName("Parent")]
+		[AttributeLogicalName("parentid")]
+		public EntityReference Parent
+		{	
+			get { return GetAttributeValue<EntityReference>("parentid"); }
+			set
+			{ 
+				if(Attributes.ContainsKey("parentid") && value == Parent) return;
+				SetAttributeValueTracked("parentid", value);
+			}
+		}	
+			
+		/// <summary>
+        /// prioritycode
+        /// </summary>
+		[DisplayName("Priority")]
+		[AttributeLogicalName("prioritycode")]
+		public ePriority? Priority
+		{	
+			get 
+			{ 
+				var optionSetValue = GetAttributeValue<OptionSetValue>("prioritycode");
+				if (optionSetValue != null) return (ePriority)optionSetValue.Value;
+				else return null;
+			}
+			set 
+			{ 
+				if(Attributes.ContainsKey("prioritycode") && value == Priority) return;
+
+				OptionSetValue optionSetValue = null;
+				if(value != null) optionSetValue = new OptionSetValue((int)value);
+				SetAttributeValueTracked("prioritycode", optionSetValue); 
+			}
+		}
+
+		/// <summary>
+        /// rating
+		///
+		/// Precision: 2
+		/// MaxValue: 100
+		/// MinValue: 0
+        /// </summary>
+		[DisplayName("Rating")]
+		[AttributeLogicalName("rating")]
+		public decimal? Rating
+		{	
+			get { return GetAttributeValue<decimal?>("rating"); }
+			set 
+			{
+				decimal? decimalValue = null;
+				if(value != null) decimalValue = Decimal.Round(value.Value, 2);
+				if(Attributes.ContainsKey("rating") && decimalValue == Rating) return;
+				SetAttributeValueTracked("rating", decimalValue);  
+			}
+		}
+
+		/// <summary>
+        /// revenue
+		///
+		/// Precision: 2
+		/// MaxValue: 1000000000
+		/// MinValue: 0
+        /// </summary>
+		[DisplayName("Revenue")]
+		[AttributeLogicalName("revenue")]
+		public decimal? Revenue
+		{	
+			get { return GetAttributeValue<Money>("revenue")?.Value; }
+			set 
+			{
+				Money moneyValue = null;
+				if(value != null) 
+				{
+					var roundedValue = Decimal.Round(value.Value, 2);
+					moneyValue = new Money(roundedValue);
+				}
+
+				if(Attributes.ContainsKey("revenue") && moneyValue?.Value == Revenue) return;
+				SetAttributeValueTracked("revenue", moneyValue);  
+			}
+		}
+
+		/// <summary>
+        /// test_entityid
+        /// </summary>
+		[DisplayName("Test Entity")]
+		[AttributeLogicalName("test_entityid")]
+		public override Guid Id
+		{
+			get => base.Id;
+			set { base.Id = value; SetAttributeValue("test_entityid", value); }
+		}
+
+							#endregion	
+
+		#region Relations
+			/// <summary>
+        /// 1:N Get entities for 'test_entity_related_entity'
+        /// </summary>
+		[RelationshipSchemaName("test_entity_related_entity")]
+		public IEnumerable<RelatedEntity> TestEntityRelatedEntity
+		{
+			get { return GetRelatedEntities<RelatedEntity>("test_entity_related_entity", null); }
+			set { SetRelatedEntities("test_entity_related_entity", null, value); }
+		}
+		/// <summary>
+        /// N:N Get entities for 'RelatedEntity'
+        /// </summary>
+		[RelationshipSchemaName("test_entity_related_entity_assoc")]
+		public IEnumerable<RelatedEntity> TestEntityRelatedEntityAssoc
+		{
+			get { return GetRelatedEntities<RelatedEntity>("test_entity_related_entity_assoc", null); }
+			set { SetRelatedEntities("test_entity_related_entity_assoc", null, value); }
+		}
+		#endregion
+
+		#region Actions
+		public OrganizationResponse ExecuteDoSomething(OrganizationServiceContext serviceContext)
+		{
+			var orgRequest = new OrganizationRequest("new_DoSomething");
+			orgRequest["Target"] = ToEntityReference();
+            return serviceContext.Execute(orgRequest);
+		}
+		#endregion
+
+		#region OptionSetEnums
+		public enum eCategories
+		{	
+		
+			[Label("Alpha")]
+			[Description(@"")]
+			Alpha = 1, 
+		
+			[Label("Beta")]
+			[Description(@"")]
+			Beta = 2, 
+		}
+		
+		public enum ePriority
+		{	
+		
+			[Label("Low")]
+			[Description(@"")]
+			Low = 1, 
+		
+			[Label("Medium")]
+			[Description(@"")]
+			Medium = 2, 
+		
+			[Label("High")]
+			[Description(@"")]
+			High = 3, 
+		}
+		
+		#endregion	
+
+		#region Properties
+		public static class Properties 
+		{
+			/// <summary>categories</summary>
+			public const string Categories = "categories";
+
+			/// <summary>name</summary>
+			public const string Name = "name";
+
+			/// <summary>parentid</summary>
+			public const string Parent = "parentid";
+
+			/// <summary>prioritycode</summary>
+			public const string Priority = "prioritycode";
+
+			/// <summary>rating</summary>
+			public const string Rating = "rating";
+
+			/// <summary>revenue</summary>
+			public const string Revenue = "revenue";
+
+			/// <summary>test_entityid</summary>
+			public const string TestEntityId = "test_entityid";
+
+		}
+		#endregion
+
+		#region Schemas
+		public static class Schemas 
+		{
+			/// <summary>1:N test_entity_related_entity</summary>
+			public const string TestEntityRelatedEntity = "test_entity_related_entity";
+
+			/// <summary>N:N test_entity_related_entity_assoc</summary>
+			public const string TestEntityRelatedEntityAssoc = "test_entity_related_entity_assoc";
+
+		}
+		#endregion
+	}
+}
+

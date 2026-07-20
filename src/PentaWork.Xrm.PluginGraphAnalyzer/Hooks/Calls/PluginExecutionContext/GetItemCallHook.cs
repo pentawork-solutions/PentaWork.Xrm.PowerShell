@@ -2,7 +2,7 @@
 using PentaWork.Xrm.PluginGraph.Model;
 using PentaWork.Xrm.PluginGraph.Model.VMObjects;
 
-namespace PentaWork.Xrm.PluginGraph.Hooks.Calls
+namespace PentaWork.Xrm.PluginGraph.Hooks.Calls.PluginExecutionContext
 {
     internal class GetInputParametersCallHook : IHook
     {
